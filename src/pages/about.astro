@@ -1,0 +1,281 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CommentThread from '../components/CommentThread.astro';
+
+const text = {
+  subtitle: {
+    'zh-TW': '技術筆記與學習心得',
+    en: 'Development notes and learning reflections',
+    ja: '開発ノートと学びの記録',
+    ko: '개발 노트와 배움의 기록',
+  },
+  intro: {
+    'zh-TW': '記錄開發筆記、學習心得與參與經驗。',
+    en: 'Notes on development, learning, and the experiences along the way.',
+    ja: '開発、学び、参加した活動の記録を残しています。',
+    ko: '개발과 배움, 참여 경험을 기록합니다.',
+  },
+};
+
+const skillGroups = [
+  { title: 'Frontend', items: ['HTML', 'CSS', 'React', 'Vue.js', 'JavaScript', 'TypeScript', 'Tailwind CSS'] },
+  { title: 'Tooling / SSG', items: ['Astro', 'Hexo', 'Hugo'] },
+  { title: 'Backend', items: ['FastAPI', 'Node.js', 'Python 3.12+', 'RESTful API', 'Socket Programming'] },
+  { title: 'Database', items: ['PostgreSQL', 'Redis', 'SQLite'] },
+  { title: 'DevOps / Deployment', items: ['Docker / Docker Compose', 'Nginx Reverse Proxy', 'Cloudflare Tunnel', 'Debian'] },
+  { title: 'Security / CTF', items: ['Pwn (Learning)', 'Web', 'Misc', 'Crypto', 'Reverse'] },
+];
+
+const roadmap = [
+  { title: 'Moment', body: 'A sophisticated timetable tool designed for university life, optimizing schedule management and bridging the information gap between departments.' },
+  { title: 'Serelix Studio Prep', body: 'Establishing a personal tech studio brand, dedicated to developing impactful digital products and open-source projects.' },
+  { title: 'SCAICT Official Website', body: 'The digital hub for the Southern & Central Academic Information Confederation of Taiwan, connecting student tech communities and resource integration.' },
+  { title: '116th Special Enrollment Portal', body: 'A dedicated information portal for the 116th Special Enrollment candidates, featuring intuitive admission guides and alumni experience sharing.' },
+  { title: 'Department of Applied Mathematics, NCHU Exam Bank', body: 'An automated exam bank system tailored for Department of Applied Mathematics, National Chung Hsing University courses, enhancing study efficiency through systematic resource categorization.' },
+];
+
+const projects = [
+  { title: 'ForumKit', url: 'https://github.com/kaiyasi/FourmKit', body: 'A modular and extensible forum starter kit built with high scalability, designed to streamline the development of modern community platforms.' },
+  { title: 'SCIST WinterCamp 2026 Website', url: 'https://github.com/scist-tw/WinterCamp2026', body: 'The official digital portal for the 2026 SCIST x SCAICT Joint Winter Camp, integrating event documentation, participant guides, and regional tech community resources.' },
+  { title: 'Kairo', url: 'https://github.com/kaiyasi/Kairo', body: 'A multifunctional attendance and management bot designed for high school tech communities, providing automated check-in systems, status tracking, and streamlined event coordination.' },
+  { title: 'CipherKit', url: 'https://github.com/kaiyasi/CipherKit', body: 'A comprehensive web-based toolkit offering practical cryptographic utilities, encoding/decoding tools, and programming helpers, built for students and CTF enthusiasts.' },
+  { title: 'Cardium', url: 'https://github.com/kaiyasi/Cardium', body: 'A modern digital identity generator designed to unify and visually present personal or organizational profiles, focusing on clean UI design and structured metadata presentation.' },
+];
+
+const experience = [
+  { title: 'Taipei Municipal Dong-Hu Elementary School', role: '72nd graduated' },
+  { title: 'Taipei Municipal Dong-Hu Junior High School', role: '31st graduated' },
+  { title: 'Neihu Senior High School · 13th Computer Science Class', role: '36th graduated (NHCS 13th)' },
+  { title: '115th Special Enrollment Candidate', role: 'Recognized specialized talent in the 115th Special Enrollment admissions program.' },
+  { title: 'SCIST × SCAICT WinterCamp 2026', role: 'IT Team Member · Contributed to the development and maintenance of the official event infrastructure.' },
+  { title: 'SCAICT', role: 'Head of Information Technology (5th) · Directing IT operations and community platform development.' },
+  { title: 'Serelix Studio', role: 'Co-Founder & Chief Technology Officer (CTO) · Leading technical strategy and overseeing digital product development and open-source initiatives.' },
+];
+---
+
+<BaseLayout title="關於" titleKey="meta.about.title" descriptionKey="meta.about.description" bodyClass="inner-page about-body">
+  <div class="about-page">
+    <section class="identity-section" aria-labelledby="about-title">
+      <div class="string-lines" aria-hidden="true"></div>
+      <div class="about-shell identity-layout">
+        <figure class="portrait">
+          <div class="portrait-image"><img src="/images/pages/kaiyasi-avatar.png" alt="Kaiyasi" width="480" height="480" /></div>
+          <figcaption>KAIYASI / SERELIX UI</figcaption>
+        </figure>
+
+        <div class="identity-copy">
+          <p class="eyebrow">ABOUT ME</p>
+          <h1 id="about-title">Kaiyasi</h1>
+          <p class="alias">Serelix UI</p>
+          <strong data-i18n-values={JSON.stringify(text.subtitle)}>{text.subtitle['zh-TW']}</strong>
+          <p class="intro" data-i18n-values={JSON.stringify(text.intro)}>{text.intro['zh-TW']}</p>
+
+          <blockquote lang="ja">
+            <p>戦えない人間なんかいない。戦うか、戦わないか、その選択があるだけだ！</p>
+            <cite>Kirito</cite>
+          </blockquote>
+
+          <nav class="social-links" aria-label="Social links">
+            <a href="https://github.com/kaiyasi" target="_blank" rel="noopener"><span>GitHub</span><b aria-hidden="true">↗</b></a>
+            <a href="https://www.instagram.com/kaiyasi_0315/" target="_blank" rel="noopener"><span>Instagram</span><b aria-hidden="true">↗</b></a>
+            <a href="https://discord.com/users/759651999036997672" target="_blank" rel="noopener"><span>Discord</span><b aria-hidden="true">↗</b></a>
+          </nav>
+
+          <div class="profile-meta" aria-label="Site information">
+            <span><small>SINCE</small>2026.02.12</span>
+            <span><small>TIMEZONE</small>ASIA / TAIPEI</span>
+            <span><small>LANGUAGE</small>ZH-TW</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="about-content">
+      <div class="about-shell">
+        <section class="detail-section" id="about-me">
+          <header><span>01</span><h2>About Me</h2></header>
+          <div class="detail-body about-list">
+            <p class="opening">Class of 2026 (Special Selection) · Full-stack Developer · CTF Novice</p>
+            <p class="statement">“Programming isn’t just a stack of logic; it’s an order waiting to be defined.”</p>
+            <ul>
+              <li>From Neihu High School (36th IT Class) to an incoming NCHU Applied Mathematics student, I am navigating the intersection where mathematics meets code.</li>
+              <li>As the IT Head of SCAICT, I thrive on leading teams to build “generational” projects rather than just coding in isolation.</li>
+              <li>Dedicated to developing projects that streamline the student academic journey, using code to bring meaningful change to the educational environment.</li>
+              <li>A Full-Stack developer and CTF novice, constantly pushing my limits through the thrill of building systems and hunting for vulnerabilities.</li>
+            </ul>
+            <blockquote class="section-quote" lang="ja"><p>世界は、自分の思っているより、ずっとずっとカラフルなんだ。</p><cite>《ホリミヤ》</cite></blockquote>
+          </div>
+        </section>
+
+        <section class="detail-section" id="skills">
+          <header><span>02</span><h2>Skills</h2></header>
+          <div class="detail-body skill-groups">
+            {skillGroups.map((group) => (
+              <section class="skill-group">
+                <h3>{group.title}</h3>
+                <ul>{group.items.map((item) => <li>{item}</li>)}</ul>
+              </section>
+            ))}
+          </div>
+        </section>
+
+        <section class="detail-section" id="roadmap">
+          <header><span>03</span><h2>Roadmap</h2></header>
+          <div class="detail-body indexed-list">
+            {roadmap.map((item, index) => (
+              <article><small>{String(index + 1).padStart(2, '0')}</small><div><h3>{item.title}</h3><p>{item.body}</p></div></article>
+            ))}
+            <blockquote class="section-quote given-quote" lang="ja"><p>先のことなんてわかんねーけど、今はただ、弾くしかねーんだ。</p><cite>《GIVEN》</cite></blockquote>
+          </div>
+        </section>
+
+        <section class="detail-section" id="projects">
+          <header><span>04</span><h2>Projects</h2></header>
+          <div class="detail-body indexed-list">
+            {projects.map((project, index) => (
+              <article>
+                <small>{String(index + 1).padStart(2, '0')}</small>
+                <div><h3><a href={project.url} target="_blank" rel="noopener">{project.title}<b aria-hidden="true">↗</b></a></h3><p>{project.body}</p></div>
+              </article>
+            ))}
+            <blockquote class="section-quote" lang="ja"><p>未来はそこにある。見たことのない景色、一緒に見に行こう。</p><cite>《Free! -Eternal Summer-》</cite></blockquote>
+          </div>
+        </section>
+
+        <section class="detail-section" id="experience">
+          <header><span>05</span><h2>Experience</h2></header>
+          <div class="detail-body experience-list">
+            {experience.map((item, index) => (
+              <article><time>{String(index + 1).padStart(2, '0')}</time><div><h3>{item.title}</h3><p>{item.role}</p></div></article>
+            ))}
+            <blockquote class="section-quote" lang="ja"><p>目的地が同じなら、いつかまた会える。……道中、ご無事で。</p><cite>《86 －エイティシックス－》</cite></blockquote>
+          </div>
+        </section>
+
+        <section class="detail-section" id="connect">
+          <header><span>06</span><h2>Connect</h2></header>
+          <div class="detail-body connect-list">
+            <a href="https://github.com/kaiyasi" target="_blank" rel="noopener"><small>GITHUB</small><span>kaiyasi</span><b aria-hidden="true">↗</b></a>
+            <a href="mailto:zengcode0315@gmail.com"><small>PROFESSIONAL EMAIL</small><span>zengcode0315@gmail.com</span><b aria-hidden="true">↗</b></a>
+            <a href="mailto:zengeric0315@gmail.com"><small>PERSONAL EMAIL</small><span>zengeric0315@gmail.com</span><b aria-hidden="true">↗</b></a>
+            <a href="https://discord.com/users/759651999036997672" target="_blank" rel="noopener"><small>DISCORD</small><span>kaiyasi</span><b aria-hidden="true">↗</b></a>
+            <a href="https://www.instagram.com/kaiyasi_0315/" target="_blank" rel="noopener"><small>INSTAGRAM</small><span>kaiyasi_0315</span><b aria-hidden="true">↗</b></a>
+            <blockquote class="section-quote" lang="ja"><p>口で言うより、行動で示せ。それが俺のやり方だ。</p><cite>《青の祓魔師》</cite></blockquote>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <section class="guestbook-section" id="guestbook">
+      <div class="about-shell">
+        <CommentThread resource="about" kind="guestbook" collapsibleForm />
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  :global(.main-content:has(.about-page)) { --inner-page-image-opacity: .46; }
+  :global([data-theme='dark'] .main-content:has(.about-page)) { --inner-page-image-opacity: .48; }
+  .about-page { overflow: hidden; }
+  .about-shell { width: min(980px, 100%); margin-inline: auto; padding-inline: 1.5rem; }
+
+  .identity-section { position: relative; min-height: 610px; display: grid; align-items: center; padding: 5rem 0; border-bottom: 1px solid var(--border); background: color-mix(in srgb, var(--bg) 78%, transparent); }
+  .string-lines { position: absolute; top: 50%; left: 0; width: 24%; height: 72px; transform: translateY(-50%); background: repeating-linear-gradient(0deg, transparent 0 11px, color-mix(in srgb, var(--text) 15%, transparent) 11px 12px); }
+  .string-lines::after { content: ''; position: absolute; top: 0; right: 0; width: 5px; height: 100%; background: linear-gradient(var(--accent) 0 48%, var(--accent-secondary) 48%); }
+  .identity-layout { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 5.5rem; align-items: center; }
+
+  .portrait { position: relative; z-index: 1; margin: 0; }
+  .portrait-image { position: relative; width: 250px; aspect-ratio: 1; padding: 10px; border: 1px solid var(--border); border-radius: 50%; background: var(--bg-surface); }
+  .portrait-image::before { content: ''; position: absolute; inset: -12px; border: 1px solid color-mix(in srgb, var(--accent-secondary) 38%, transparent); border-radius: 50%; border-left-color: transparent; transform: rotate(-22deg); }
+  .portrait-image::after { content: ''; position: absolute; right: 6px; bottom: 18px; width: 34px; height: 5px; background: var(--accent); box-shadow: 11px 8px 0 var(--accent-secondary), 22px 16px 0 var(--accent-warm); }
+  .portrait img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+  .portrait figcaption { margin-top: 1.4rem; color: var(--text-faint); font: 500 .56rem var(--font-mono); text-align: center; }
+
+  .identity-copy { min-width: 0; }
+  .eyebrow { color: var(--accent); font: 500 .62rem var(--font-mono); }
+  .identity-copy h1 { margin-top: .5rem; font-size: 4.5rem; font-weight: 300; line-height: .9; }
+  .alias { margin-top: .6rem; color: var(--accent-secondary); font: 500 .66rem var(--font-mono); text-transform: uppercase; }
+  .identity-copy > strong { display: block; margin-top: 1.6rem; font: 500 1rem var(--font-ui); }
+  .intro { max-width: 48ch; margin-top: .65rem; color: var(--text-muted); font-size: .88rem; }
+  blockquote { position: relative; max-width: 520px; margin: 2rem 0 0; padding: 1rem 0 0 1.2rem; border-top: 1px solid var(--border); border-left: 3px solid var(--accent); }
+  blockquote p { color: var(--text-muted); font: 400 .88rem/1.75 var(--font-body); }
+  blockquote cite { display: block; margin-top: .35rem; color: var(--text-faint); font: 500 .55rem var(--font-mono); font-style: normal; }
+
+  .social-links { display: flex; flex-wrap: wrap; gap: .6rem 1.5rem; margin-top: 2rem; }
+  .social-links a { display: inline-flex; align-items: center; gap: .5rem; min-height: 34px; border-bottom: 1px solid var(--border); font: 500 .68rem var(--font-ui); }
+  .social-links a:hover { border-color: var(--accent); color: var(--accent); }
+  .social-links b { color: var(--accent); font-size: .8rem; }
+  .profile-meta { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 2.2rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+  .profile-meta span { display: grid; gap: .2rem; color: var(--text-muted); font: 500 .58rem var(--font-mono); }
+  .profile-meta small { color: var(--text-faint); font: inherit; }
+
+  .about-content { background: color-mix(in srgb, var(--bg) 84%, transparent); }
+  .detail-section { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 4rem; padding: 5.5rem 0; border-bottom: 1px solid var(--border); }
+  .detail-section > header { align-self: start; position: sticky; top: 96px; }
+  .detail-section > header span { display: block; color: var(--accent); font: 500 .58rem var(--font-mono); }
+  .detail-section > header h2 { margin-top: .5rem; font-size: 2.1rem; font-weight: 300; }
+  .detail-section > header::after { content: ''; display: block; width: 48px; height: 4px; margin-top: 1rem; background: linear-gradient(90deg, var(--accent) 0 58%, var(--accent-secondary) 58%); }
+  .detail-body { min-width: 0; }
+  .opening { color: var(--text); font: 500 1.05rem/1.6 var(--font-ui); }
+  .statement { margin-top: .7rem; color: var(--text-muted); font-family: var(--font-display); font-size: 1.2rem; }
+  .about-list > ul { margin-top: 2rem; list-style: none; border-top: 1px solid var(--border); }
+  .about-list > ul li { position: relative; padding: 1rem 0 1rem 1.5rem; border-bottom: 1px solid var(--border); color: var(--text-muted); font-size: .87rem; }
+  .about-list > ul li::before { content: ''; position: absolute; top: 1.65rem; left: 0; width: 7px; height: 7px; border: 2px solid var(--accent); border-radius: 50%; }
+  .section-quote { max-width: none; margin-top: 3rem; padding: 1.2rem 1.4rem; border: 0; border-left: 4px solid var(--accent-secondary); background: color-mix(in srgb, var(--accent-secondary) 6%, var(--bg-surface)); }
+  .section-quote p { color: var(--text); font: 400 1rem/1.7 var(--font-display); }
+  .section-quote cite { color: var(--text-faint); }
+  .given-quote { border-left-color: var(--accent); background: color-mix(in srgb, var(--accent) 6%, var(--bg-surface)); }
+
+  .skill-groups { border-top: 1px solid var(--border); }
+  .skill-group { display: grid; grid-template-columns: 180px 1fr; gap: 1.5rem; padding: 1.25rem 0; border-bottom: 1px solid var(--border); }
+  .skill-group h3 { color: var(--text-muted); font: 500 .72rem var(--font-ui); }
+  .skill-group ul { display: flex; flex-wrap: wrap; gap: .45rem; list-style: none; }
+  .skill-group li { min-height: 28px; display: inline-flex; align-items: center; padding: .2rem .55rem; border: 1px solid var(--border); color: var(--text-muted); background: color-mix(in srgb, var(--bg-surface) 74%, transparent); font: 500 .6rem var(--font-mono); }
+
+  .indexed-list, .experience-list { border-top: 1px solid var(--border); }
+  .indexed-list > article, .experience-list > article { display: grid; grid-template-columns: 46px 1fr; gap: 1rem; padding: 1.3rem 0; border-bottom: 1px solid var(--border); }
+  .indexed-list article > small, .experience-list article > time { padding-top: .22rem; color: var(--accent); font: 500 .55rem var(--font-mono); }
+  .indexed-list h3, .experience-list h3 { font: 500 .9rem/1.4 var(--font-ui); }
+  .indexed-list h3 a { display: inline-flex; align-items: center; gap: .6rem; }
+  .indexed-list h3 a:hover { color: var(--accent); }
+  .indexed-list h3 b { color: var(--accent); }
+  .indexed-list article p, .experience-list article p { max-width: 66ch; margin-top: .35rem; color: var(--text-muted); font-size: .8rem; line-height: 1.7; }
+
+  .connect-list { border-top: 1px solid var(--border); }
+  .connect-list > a { display: grid; grid-template-columns: 170px 1fr auto; gap: 1rem; align-items: center; min-height: 56px; border-bottom: 1px solid var(--border); }
+  .connect-list > a:hover { color: var(--accent); }
+  .connect-list > a small { color: var(--text-faint); font: 500 .53rem var(--font-mono); }
+  .connect-list > a span { overflow-wrap: anywhere; font: 500 .76rem var(--font-ui); }
+  .connect-list > a b { color: var(--accent); }
+
+  .guestbook-section { padding: 4.5rem 0 7rem; background: color-mix(in srgb, var(--bg-surface) 74%, transparent); }
+  .guestbook-section :global(.comment-thread) { margin-top: 0; }
+
+  @media (max-width: 720px) {
+    .about-shell { padding-inline: 1rem; }
+    .identity-section { min-height: 0; padding: 4rem 0 4.5rem; }
+    .string-lines { top: 150px; width: 42%; }
+    .identity-layout { grid-template-columns: 1fr; gap: 3.5rem; }
+    .portrait { justify-self: center; }
+    .portrait-image { width: 190px; }
+    .identity-copy { text-align: center; }
+    .identity-copy h1 { font-size: 3.5rem; }
+    .intro, blockquote { margin-left: auto; margin-right: auto; }
+    blockquote { text-align: left; }
+    .social-links { justify-content: center; }
+    .profile-meta { text-align: left; }
+    .detail-section { grid-template-columns: 1fr; gap: 2rem; padding: 4rem 0; }
+    .detail-section > header { position: static; }
+    .skill-group { grid-template-columns: 1fr; gap: .8rem; }
+  }
+
+  @media (max-width: 430px) {
+    .identity-copy h1 { font-size: 3.1rem; }
+    .profile-meta { grid-template-columns: 1fr; gap: .8rem; }
+    .profile-meta span { grid-template-columns: 80px 1fr; }
+    .connect-list > a { grid-template-columns: 1fr auto; gap: .25rem 1rem; padding: .8rem 0; }
+    .connect-list > a small { grid-column: 1 / -1; }
+    .guestbook-section { padding-top: 3.5rem; }
+  }
+</style>

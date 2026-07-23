@@ -1,0 +1,164 @@
+<dialog class="image-lightbox" id="image-lightbox" aria-label="圖片預覽">
+  <header class="lightbox-toolbar">
+    <div class="lightbox-meta">
+      <span class="lightbox-label">IMAGE / FOCUS</span>
+      <span class="lightbox-count" id="lightbox-count" aria-live="polite"></span>
+    </div>
+    <div class="lightbox-actions">
+      <button type="button" id="lightbox-zoom" aria-label="切換原始尺寸" aria-pressed="false" title="切換原始尺寸">＋</button>
+      <button type="button" id="lightbox-close" aria-label="關閉圖片預覽" title="關閉">×</button>
+    </div>
+  </header>
+  <div class="lightbox-stage" id="lightbox-stage">
+    <button type="button" class="lightbox-nav previous" id="lightbox-previous" aria-label="上一張圖片" title="上一張">←</button>
+    <figure class="lightbox-figure">
+      <img id="lightbox-image" alt="" />
+      <figcaption id="lightbox-caption"></figcaption>
+    </figure>
+    <button type="button" class="lightbox-nav next" id="lightbox-next" aria-label="下一張圖片" title="下一張">→</button>
+  </div>
+</dialog>
+
+<script>
+  let lightboxController: AbortController | undefined;
+
+  function initImageLightbox() {
+    lightboxController?.abort();
+    const controller = new AbortController();
+    lightboxController = controller;
+    const { signal } = controller;
+    const dialog = document.getElementById('image-lightbox') as HTMLDialogElement | null;
+    const preview = document.getElementById('lightbox-image') as HTMLImageElement | null;
+    const caption = document.getElementById('lightbox-caption');
+    const count = document.getElementById('lightbox-count');
+    const previous = document.getElementById('lightbox-previous') as HTMLButtonElement | null;
+    const next = document.getElementById('lightbox-next') as HTMLButtonElement | null;
+    const zoom = document.getElementById('lightbox-zoom') as HTMLButtonElement | null;
+    const close = document.getElementById('lightbox-close');
+    if (!dialog || !preview || !caption || !count || !previous || !next || !zoom || !close) return;
+
+    const allImages = Array.from(document.querySelectorAll<HTMLImageElement>('.prose img'));
+    let images: HTMLImageElement[] = [];
+    let index = 0;
+    let trigger: HTMLElement | null = null;
+
+    const visibleImages = () => allImages.filter(image => !image.closest('[hidden]'));
+    const imageCaption = (image: HTMLImageElement) =>
+      image.closest('figure')?.querySelector('figcaption')?.textContent?.trim() || image.alt.trim();
+
+    function setZoom(active: boolean) {
+      dialog.classList.toggle('is-zoomed', active);
+      zoom.setAttribute('aria-pressed', String(active));
+      zoom.textContent = active ? '−' : '＋';
+      zoom.title = active ? '適應畫面' : '檢視原始尺寸';
+    }
+
+    function render() {
+      const source = images[index];
+      if (!source) return;
+      preview.removeAttribute('srcset');
+      preview.removeAttribute('sizes');
+      if (source.srcset) {
+        preview.srcset = source.srcset;
+        preview.sizes = '92vw';
+      }
+      preview.src = source.currentSrc || source.src;
+      preview.alt = source.alt;
+      const text = imageCaption(source);
+      caption.textContent = text;
+      caption.hidden = !text;
+      count.textContent = `${String(index + 1).padStart(2, '0')} / ${String(images.length).padStart(2, '0')}`;
+      previous.disabled = images.length < 2;
+      next.disabled = images.length < 2;
+      setZoom(false);
+    }
+
+    function open(source: HTMLImageElement) {
+      images = visibleImages();
+      index = Math.max(0, images.indexOf(source));
+      trigger = source;
+      render();
+      document.body.style.overflow = 'hidden';
+      dialog.showModal();
+      close.focus();
+    }
+
+    function move(direction: number) {
+      if (images.length < 2) return;
+      index = (index + direction + images.length) % images.length;
+      render();
+    }
+
+    allImages.forEach(image => {
+      image.classList.add('is-previewable');
+      image.tabIndex = 0;
+      image.setAttribute('role', 'button');
+      image.setAttribute('aria-label', image.alt ? `放大圖片：${image.alt}` : '放大圖片');
+      image.addEventListener('click', event => {
+        event.preventDefault();
+        open(image);
+      }, { signal });
+      image.addEventListener('keydown', event => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          open(image);
+        }
+      }, { signal });
+    });
+
+    previous.addEventListener('click', () => move(-1), { signal });
+    next.addEventListener('click', () => move(1), { signal });
+    zoom.addEventListener('click', () => setZoom(!dialog.classList.contains('is-zoomed')), { signal });
+    preview.addEventListener('click', () => setZoom(!dialog.classList.contains('is-zoomed')), { signal });
+    close.addEventListener('click', () => dialog.close(), { signal });
+    dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); }, { signal });
+    dialog.addEventListener('close', () => {
+      document.body.style.overflow = '';
+      setZoom(false);
+      trigger?.focus();
+    }, { signal });
+    dialog.addEventListener('keydown', event => {
+      if (event.key === 'ArrowLeft') move(-1);
+      if (event.key === 'ArrowRight') move(1);
+    }, { signal });
+  }
+
+  initImageLightbox();
+  document.addEventListener('astro:page-load', initImageLightbox);
+</script>
+
+<style>
+  :global(.prose img.is-previewable) { cursor: zoom-in; transition: border-color var(--transition), box-shadow var(--transition), filter var(--transition); }
+  :global(.prose img.is-previewable:hover), :global(.prose img.is-previewable:focus-visible) { border-color: var(--accent); box-shadow: 0 16px 42px color-mix(in srgb, var(--accent) 18%, transparent); filter: saturate(1.04); }
+  .image-lightbox { width: 100vw; max-width: none; height: 100dvh; max-height: none; margin: 0; padding: 0; border: 0; color: var(--text); background: color-mix(in srgb, var(--bg) 94%, transparent); overflow: hidden; }
+  .image-lightbox::backdrop { background: color-mix(in srgb, #000 78%, transparent); backdrop-filter: blur(8px); }
+  .image-lightbox[open] { display: grid; grid-template-rows: 60px minmax(0, 1fr); }
+  .lightbox-toolbar { position: relative; z-index: 2; display: flex; align-items: center; justify-content: space-between; padding: 0 clamp(1rem, 3vw, 2.5rem); border-top: 4px solid var(--accent); border-bottom: 1px solid var(--border); background: var(--chrome-surface); }
+  .lightbox-meta { display: flex; align-items: center; gap: 1rem; min-width: 0; }
+  .lightbox-label, .lightbox-count { font: 500 .62rem var(--font-mono); }
+  .lightbox-label { color: var(--text-faint); }
+  .lightbox-count { padding-left: 1rem; border-left: 1px solid var(--border); color: var(--accent); }
+  .lightbox-actions { display: flex; gap: .35rem; }
+  .lightbox-actions button, .lightbox-nav { display: grid; place-items: center; width: 38px; height: 38px; border: 1px solid var(--border); border-radius: 2px; color: var(--text); background: var(--chrome-control); font: 400 1.25rem/1 var(--font-ui); cursor: pointer; }
+  .lightbox-actions button:hover, .lightbox-nav:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+  .lightbox-stage { position: relative; min-width: 0; min-height: 0; display: grid; grid-template-columns: 54px minmax(0, 1fr) 54px; align-items: stretch; gap: 1rem; padding: clamp(1rem, 3vw, 2.5rem); overflow: auto; }
+  .lightbox-figure { min-width: 0; min-height: 0; display: grid; grid-template-rows: minmax(0, 1fr) auto; place-items: center; gap: 1.25rem; }
+  .lightbox-figure img { width: auto; max-width: 100%; height: auto; max-height: calc(100dvh - 145px); object-fit: contain; border: 1px solid var(--border); box-shadow: 10px 10px 0 color-mix(in srgb, var(--accent-secondary) 16%, transparent); cursor: zoom-in; }
+  .lightbox-figure figcaption { width: min(840px, 100%); min-height: 50px; display: grid; grid-template-columns: 88px minmax(0, 1fr); align-items: center; padding: .72rem 1rem; border-top: 1px solid var(--border); border-bottom: 1px solid color-mix(in srgb, var(--border) 55%, transparent); color: var(--text-muted); background: color-mix(in srgb, var(--chrome-surface) 88%, transparent); font: 400 .78rem/1.55 var(--font-ui); text-align: left; }
+  .lightbox-figure figcaption::before { content: 'CAPTION /'; align-self: stretch; display: flex; align-items: center; margin-right: 1rem; border-right: 3px solid var(--accent); color: var(--text-faint); font: 500 .58rem/1 var(--font-mono); }
+  .lightbox-nav { align-self: center; border-color: color-mix(in srgb, var(--border) 76%, transparent); background: color-mix(in srgb, var(--chrome-control) 86%, transparent); }
+  .lightbox-nav:disabled { visibility: hidden; }
+  .image-lightbox.is-zoomed .lightbox-stage { display: block; padding: 2rem; text-align: center; }
+  .image-lightbox.is-zoomed .lightbox-figure { display: inline-grid; }
+  .image-lightbox.is-zoomed .lightbox-figure img { max-width: none; max-height: none; cursor: zoom-out; }
+  .image-lightbox.is-zoomed .lightbox-nav { display: none; }
+  @media (max-width: 650px) {
+    .image-lightbox[open] { grid-template-rows: 56px minmax(0, 1fr); }
+    .lightbox-stage { grid-template-columns: 38px minmax(0, 1fr) 38px; gap: .35rem; padding: .8rem .35rem 1rem; }
+    .lightbox-nav { width: 36px; height: 44px; }
+    .lightbox-figure img { max-height: calc(100dvh - 135px); box-shadow: 4px 4px 0 color-mix(in srgb, var(--accent-secondary) 16%, transparent); }
+    .lightbox-figure { gap: .85rem; }
+    .lightbox-figure figcaption { grid-template-columns: 70px minmax(0, 1fr); min-height: 46px; padding: .6rem .7rem; font-size: .72rem; }
+    .lightbox-figure figcaption::before { margin-right: .7rem; font-size: .52rem; }
+  }
+</style>

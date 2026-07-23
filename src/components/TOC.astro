@@ -1,0 +1,127 @@
+---
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+interface Props {
+  headings: Heading[];
+}
+const { headings } = Astro.props;
+const filtered = headings.filter(h => h.depth === 2 || h.depth === 3);
+---
+
+{filtered.length > 1 && (
+  <nav class="toc" aria-label="Table of contents">
+    <header class="toc-header">
+      <span aria-hidden="true"></span>
+      <p class="toc-label" data-i18n="post.contents">目錄</p>
+      <small aria-hidden="true">INDEX</small>
+    </header>
+    <ol class="toc-list" role="list">
+      {filtered.map(h => (
+        <li class:list={['toc-item', `depth-${h.depth}`]}>
+          <a href={`#${h.slug}`} class="toc-link" data-heading={h.slug}>
+            {h.text}
+          </a>
+        </li>
+      ))}
+    </ol>
+  </nav>
+)}
+
+<script>
+  let tocController: AbortController | undefined;
+
+  function initTOC() {
+    tocController?.abort();
+    const links = document.querySelectorAll<HTMLAnchorElement>('[data-locale-panel]:not([hidden]) .toc-link');
+    if (!links.length) return;
+
+    const headingEls = Array.from(links)
+      .map(link => document.getElementById(link.dataset.heading!))
+      .filter(Boolean) as HTMLElement[];
+    if (!headingEls.length) return;
+
+    tocController = new AbortController();
+    const { signal } = tocController;
+    const update = () => {
+      const readingLine = 150;
+      let activeId = headingEls[0].id;
+      for (const heading of headingEls) {
+        if (heading.getBoundingClientRect().top <= readingLine) activeId = heading.id;
+        else break;
+      }
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 8) {
+        activeId = headingEls.at(-1)?.id ?? activeId;
+      }
+      links.forEach(link => link.classList.toggle('active', link.dataset.heading === activeId));
+      const activeLink = document.querySelector<HTMLElement>('.toc-link.active');
+      const sidebar = activeLink?.closest<HTMLElement>('.post-sidebar');
+      if (activeLink && sidebar) {
+        const linkRect = activeLink.getBoundingClientRect();
+        const sidebarRect = sidebar.getBoundingClientRect();
+        if (linkRect.top < sidebarRect.top) sidebar.scrollTop -= sidebarRect.top - linkRect.top + 8;
+        if (linkRect.bottom > sidebarRect.bottom) sidebar.scrollTop += linkRect.bottom - sidebarRect.bottom + 8;
+      }
+    };
+
+    addEventListener('scroll', update, { passive: true, signal });
+    addEventListener('resize', update, { passive: true, signal });
+    update();
+  }
+
+  initTOC();
+  document.addEventListener('astro:after-swap', initTOC);
+  window.addEventListener('localechange', initTOC);
+</script>
+
+<style>
+.toc { border-top: 1px solid var(--text); }
+.toc-header { min-height: 42px; display: grid; grid-template-columns: 20px 1fr auto; align-items: center; gap: .55rem; border-bottom: 1px solid var(--border); }
+.toc-header > span { width: 20px; height: 4px; background: var(--accent); }
+.toc-header small { color: var(--text-faint); font: 500 .44rem var(--font-mono); }
+
+.toc-label {
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin: 0;
+}
+
+.toc-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding-top: .65rem;
+}
+
+.toc-item.depth-3 {
+  padding-left: 0.9rem;
+}
+
+.toc-link {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  color: var(--text-faint);
+  padding: 0.25rem 0.5rem;
+  border-left: 2px solid transparent;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  line-height: 1.4;
+  transition: color var(--transition), border-color var(--transition), background var(--transition);
+}
+.toc-link:hover {
+  color: var(--text-muted);
+  background: var(--bg-surface);
+}
+.toc-link.active {
+  color: var(--accent);
+  border-left-color: var(--accent);
+  background: var(--accent-glow);
+}
+</style>

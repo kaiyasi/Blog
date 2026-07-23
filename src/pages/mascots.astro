@@ -1,0 +1,78 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const modes = [
+  { scene: 'Campus', character: 'Mafuyu', file: 'mafuyu-campus.png', size: '864 × 1821' },
+  { scene: 'Campus', character: 'Ritsuka', file: 'ritsuka-campus.png', size: '971 × 1619' },
+  { scene: 'Stage', character: 'Mafuyu', file: 'mafuyu-stage.png', size: '1024 × 1536' },
+  { scene: 'Stage', character: 'Ritsuka', file: 'ritsuka-stage.png', size: '1024 × 1536' },
+  { scene: 'Weekend', character: 'Mafuyu', file: 'mafuyu-weekend.png', size: '1024 × 1536' },
+  { scene: 'Weekend', character: 'Ritsuka', file: 'ritsuka-weekend.png', size: '1024 × 1536' },
+];
+---
+
+<BaseLayout title="Mascot Modes" description="GIVEN mascot mode preview" bodyClass="inner-page mascot-gallery-page">
+  <div class="mascot-page">
+    <header class="mascot-heading">
+      <p>ASSET INDEX / 06</p>
+      <h1>Mascot Modes</h1>
+      <span>3 scenes × 2 characters</span>
+    </header>
+
+    <div class="mascot-grid">
+      {modes.map((mode, index) => (
+        <figure class:list={['mode', `scene-${mode.scene.toLowerCase()}`]}>
+          <div class="mode-meta">
+            <span>{String(index + 1).padStart(2, '0')}</span>
+            <span>{mode.scene}</span>
+          </div>
+          <div class="mode-image">
+            <img
+              src={`/images/mascots/${mode.file}`}
+              alt={`${mode.character} — ${mode.scene}`}
+              loading={index < 3 ? 'eager' : 'lazy'}
+              decoding="async"
+            />
+          </div>
+          <figcaption>
+            <strong>{mode.character}</strong>
+            <span>{mode.file}</span>
+            <small>{mode.size}</small>
+          </figcaption>
+        </figure>
+      ))}
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  :global(body.mascot-gallery-page .mascot-dock) { display: none; }
+  .mascot-page { width: min(1320px, 100%); margin: 0 auto; padding: 3.5rem 1.5rem 7rem; }
+  .mascot-heading { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+  .mascot-heading p { grid-column: 1 / -1; color: var(--accent); font: 500 .65rem var(--font-mono); }
+  .mascot-heading h1 { margin-top: .45rem; font-size: clamp(2.6rem, 6vw, 4.8rem); font-weight: 300; }
+  .mascot-heading span { padding-bottom: .45rem; color: var(--text-faint); font: 500 .62rem var(--font-mono); text-transform: uppercase; }
+  .mascot-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; margin-top: 2rem; border: 1px solid var(--border); background: var(--border); }
+  .mode { min-width: 0; display: grid; grid-template-rows: 34px minmax(0, 1fr) 70px; background: var(--bg-surface); }
+  .mode-meta { display: flex; align-items: center; justify-content: space-between; padding: 0 .75rem; border-bottom: 1px solid var(--border); color: var(--text-faint); font: 500 .56rem var(--font-mono); text-transform: uppercase; }
+  .mode-meta span:first-child { color: var(--accent); }
+  .mode-image { position: relative; min-height: 0; aspect-ratio: 4 / 5; display: grid; place-items: end center; overflow: hidden; isolation: isolate; }
+  .mode-image::before { content: ''; position: absolute; z-index: -1; inset: 0; background-color: var(--bg-elevated); background-image: repeating-linear-gradient(0deg, transparent 0 24px, color-mix(in srgb, var(--text) 5%, transparent) 24px 25px); }
+  .scene-campus .mode-image::after, .scene-stage .mode-image::after, .scene-weekend .mode-image::after { content: ''; position: absolute; z-index: -1; inset: 0; opacity: .13; }
+  .scene-campus .mode-image::after { background: linear-gradient(135deg, var(--accent-secondary), transparent 54%); }
+  .scene-stage .mode-image::after { background: linear-gradient(135deg, var(--accent), transparent 54%); }
+  .scene-weekend .mode-image::after { background: linear-gradient(135deg, var(--accent-warm), transparent 54%); }
+  .mode img { width: 100%; height: 100%; padding: 1rem .75rem 0; object-fit: contain; object-position: center bottom; filter: drop-shadow(0 14px 16px color-mix(in srgb, var(--text) 14%, transparent)); }
+  figcaption { min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-content: center; gap: .15rem .75rem; padding: .7rem .8rem; border-top: 1px solid var(--border); }
+  figcaption strong { color: var(--text); font: 600 .8rem var(--font-ui); text-transform: uppercase; }
+  figcaption span { grid-row: 2; overflow: hidden; color: var(--text-faint); font: 400 .58rem var(--font-mono); text-overflow: ellipsis; white-space: nowrap; }
+  figcaption small { grid-column: 2; grid-row: 1 / 3; align-self: center; color: var(--text-faint); font: 400 .55rem var(--font-mono); }
+  @media (max-width: 900px) { .mascot-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 560px) {
+    .mascot-page { padding: 2.5rem .8rem 5rem; }
+    .mascot-heading { grid-template-columns: 1fr; }
+    .mascot-heading span { margin-top: .35rem; }
+    .mascot-grid { grid-template-columns: 1fr; }
+    .mode-image { aspect-ratio: 4 / 4.8; }
+  }
+</style>

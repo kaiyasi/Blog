@@ -1,0 +1,32 @@
+<script is:inline>
+  (() => {
+    const storageKey = 'theme';
+    const isTheme = value => value === 'light' || value === 'dark';
+    const systemTheme = () => matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    const storedTheme = () => {
+      const value = localStorage.getItem(storageKey);
+      return isTheme(value) ? value : null;
+    };
+    const activeTheme = () => {
+      const value = document.documentElement.dataset.theme;
+      return isTheme(value) ? value : storedTheme() || systemTheme();
+    };
+    const syncToggle = theme => {
+      document.getElementById('theme-toggle')?.setAttribute('aria-pressed', String(theme === 'dark'));
+    };
+    const applyTheme = (theme, persist = true) => {
+      document.documentElement.dataset.theme = theme;
+      if (persist) localStorage.setItem(storageKey, theme);
+      syncToggle(theme);
+      dispatchEvent(new CustomEvent('themechange', { detail: { theme } }));
+    };
+
+    applyTheme(storedTheme() || systemTheme(), false);
+    window.toggleTheme = () => applyTheme(activeTheme() === 'dark' ? 'light' : 'dark');
+
+    document.addEventListener('astro:before-swap', event => {
+      event.newDocument.documentElement.dataset.theme = activeTheme();
+    });
+    document.addEventListener('astro:page-load', () => syncToggle(activeTheme()));
+  })();
+</script>

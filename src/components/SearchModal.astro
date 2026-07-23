@@ -1,0 +1,82 @@
+---
+import { getCollection } from 'astro:content';
+import { locales, messages } from '../i18n';
+
+const posts = await getCollection('posts', ({ data }) => !data.draft);
+const translated = await getCollection('postTranslations', ({ data }) => !data.draft);
+const searchIndex = posts.flatMap(post => locales.map(locale => {
+  const entry = locale === 'zh-TW' ? post : translated.find(item => item.id === `${locale}/${post.id}`);
+  return {
+    locale,
+    url: `/posts/${post.id}`,
+    title: entry?.data.title ?? post.data.title,
+    description: entry?.data.description ?? post.data.description,
+    tags: entry?.data.tags ?? post.data.tags,
+  };
+}));
+const searchMessages = Object.fromEntries(locales.map(locale => [locale, {
+  hint: messages[locale]['search.hint'],
+  empty: messages[locale]['search.empty'],
+}]));
+---
+<div class="search-overlay" id="search-overlay" role="dialog" aria-modal="true" aria-label="Search" hidden>
+  <div class="search-modal">
+    <div class="search-input-wrap">
+      <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+      <input id="search-input" type="search" placeholder="搜尋文章…" data-i18n-placeholder="search.placeholder" autocomplete="off" class="search-input" />
+      <kbd>ESC</kbd>
+    </div>
+    <div class="search-results" id="search-results"><p class="search-hint" data-i18n="search.hint">輸入關鍵字搜尋標題、摘要或標籤</p></div>
+  </div>
+</div>
+<script type="application/json" id="search-index" set:html={JSON.stringify(searchIndex)}></script>
+<script type="application/json" id="search-messages" set:html={JSON.stringify(searchMessages)}></script>
+<script>
+  function initSearch() {
+    const trigger = document.getElementById('search-trigger');
+    const overlay = document.getElementById('search-overlay');
+    const input = document.getElementById('search-input') as HTMLInputElement | null;
+    const results = document.getElementById('search-results');
+    const data = JSON.parse(document.getElementById('search-index')?.textContent || '[]');
+    const copy = JSON.parse(document.getElementById('search-messages')?.textContent || '{}');
+    if (!trigger || !overlay || !input || !results || trigger.dataset.searchBound === 'true') return;
+    trigger.dataset.searchBound = 'true';
+
+    const close = () => { overlay.hidden = true; document.body.style.overflow = ''; input.value = ''; };
+    const open = () => { overlay.hidden = false; document.body.style.overflow = 'hidden'; setTimeout(() => input.focus(), 0); };
+    const escapeHTML = (value: string) => value.replace(/[&<>'"]/g, character => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' })[character]!);
+    const render = () => {
+      const locale = document.documentElement.dataset.locale || 'zh-TW';
+      const query = input.value.trim().toLocaleLowerCase(locale);
+      if (!query) { results.innerHTML = `<p class="search-hint">${escapeHTML(copy[locale]?.hint || '')}</p>`; return; }
+      const matches = data.filter((item: any) => item.locale === locale && `${item.title} ${item.description} ${item.tags.join(' ')}`.toLocaleLowerCase(locale).includes(query));
+      if (!matches.length) { results.innerHTML = `<p class="search-hint">${escapeHTML(copy[locale]?.empty || '')}</p>`; return; }
+      results.innerHTML = matches.slice(0, 8).map((item: any) => `<a href="${escapeHTML(item.url)}" class="search-item"><strong>${escapeHTML(item.title)}</strong><span>${escapeHTML(item.description)}</span></a>`).join('');
+    };
+    trigger.addEventListener('click', open);
+    input.addEventListener('input', render);
+    overlay.addEventListener('click', event => { if (event.target === overlay) close(); });
+    document.addEventListener('keydown', event => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') { event.preventDefault(); overlay.hidden ? open() : close(); }
+      if (event.key === 'Escape' && !overlay.hidden) close();
+    });
+    window.addEventListener('localechange', render);
+  }
+  initSearch();
+  document.addEventListener('astro:page-load', initSearch);
+</script>
+<style>
+.search-overlay { position: fixed; inset: 0; z-index: 300; display: flex; justify-content: center; align-items: flex-start; padding-top: 14vh; background: rgba(0,0,0,.48); backdrop-filter: blur(5px); }
+.search-overlay[hidden] { display: none; }
+.search-modal { width: min(560px, calc(100vw - 2rem)); background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); box-shadow: 0 24px 70px rgba(0,0,0,.28); overflow: hidden; }
+.search-input-wrap { height: 58px; display: flex; align-items: center; gap: .75rem; padding: 0 1rem; border-bottom: 1px solid var(--border); }
+.search-icon { color: var(--text-faint); flex: 0 0 auto; }
+.search-input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--text); font: 400 .92rem var(--font-ui); }
+kbd { padding: .15rem .35rem; border: 1px solid var(--border); border-radius: 3px; color: var(--text-faint); font: 400 .65rem var(--font-mono); }
+.search-results { max-height: 420px; overflow: auto; }
+.search-hint { padding: 2rem 1rem; text-align: center; color: var(--text-faint); font: 400 .82rem var(--font-ui); }
+.search-item { display: flex; flex-direction: column; gap: .2rem; padding: .9rem 1rem; border-bottom: 1px solid var(--border); }
+.search-item:hover { background: var(--accent-glow); }
+.search-item strong { color: var(--text); font: 500 .95rem var(--font-ui); }
+.search-item span { color: var(--text-muted); font-size: .8rem; line-height: 1.5; }
+</style>

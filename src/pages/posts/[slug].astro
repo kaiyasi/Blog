@@ -1,0 +1,28 @@
+---
+import { getCollection, render } from 'astro:content';
+import PostLayout from '../../layouts/PostLayout.astro';
+import { locales, type Locale } from '../../i18n';
+
+const posts=(await getCollection('posts',({data})=>!data.draft)).sort((a,b)=>a.data.date.valueOf()-b.data.date.valueOf());
+const allTranslations=await getCollection('postTranslations',({data})=>!data.draft);
+const post=posts.find(item=>item.id===Astro.params.slug);
+if (!post) return Astro.redirect('/404');
+
+const translations=allTranslations.filter(item=>item.id.endsWith(`/${post.id}`));
+const titleValues=(entry:typeof post)=>Object.fromEntries(locales.map(locale=>{
+  const translation=locale==='zh-TW'?entry:allTranslations.find(item=>item.id===`${locale}/${entry.id}`);
+  return [locale,translation?.data.title??entry.data.title];
+}));
+const index=posts.indexOf(post);
+const prevPost=index>0?{slug:posts[index-1].id,titles:titleValues(posts[index-1])}:null;
+const nextPost=index<posts.length-1?{slug:posts[index+1].id,titles:titleValues(posts[index+1])}:null;
+const entries=locales.map(locale=>({locale,entry:locale==='zh-TW'?post:translations.find((item:any)=>item.id===`${locale}/${post.id}`)??post}));
+const rendered=await Promise.all(entries.map(async item=>({locale:item.locale as Locale,entry:item.entry,rendered:await render(item.entry)})));
+const localizations=rendered.map(item=>({locale:item.locale,title:item.entry.data.title,description:item.entry.data.description,headings:item.rendered.headings}));
+---
+<PostLayout slug={post.id} localizations={localizations} date={post.data.date} tags={post.data.tags} copyright={post.data.copyright??true} prevPost={prevPost} nextPost={nextPost}>
+  {rendered.map(item=>{
+    const Content=item.rendered.Content;
+    return <section data-locale-panel={item.locale} hidden={item.locale!=='zh-TW'}><Content /></section>;
+  })}
+</PostLayout>

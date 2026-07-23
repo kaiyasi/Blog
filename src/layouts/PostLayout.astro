@@ -1,0 +1,66 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import TOC from '../components/TOC.astro';
+import ProgressBar from '../components/ProgressBar.astro';
+import ImageLightbox from '../components/ImageLightbox.astro';
+import CommentThread from '../components/CommentThread.astro';
+import type { Locale } from '../i18n';
+import '../styles/code.css';
+
+interface LocalizedPost {
+  locale: Locale;
+  title: string;
+  description: string;
+  headings: { depth: number; slug: string; text: string }[];
+}
+interface NavPost { slug: string; titles: Record<string,string>; }
+interface Props {
+  localizations: LocalizedPost[];
+  date: Date;
+  tags: string[];
+  copyright?: boolean;
+  prevPost?: NavPost | null;
+  nextPost?: NavPost | null;
+  slug: string;
+}
+const { localizations, date, tags, copyright=true, prevPost, nextPost, slug } = Astro.props;
+const source = localizations.find(item=>item.locale==='zh-TW') ?? localizations[0];
+const titleValues = Object.fromEntries(localizations.map(item=>[item.locale,item.title]));
+const descriptionValues = Object.fromEntries(localizations.map(item=>[item.locale,item.description]));
+const mascotArticle = {
+  title: source.title,
+  description: source.description,
+  tags,
+};
+---
+<BaseLayout title={source.title} description={source.description} titleValues={titleValues} descriptionValues={descriptionValues} bodyClass="inner-page post-detail-page">
+  <ProgressBar />
+  <div class="post-shell">
+    <article class="post-article" data-copyright={copyright ? 'true':'false'} data-mascot-article={JSON.stringify(mascotArticle)}>
+      <header class="post-header">
+        <p class="post-index">03 / NOTE</p>
+        {tags.length>0 && <div class="post-tags">{tags.map(tag=><a href={`/posts?tag=${tag}`}>{tag}</a>)}</div>}
+        <h1 data-i18n-values={JSON.stringify(titleValues)}>{source.title}</h1>
+        <p class="post-description" data-i18n-values={JSON.stringify(descriptionValues)}>{source.description}</p>
+        <time datetime={date.toISOString()} data-date={date.toISOString()}>{date.toLocaleDateString('zh-TW')}</time>
+        <div class="track-divider" aria-hidden="true"><span></span><i></i><b></b></div>
+      </header>
+      <div class="prose post-content" data-callout-style="ticket"><slot /></div>
+      {(prevPost||nextPost)&&<nav class="post-nav">
+        {prevPost?<a href={`/posts/${prevPost.slug}`}><span data-i18n="post.previous">上一篇</span><strong data-i18n-values={JSON.stringify(prevPost.titles)}>{prevPost.titles['zh-TW']}</strong></a>:<span></span>}
+        {nextPost?<a href={`/posts/${nextPost.slug}`} class="next"><span data-i18n="post.next">下一篇</span><strong data-i18n-values={JSON.stringify(nextPost.titles)}>{nextPost.titles['zh-TW']}</strong></a>:<span></span>}
+      </nav>}
+      <CommentThread resource={`post:${slug}`} />
+    </article>
+    <aside class="post-sidebar">
+      {localizations.map(item=><div data-locale-panel={item.locale} hidden={item.locale!=='zh-TW'}><TOC headings={item.headings}/></div>)}
+    </aside>
+  </div>
+  <ImageLightbox />
+  <script src="../scripts/codeblock.ts"></script>
+  {copyright && <script src="../scripts/copyright.ts"></script>}
+</BaseLayout>
+<style>
+.post-shell{width:min(1520px,100%);margin:0 auto;padding:4.5rem 1.5rem 7rem;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,840px) minmax(0,1fr);column-gap:clamp(2rem,3.5vw,4rem)}.post-article{grid-column:2;min-width:0;width:100%}.post-content{max-width:76ch;margin-inline:auto}.post-header{margin-bottom:2.8rem}.post-index{color:var(--accent);font:500 .68rem var(--font-mono)}.post-tags{display:flex;gap:.4rem;margin:1.2rem 0}.post-tags a{padding:.15rem .5rem;border:1px solid var(--border);color:var(--text-faint);font:400 .65rem var(--font-mono)}h1{max-width:840px;margin:.7rem 0 1rem;font-size:clamp(2.5rem,6vw,4.6rem);font-weight:300;line-height:1.04}.post-description{max-width:60ch;color:var(--text-muted);font-size:1.02rem;line-height:1.65}.post-header time{display:block;margin-top:1rem;color:var(--text-faint);font:400 .72rem var(--font-mono)}.track-divider{display:grid;grid-template-columns:42px minmax(0,1fr) 72px;align-items:center;gap:.65rem;margin-top:1.8rem}.track-divider span{height:4px;background:var(--accent)}.track-divider i{position:relative;height:1px;background:var(--border)}.track-divider i::after{content:'';position:absolute;top:-3px;right:22%;width:7px;height:7px;border:1px solid var(--accent);border-radius:50%;background:var(--bg)}.track-divider b{height:8px;background:repeating-linear-gradient(90deg,var(--text-faint) 0 1px,transparent 1px 12px);opacity:.65}.post-nav{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:4rem;padding-top:1.5rem;border-top:1px solid var(--border)}.post-nav a{display:flex;flex-direction:column;gap:.35rem;padding:1rem;border:1px solid var(--border)}.post-nav a:hover{border-color:var(--accent);background:var(--accent-glow)}.post-nav span{color:var(--text-faint);font:400 .66rem var(--font-ui)}.post-nav strong{font:500 .85rem var(--font-ui)}.post-nav .next{text-align:right}.post-sidebar{grid-column:3;position:sticky;top:88px;align-self:start;width:min(220px,100%);min-width:0;max-height:calc(100svh - 108px);overflow-y:auto;scrollbar-width:thin}
+@media(max-width:1359px){.post-shell{display:block;width:min(888px,100%)}.post-article{width:100%;margin-inline:auto}.post-sidebar{display:none}}
+</style>

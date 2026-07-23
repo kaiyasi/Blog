@@ -1,0 +1,474 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import HeroScene from '../components/HeroScene.astro';
+import { locales } from '../i18n';
+
+const allPosts = (await getCollection('posts', ({ data }) => !data.draft)).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const posts = allPosts.slice(0, 5);
+const translated = await getCollection('postTranslations', ({ data }) => !data.draft);
+const setlistPosts = posts.slice(1);
+const topicCounts = allPosts.flatMap(post => post.data.tags).reduce((counts, tag) => counts.set(tag, (counts.get(tag) ?? 0) + 1), new Map<string, number>());
+const topTopics = [...topicCounts].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 8);
+const maxTopicCount = Math.max(...topTopics.map(([, count]) => count), 1);
+const githubUser = 'kaiyasi';
+const valuesFor = (post: typeof posts[number], field: 'title' | 'description') => Object.fromEntries(locales.map(locale => {
+  const entry = locale === 'zh-TW' ? post : translated.find(item => item.id === `${locale}/${post.id}`);
+  return [locale, entry?.data[field] ?? post.data[field]];
+}));
+const homeText = {
+  topicsTitle: { 'zh-TW': '主題索引', en: 'Topic index', ja: 'トピック索引', ko: '주제 색인' },
+  exploreTitle: { 'zh-TW': '繼續探索', en: 'Keep exploring', ja: 'さらに見る', ko: '더 둘러보기' },
+  profileTitle: { 'zh-TW': '關於這裡', en: 'About this place', ja: 'この場所について', ko: '이곳에 대하여' },
+  profileIntro: {
+    'zh-TW': '我是 Kaiyasi。這裡收錄開發過程、學習筆記，也留下音樂與日常途中值得多看一眼的片刻。',
+    en: 'I am Kaiyasi. This is where I keep development logs, study notes, music, and moments worth a second look.',
+    ja: 'Kaiyasiです。開発記録や学習ノート、音楽、日常でふと目を留めた瞬間を残しています。',
+    ko: 'Kaiyasi입니다. 개발 기록과 학습 노트, 음악, 그리고 일상에서 다시 바라본 순간을 남깁니다.',
+  },
+  fullProfile: { 'zh-TW': '完整介紹', en: 'Full profile', ja: 'プロフィール', ko: '전체 소개' },
+};
+---
+
+<BaseLayout title="Kaiyasi" descriptionKey="meta.home.description" bodyClass="home-page">
+  <section class="hero" id="top">
+    <HeroScene />
+    <div class="hero-shell">
+      <div class="hero-rail">
+        <p><span class="live-dot"></span><span class="scene-code">DAY / CAMPUS</span></p>
+        <p>GT. &amp; VO. / PERSONAL LOG</p>
+        <p>ISSUE 07 / {new Date().getFullYear()}</p>
+      </div>
+
+      <div class="identity">
+        <p class="hero-kicker" data-i18n="home.kicker">程式寫進日常，音樂留住片刻。</p>
+        <h1 aria-label="Kaiyasi"><span>Kai</span><span>yasi</span></h1>
+        <div class="identity-foot">
+          <strong>GIVEN</strong>
+          <i></i>
+          <span>PERSONAL NOTES / 07</span>
+          <p data-i18n="home.subtitle">寫下程式、筆記，以及讓我停下來多看一眼的事物。</p>
+        </div>
+      </div>
+
+      {posts[0] && (
+        <div class="entry-ticket">
+          <div class="ticket-stub" aria-hidden="true">
+            <span>ADMIT ONE</span>
+            <strong>GIVEN<br/>LOG</strong>
+            <b>NO. {String(allPosts.length).padStart(4, '0')}</b>
+          </div>
+          <a class="ticket-entry" href={`/posts/${posts[0].id}`}>
+            <span>LATEST ENTRY / 最新文章</span>
+            <strong data-i18n-values={JSON.stringify(valuesFor(posts[0], 'title'))}>{posts[0].data.title}</strong>
+            <p data-i18n-values={JSON.stringify(valuesFor(posts[0], 'description'))}>{posts[0].data.description}</p>
+            <footer>
+              <time datetime={posts[0].data.date.toISOString()} data-date={posts[0].data.date.toISOString()}>{posts[0].data.date.toLocaleDateString('zh-TW')}</time>
+              <i>{posts[0].data.tags.slice(0, 2).map(tag => `#${tag}`).join('  ')}</i>
+            </footer>
+          </a>
+          <a class="ticket-tear" href="/posts" aria-label="View all posts">
+            <span>ALL NOTES</span><b>→</b>
+          </a>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <section class="writing-section" id="writing">
+    <div class="home-shell">
+      <header class="section-heading">
+        <p>SIDE A / SETLIST</p>
+        <h2 data-i18n="home.writing">近期文章</h2>
+        <span>PERSONAL LOG · TRACKS 02–05</span>
+      </header>
+
+      <div class="setlist-layout">
+        <ol class="track-list">
+          {setlistPosts.map((post, index) => (
+            <li>
+              <a href={`/posts/${post.id}`}>
+                <header><span>TRACK {String(index + 2).padStart(2, '0')}</span><time datetime={post.data.date.toISOString()} data-date={post.data.date.toISOString()}>{post.data.date.toLocaleDateString('zh-TW')}</time></header>
+                <h3 data-i18n-values={JSON.stringify(valuesFor(post, 'title'))}>{post.data.title}</h3>
+                <p data-i18n-values={JSON.stringify(valuesFor(post, 'description'))}>{post.data.description}</p>
+                <footer><span>{post.data.tags.slice(0, 2).map(tag => `#${tag}`).join('  ')}</span><b>↗</b></footer>
+              </a>
+            </li>
+          ))}
+        </ol>
+        <a class="all-tracks" href="/posts"><span data-i18n="home.allPosts">查看全部文章</span><b>ALL TRACKS →</b></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="topics-section" id="topics">
+    <div class="home-shell">
+      <header class="section-heading">
+        <p>DISC 01 / TRACK CREDITS</p>
+        <h2 data-i18n-values={JSON.stringify(homeText.topicsTitle)}>主題索引</h2>
+        <span>{String(topTopics.length).padStart(2, '0')} TRACKS · INDEX</span>
+      </header>
+      <div class="topic-booklet">
+        <div class="topic-spine" aria-hidden="true"><span>KAIYASI</span><b>GIVEN LOG</b><small>DISC 01</small></div>
+        <ol class="topic-list">
+          {topTopics.map(([topic, count], index) => (
+            <li style={`--topic-level: ${Math.max(22, Math.round(count / maxTopicCount * 100))}%`}>
+              <a href={`/posts?tag=${encodeURIComponent(topic)}`}>
+                <small>TR. {String(index + 1).padStart(2, '0')}</small><span>#{topic}</span><i aria-hidden="true"></i><b>{String(count).padStart(2, '0')} NOTES</b>
+              </a>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="profile-section" id="profile">
+    <div class="home-shell">
+      <article class="profile-card">
+        <header><span>BAND FILE / MEMBER 05</span><small>GT. · DEV. · PERSONAL LOG</small></header>
+        <div class="profile-identity">
+          <span>MEMBER / 05</span>
+          <h2 data-i18n-values={JSON.stringify(homeText.profileTitle)}>關於這裡</h2>
+          <strong>KAIYASI</strong>
+        </div>
+        <div class="profile-copy">
+          <span>LINER NOTES / KAIYASI</span>
+          <p data-i18n-values={JSON.stringify(homeText.profileIntro)}>我是 Kaiyasi。這裡收錄開發過程、學習筆記，也留下音樂與日常途中值得多看一眼的片刻。</p>
+          <a href="/about"><span data-i18n-values={JSON.stringify(homeText.fullProfile)}>完整介紹</span><span>→</span></a>
+        </div>
+        <aside class="contribution-panel" data-contribution-calendar data-github-user={githubUser} aria-labelledby="contribution-title">
+          <header>
+            <div><span>PERSONAL GITHUB / COMMIT SIGNAL</span><h3 id="contribution-title">365 DAYS OF MAKING</h3></div>
+            <a href={`https://github.com/${githubUser}`} target="_blank" rel="noopener">@{githubUser} <span>↗</span></a>
+          </header>
+          <div class="contribution-meta">
+            <p><strong data-contribution-total>---</strong><span>CONTRIBUTIONS / LAST YEAR</span></p>
+            <div class="contribution-legend" aria-label="Contribution intensity"><small>QUIET</small><i data-level="0"></i><i data-level="1"></i><i data-level="2"></i><i data-level="3"></i><i data-level="4"></i><small>LOUD</small></div>
+          </div>
+          <div class="contribution-scroll"><div class="contribution-grid" data-contribution-grid aria-label="GitHub contributions over the last year"></div></div>
+          <p class="contribution-state" data-contribution-state>SYNCING PUBLIC GITHUB DATA...</p>
+        </aside>
+      </article>
+    </div>
+  </section>
+
+  <section class="explore-section" id="explore">
+    <div class="home-shell">
+      <header class="section-heading compact-heading">
+        <h2 data-i18n-values={JSON.stringify(homeText.exploreTitle)}>繼續探索</h2>
+        <span>THANK YOU · SEE YOU NEXT LIVE</span>
+      </header>
+      <nav class="explore-grid" aria-label="Site directory">
+        <a href="/posts"><small>ADMIT / 01</small><strong data-i18n="nav.posts">文章</strong><span>→</span></a>
+        <a href="/projects"><small>ADMIT / 02</small><strong data-i18n="nav.projects">專案</strong><span>→</span></a>
+        <a href="/about"><small>ADMIT / 03</small><strong data-i18n="nav.about">關於</strong><span>→</span></a>
+        <a href="/rss.xml"><small>ADMIT / 04</small><strong>RSS</strong><span>↗</span></a>
+      </nav>
+    </div>
+  </section>
+
+</BaseLayout>
+
+<script>
+  function initHome() {
+    const label = document.querySelector<HTMLElement>('.scene-code');
+    const hero = document.querySelector<HTMLElement>('.hero');
+    if (!label || !hero || hero.dataset.bound === 'true') return;
+    hero.dataset.bound = 'true';
+    const controller = new AbortController();
+    const { signal } = controller;
+    const copy = { campus: 'DAY / CAMPUS', stage: 'NIGHT / LIVE', weekend: 'WEEKEND / OFF-DUTY' };
+    const render = () => {
+      const scene = document.documentElement.dataset.scene as keyof typeof copy || 'campus';
+      label.textContent = copy[scene];
+    };
+    const move = (event: PointerEvent) => {
+      const rect = hero.getBoundingClientRect();
+      hero.style.setProperty('--guitar-x', `${(((event.clientX - rect.left) / rect.width) - .5) * 16}px`);
+      hero.style.setProperty('--guitar-y', `${(((event.clientY - rect.top) / rect.height) - .5) * 10}px`);
+    };
+    const syncScroll = () => {
+      const progress = Math.min(1, Math.max(0, -hero.getBoundingClientRect().top / (hero.offsetHeight * .62)));
+      hero.style.setProperty('--hero-scale', String(1 - progress * .12));
+      hero.style.setProperty('--hero-shift', `${progress * 28}px`);
+      hero.style.setProperty('--hero-fade', String(1 - progress * .32));
+      hero.style.setProperty('--backdrop-scale', String(1 + progress * .055));
+    };
+    render();
+    syncScroll();
+    addEventListener('scenechange', render, { signal });
+    addEventListener('scroll', syncScroll, { passive: true, signal });
+    addEventListener('resize', syncScroll, { passive: true, signal });
+    hero.addEventListener('pointermove', move, { signal });
+    hero.addEventListener('pointerleave', () => {
+      hero.style.setProperty('--guitar-x', '0px');
+      hero.style.setProperty('--guitar-y', '0px');
+    }, { signal });
+    document.addEventListener('astro:before-swap', () => controller.abort(), { once: true, signal });
+  }
+  function initContributionCalendar() {
+    document.querySelectorAll<HTMLElement>('[data-contribution-calendar]').forEach(panel => {
+      if (panel.dataset.bound === 'true') return;
+      panel.dataset.bound = 'true';
+      const user = panel.dataset.githubUser;
+      const grid = panel.querySelector<HTMLElement>('[data-contribution-grid]');
+      const total = panel.querySelector<HTMLElement>('[data-contribution-total]');
+      const state = panel.querySelector<HTMLElement>('[data-contribution-state]');
+      if (!user || !grid || !total || !state) return;
+      const controller = new AbortController();
+      document.addEventListener('astro:before-swap', () => controller.abort(), { once: true, signal: controller.signal });
+      fetch(`https://github-contributions-api.jogruber.de/v4/${encodeURIComponent(user)}?y=last`, { signal: controller.signal })
+        .then(response => {
+          if (!response.ok) throw new Error(`GitHub data returned ${response.status}`);
+          return response.json();
+        })
+        .then((data: { total?: { lastYear?: number }; contributions?: Array<{ date: string; count: number; level: number }> }) => {
+          const days = data.contributions ?? [];
+          if (!days.length) throw new Error('GitHub data was empty');
+          const fragment = document.createDocumentFragment();
+          const firstWeekday = new Date(`${days[0].date}T00:00:00Z`).getUTCDay();
+          for (let index = 0; index < firstWeekday; index += 1) {
+            const spacer = document.createElement('i');
+            spacer.className = 'is-empty';
+            spacer.setAttribute('aria-hidden', 'true');
+            fragment.append(spacer);
+          }
+          days.forEach(day => {
+            const cell = document.createElement('i');
+            cell.className = 'contribution-day';
+            cell.dataset.level = String(Math.max(0, Math.min(4, day.level)));
+            cell.title = `${day.date} · ${day.count} contributions`;
+            fragment.append(cell);
+          });
+          grid.replaceChildren(fragment);
+          total.textContent = String(data.total?.lastYear ?? days.reduce((sum, day) => sum + day.count, 0));
+          state.hidden = true;
+        })
+        .catch(error => {
+          if ((error as Error).name === 'AbortError') return;
+          state.textContent = 'PUBLIC GITHUB DATA IS TEMPORARILY UNAVAILABLE';
+          panel.dataset.status = 'error';
+        });
+    });
+  }
+  initHome();
+  initContributionCalendar();
+  document.addEventListener('astro:page-load', initHome);
+  document.addEventListener('astro:page-load', initContributionCalendar);
+</script>
+
+<style>
+  :global(html) {
+    --home-page-image: url('/images/themes/mafuyu-hero-v2.webp');
+    --home-page-image-opacity: .3;
+  }
+  :global(html[data-theme='dark']) {
+    --home-page-image: url('/images/themes/ritsuka-hero-v2.webp');
+    --home-page-image-opacity: .38;
+  }
+  :global(.main-content.home-page-surface)::before { content: ''; position: fixed; z-index: -1; inset: 68px 0 0; background: var(--home-page-image) center / cover no-repeat; opacity: var(--home-page-image-opacity); pointer-events: none; }
+  .hero { --guitar-x: 0px; --guitar-y: 0px; --hero-scale: 1; --hero-shift: 0px; --hero-fade: 1; position: relative; min-height: calc(100svh - 68px); overflow: hidden; background: transparent; }
+  .hero::before { content: ''; position: absolute; z-index: 1; top: 0; bottom: 0; left: 50%; width: 1px; background: var(--paper-line); pointer-events: none; }
+  .hero-shell { position: relative; z-index: 3; width: min(1160px, 100%); min-height: calc(100svh - 68px); margin: 0 auto; padding: 0 1.5rem; display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: 54px minmax(400px, 1fr) auto; opacity: var(--hero-fade); transform: translateY(var(--hero-shift)) scale(var(--hero-scale)); transform-origin: center bottom; transition: transform 80ms linear, opacity 80ms linear; }
+  .hero-rail { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 2rem; border-bottom: 1px solid var(--border); color: var(--text-faint); font: 500 .58rem var(--font-mono); text-transform: uppercase; }
+  .hero-rail p { display: flex; align-items: center; gap: .55rem; }
+  .live-dot { width: 7px; height: 7px; border: 1px solid var(--accent); border-radius: 50%; box-shadow: inset 0 0 0 2px var(--bg); background: var(--accent); }
+  .scene-code { color: var(--accent); }
+  .identity { grid-column: 1 / 8; align-self: center; padding: 3rem 0 4.5rem; }
+  .hero-kicker { max-width: 46ch; margin-bottom: 1.4rem; color: var(--text-muted); font: 500 .7rem/1.65 var(--font-ui); text-transform: uppercase; }
+  h1 { display: flex; flex-wrap: nowrap; width: max-content; color: var(--text); font: 600 clamp(4.8rem, 8.4vw, 8rem)/.78 var(--font-ui); white-space: nowrap; }
+  h1 span:last-child { margin-left: .04em; color: var(--accent); }
+  .identity-foot { width: min(590px, 100%); display: grid; grid-template-columns: auto 52px 1fr; align-items: center; gap: .7rem .85rem; margin-top: 2.15rem; padding-top: .85rem; border-top: 1px solid color-mix(in srgb, var(--accent) 55%, var(--border)); }
+  .identity-foot strong { color: var(--accent-secondary); font: 600 .68rem var(--font-mono); }
+  .identity-foot i { height: 2px; background: var(--accent); transform: rotate(-7deg); }
+  .identity-foot > span { justify-self: end; color: var(--text-faint); font: 500 .55rem var(--font-mono); }
+  .identity-foot p { grid-column: 1 / -1; color: var(--text-muted); font-size: .9rem; line-height: 1.5; }
+  :global([data-locale='zh-TW']) .identity-foot p { white-space: nowrap; }
+  .entry-ticket { position: relative; grid-column: 1 / -1; display: grid; grid-template-columns: 176px minmax(0, 1fr) 92px; min-height: 142px; margin-bottom: 1.2rem; border: 1px solid color-mix(in srgb, var(--accent) 52%, var(--border)); background: color-mix(in srgb, var(--bg-surface) 92%, transparent); box-shadow: 7px 7px 0 color-mix(in srgb, var(--accent) 15%, transparent); }
+  .entry-ticket::before, .entry-ticket::after { content: ''; position: absolute; z-index: 2; left: 166px; width: 18px; height: 18px; border-radius: 50%; background: var(--bg); }
+  .entry-ticket::before { top: -10px; }
+  .entry-ticket::after { bottom: -10px; }
+  .ticket-stub { padding: 1rem 1.1rem; border-right: 1px dashed var(--accent); background: var(--accent); color: var(--on-accent); }
+  .ticket-stub span, .ticket-stub b { display: block; font: 600 .53rem var(--font-mono); }
+  .ticket-stub strong { display: block; margin: .7rem 0; font: 600 1.25rem/.9 var(--font-ui); }
+  .ticket-stub b { margin-top: .85rem; font-weight: 500; }
+  .ticket-entry { min-width: 0; display: grid; grid-template-columns: 1fr auto; grid-template-rows: auto auto 1fr auto; gap: .25rem 1rem; padding: 1rem 1.35rem; }
+  .ticket-entry:hover { background: var(--accent-glow); }
+  .ticket-entry > span { grid-column: 1 / -1; color: var(--accent); font: 600 .55rem var(--font-mono); }
+  .ticket-entry > strong { grid-column: 1 / -1; overflow: hidden; color: var(--text); font: 600 1.15rem/1.3 var(--font-ui); text-overflow: ellipsis; white-space: nowrap; }
+  .ticket-entry > p { grid-column: 1 / -1; overflow: hidden; color: var(--text-muted); font-size: .76rem; line-height: 1.45; text-overflow: ellipsis; white-space: nowrap; }
+  .ticket-entry footer { grid-column: 1 / -1; display: flex; justify-content: space-between; align-self: end; gap: 1rem; color: var(--text-faint); font: 500 .56rem var(--font-mono); }
+  .ticket-entry footer i { color: var(--accent-secondary); font-style: normal; }
+  .ticket-tear { display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 1.1rem .5rem; border-left: 1px dashed var(--accent); color: var(--accent); }
+  .ticket-tear span { font: 600 .53rem var(--font-mono); writing-mode: vertical-rl; }
+  .ticket-tear b { font: 500 1.25rem var(--font-ui); }
+  .ticket-tear:hover { color: var(--bg-surface); background: var(--accent); }
+
+  .home-shell { position: relative; z-index: 1; width: min(1160px, 100%); margin: 0 auto; padding: 0 1.5rem; }
+  .section-heading { display: grid; grid-template-columns: 210px minmax(0, 1fr) auto; align-items: end; gap: 1.5rem; padding-bottom: 1.75rem; border-bottom: 1px solid var(--text); }
+  .section-heading > p { align-self: start; color: var(--accent); font: 600 .58rem var(--font-mono); }
+  .section-heading h2 { color: var(--text); font: 400 3.2rem/.9 var(--font-display); }
+  .section-heading > span { color: var(--text-faint); font: 500 .52rem var(--font-mono); }
+
+  .writing-section { position: relative; overflow: hidden; padding: 7rem 0 7.5rem; }
+  .setlist-layout { margin-top: 2.5rem; }
+  .track-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); list-style: none; border: 1px solid var(--text); background: color-mix(in srgb, var(--bg-surface) 88%, transparent); backdrop-filter: blur(5px); }
+  .track-list li { min-width: 0; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .track-list li:nth-child(2n) { border-right: 0; }
+  .track-list li:last-child, .track-list li:nth-last-child(2):nth-child(odd) { border-bottom: 0; }
+  .track-list a { min-height: 260px; display: flex; flex-direction: column; padding: 1.6rem 1.65rem; }
+  .track-list a:hover { background: var(--accent-glow); }
+  .track-list header, .track-list footer { display: flex; justify-content: space-between; gap: 1rem; color: var(--text-faint); font: 500 .51rem var(--font-mono); }
+  .track-list header > span, .track-list footer b { color: var(--accent); }
+  .track-list h3 { overflow-wrap: anywhere; margin-top: 1.3rem; color: var(--text); font: 500 1.14rem/1.25 var(--font-ui); }
+  .track-list p { overflow: hidden; margin-top: .5rem; color: var(--text-muted); font-size: .76rem; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .track-list footer { margin-top: auto; padding-top: 1rem; }
+  .all-tracks { display: flex; justify-content: space-between; padding: 1rem 1.65rem; border: 1px solid var(--text); border-top: 0; color: var(--accent); background: color-mix(in srgb, var(--bg-surface) 90%, transparent); backdrop-filter: blur(5px); font: 500 .65rem var(--font-ui); }
+  .all-tracks b { font: 600 .52rem var(--font-mono); }
+  .all-tracks:hover, .all-tracks:focus-visible { color: var(--on-accent); border-color: var(--accent); background: var(--accent); }
+
+  .topics-section { padding: 6rem 0; }
+  .topic-booklet { display: grid; grid-template-columns: 96px minmax(0, 1fr); margin-top: 1.5rem; border: 1px solid var(--text); background: color-mix(in srgb, var(--bg-surface) 86%, transparent); box-shadow: 8px 8px 0 color-mix(in srgb, var(--accent-secondary) 18%, transparent); backdrop-filter: blur(5px); }
+  .topic-spine { display: flex; flex-direction: column; align-items: center; gap: 1.5rem; padding: 1.5rem .75rem; color: var(--on-accent); background: var(--accent); font-family: var(--font-mono); }
+  .topic-spine span, .topic-spine small { font-size: .48rem; writing-mode: vertical-rl; }
+  .topic-spine b { margin: auto 0; font-size: .58rem; writing-mode: vertical-rl; }
+  .topic-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); list-style: none; }
+  .topic-list li { min-width: 0; border-bottom: 1px solid var(--border); }
+  .topic-list a { display: grid; grid-template-columns: 58px minmax(0, 1fr) 70px; grid-template-rows: auto 3px; align-items: center; gap: .65rem 1rem; min-height: 88px; padding: 1rem 1.25rem; }
+  .topic-list li:nth-child(odd) { border-right: 1px solid var(--border); }
+  .topic-list li:nth-last-child(-n + 2) { border-bottom: 0; }
+  .topic-list a:hover, .topic-list a:focus-visible { background: var(--accent-glow); }
+  .topic-list small, .topic-list b { color: var(--text-faint); font: 500 .48rem var(--font-mono); }
+  .topic-list span { overflow: hidden; color: var(--text); font: 500 .76rem var(--font-ui); text-overflow: ellipsis; white-space: nowrap; }
+  .topic-list i { grid-column: 2; grid-row: 2; width: var(--topic-level); height: 2px; background: var(--accent); }
+  .topic-list b { grid-column: 3; grid-row: 1 / -1; justify-self: end; color: var(--accent-secondary); }
+
+  .section-heading.compact-heading { grid-template-columns: minmax(0, 1fr) auto; }
+  .contribution-panel { --booklet-border: var(--border); --booklet-surface: var(--bg-surface); --booklet-text: var(--text); --booklet-faint: var(--text-faint); --booklet-accent: var(--accent); --commit-accent: var(--accent); grid-column: 2; padding: 1.5rem 2.75rem 2rem; border-top: 1px solid var(--border); background: transparent; }
+  .contribution-panel > header { display: flex; align-items: start; justify-content: space-between; gap: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--booklet-border); }
+  .contribution-panel > header span { color: var(--commit-accent); font: 600 .5rem var(--font-mono); }
+  .contribution-panel h3 { margin-top: .35rem; color: var(--booklet-text); font: 500 1.25rem var(--font-ui); }
+  .contribution-panel > header > a { display: flex; gap: .7rem; color: var(--commit-accent); font: 600 .56rem var(--font-mono); }
+  .contribution-meta { display: flex; align-items: end; justify-content: space-between; gap: 2rem; margin: 1.1rem 0 .9rem; }
+  .contribution-meta > p { display: flex; align-items: baseline; gap: .7rem; }
+  .contribution-meta strong { color: var(--commit-accent); font: 400 2rem/.8 var(--font-display); }
+  .contribution-meta p span { color: var(--booklet-faint); font: 500 .48rem var(--font-mono); }
+  .contribution-legend { display: flex; align-items: center; gap: 4px; }
+  .contribution-legend small { margin: 0 .25rem; color: var(--booklet-faint); font: 500 .44rem var(--font-mono); }
+  .contribution-legend i, .contribution-grid :global(i) { width: 11px; height: 11px; display: block; border: 1px solid color-mix(in srgb, var(--booklet-border) 70%, transparent); }
+  .contribution-scroll { overflow-x: auto; padding: .25rem 0 .65rem; scrollbar-width: thin; scrollbar-color: var(--booklet-border) transparent; }
+  .contribution-grid { width: max-content; min-width: 100%; display: grid; grid-template-rows: repeat(7, 11px); grid-auto-flow: column; grid-auto-columns: 11px; justify-content: space-between; gap: 3px; }
+  .contribution-grid :global(.is-empty) { visibility: hidden; }
+  .contribution-grid :global(.contribution-day) { transition: border-color var(--transition), transform var(--transition); }
+  .contribution-grid :global(.contribution-day:hover) { z-index: 1; border-color: var(--booklet-text); transform: scale(1.35); }
+  .contribution-legend [data-level='0'], .contribution-grid :global([data-level='0']) { background: color-mix(in srgb, var(--commit-accent) 8%, var(--booklet-surface)); }
+  .contribution-legend [data-level='1'], .contribution-grid :global([data-level='1']) { background: color-mix(in srgb, var(--commit-accent) 28%, var(--booklet-surface)); }
+  .contribution-legend [data-level='2'], .contribution-grid :global([data-level='2']) { background: color-mix(in srgb, var(--commit-accent) 50%, var(--booklet-surface)); }
+  .contribution-legend [data-level='3'], .contribution-grid :global([data-level='3']) { background: color-mix(in srgb, var(--commit-accent) 74%, var(--booklet-surface)); }
+  .contribution-legend [data-level='4'], .contribution-grid :global([data-level='4']) { background: var(--commit-accent); }
+  .contribution-state { margin-top: .5rem; color: var(--booklet-faint); font: 500 .48rem var(--font-mono); }
+  .contribution-state[hidden] { display: none; }
+  .contribution-panel[data-status='error'] .contribution-grid { display: none; }
+  .profile-section { padding: 6.5rem 0; }
+  .profile-card { display: grid; grid-template-columns: minmax(250px, .72fr) minmax(0, 1.28fr); border: 1px solid var(--text); background: color-mix(in srgb, var(--bg-surface) 90%, transparent); box-shadow: -8px 8px 0 color-mix(in srgb, var(--accent-secondary) 18%, transparent); backdrop-filter: blur(5px); }
+  .profile-card > header { grid-column: 1 / -1; display: flex; justify-content: space-between; padding: .8rem 1.25rem; color: var(--on-accent); background: var(--accent); font: 600 .5rem var(--font-mono); }
+  .profile-card > header small { font: inherit; }
+  .profile-identity { grid-row: 2 / 4; display: flex; flex-direction: column; min-height: 430px; padding: 2rem 2.25rem; border-right: 1px dashed var(--accent); }
+  .profile-identity > span { color: var(--accent); font: 600 .52rem var(--font-mono); }
+  .profile-identity h2 { margin-top: 1.2rem; color: var(--text); font: 400 2.8rem/.9 var(--font-display); }
+  .profile-identity > strong { margin-top: auto; color: var(--text); font: 600 1.1rem var(--font-ui); }
+  .profile-copy { display: flex; flex-direction: column; padding: 2.25rem 2.75rem; }
+  .profile-copy > span { color: var(--accent-secondary); font: 600 .52rem var(--font-mono); }
+  .profile-copy > p { max-width: 64ch; margin-top: 1rem; color: var(--text-muted); font-size: .9rem; line-height: 1.8; }
+  .profile-copy > a { width: min(200px, 100%); display: flex; justify-content: space-between; margin-top: auto; padding-bottom: .45rem; border-bottom: 1px solid var(--accent); color: var(--accent); font: 500 .63rem var(--font-ui); }
+  .profile-copy > a:hover, .profile-copy > a:focus-visible { color: var(--text); border-bottom-color: var(--text); }
+
+  .explore-section { padding: 5.5rem 0 7rem; }
+  .explore-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 1.5rem; border: 1px solid var(--text); background: color-mix(in srgb, var(--bg-surface) 88%, transparent); box-shadow: 8px 8px 0 color-mix(in srgb, var(--accent) 15%, transparent); backdrop-filter: blur(5px); }
+  .explore-grid a { position: relative; min-height: 148px; display: grid; grid-template-columns: 1fr auto; grid-template-rows: auto 1fr; gap: .5rem; padding: 1.3rem 1.45rem; border-right: 1px dashed var(--accent); }
+  .explore-grid a:last-child { border-right: 0; }
+  .explore-grid small { color: var(--text-faint); font: 500 .5rem var(--font-mono); }
+  .explore-grid strong { align-self: end; color: var(--text); font: 500 1.15rem var(--font-ui); }
+  .explore-grid a > span { grid-column: 2; grid-row: 1 / -1; align-self: end; color: var(--accent); }
+  .explore-grid a:hover, .explore-grid a:focus-visible { color: var(--on-accent); background: var(--accent); }
+  .explore-grid a:hover small, .explore-grid a:hover strong, .explore-grid a:hover > span, .explore-grid a:focus-visible small, .explore-grid a:focus-visible strong, .explore-grid a:focus-visible > span { color: inherit; }
+  @media (max-width: 900px) {
+    .hero-shell { grid-template-rows: 50px minmax(520px, 1fr) auto; }
+    .identity { grid-column: 1 / 9; }
+    .entry-ticket { grid-template-columns: 150px minmax(0, 1fr) 74px; }
+    .entry-ticket::before, .entry-ticket::after { left: 140px; }
+    .section-heading { grid-template-columns: 170px minmax(0, 1fr) auto; }
+    .section-heading.compact-heading { grid-template-columns: minmax(0, 1fr) auto; }
+    .profile-card { grid-template-columns: minmax(220px, .7fr) minmax(0, 1.3fr); }
+    .profile-copy { padding-right: 1.75rem; padding-left: 1.75rem; }
+  }
+  @media (max-width: 700px) {
+    :global(.main-content.home-page-surface)::before { top: 64px; background-position: 58% center; }
+    .hero { min-height: calc(100svh - 64px); }
+    .hero::before { left: 45%; }
+    .hero-shell { min-height: calc(100svh - 64px); padding: 0 1rem; grid-template-rows: 48px minmax(430px, 1fr) auto; }
+    .hero-rail { grid-template-columns: 1fr auto; gap: .75rem; }
+    .hero-rail p:nth-child(2) { display: none; }
+    .identity { grid-column: 1 / -1; align-self: start; padding-top: 3.2rem; }
+    .hero-kicker { width: 70%; min-height: 2.3rem; font-size: .62rem; }
+    h1 { font-size: 3.75rem; line-height: .78; }
+    h1 span:last-child { margin-left: .03em; }
+    .identity-foot { width: 100%; grid-template-columns: auto 40px 1fr; gap: .55rem .65rem; margin-top: 1.6rem; padding-top: .7rem; }
+    .identity-foot > span { font-size: .48rem; }
+    .identity-foot p { font-size: .72rem; }
+    .entry-ticket { grid-template-columns: 82px minmax(0, 1fr) 46px; min-height: 156px; margin-bottom: 1rem; }
+    .entry-ticket::before, .entry-ticket::after { left: 72px; }
+    .ticket-stub { padding: .85rem .65rem; }
+    .ticket-stub strong { font-size: .9rem; }
+    .ticket-entry { padding: .85rem .75rem; }
+    .ticket-entry > strong { font-size: .95rem; white-space: normal; }
+    .ticket-entry > p { display: none; }
+    .ticket-entry footer { flex-direction: column; justify-content: end; gap: .25rem; }
+    .home-shell { padding: 0 1rem; }
+    .section-heading { grid-template-columns: 1fr auto; gap: .5rem 1rem; align-items: center; }
+    .section-heading > p { grid-column: 1; }
+    .section-heading h2 { grid-column: 1 / -1; grid-row: 2; font-size: 2.6rem; }
+    .section-heading > span { grid-column: 2; grid-row: 1; font-size: .44rem; }
+    .section-heading.compact-heading h2 { grid-column: 1; grid-row: 1; }
+    .section-heading.compact-heading > span { grid-column: 2; grid-row: 1; }
+    .writing-section { padding: 5.5rem 0 6rem; }
+    .setlist-layout { display: block; margin-top: 1rem; }
+    .track-list { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(255px, 78vw); overflow-x: auto; overscroll-behavior-inline: contain; scroll-snap-type: inline mandatory; }
+    .track-list li, .track-list li:nth-child(2n) { scroll-snap-align: start; border-right: 1px solid var(--border); border-bottom: 0; }
+    .track-list li:last-child { border-right: 0; }
+    .track-list a { min-height: 245px; padding: 1.4rem; }
+    .all-tracks { grid-column: auto; }
+    .topics-section { padding: 4.5rem 0; }
+    .topic-booklet { display: block; }
+    .topic-spine { min-height: 58px; flex-direction: row; justify-content: space-between; padding: .8rem 1rem; }
+    .topic-spine span, .topic-spine b, .topic-spine small { margin: 0; writing-mode: horizontal-tb; }
+    .topic-list { grid-template-columns: 1fr; }
+    .topic-list li { border-right: 0; border-bottom: 1px solid var(--border); }
+    .topic-list a { min-height: 72px; grid-template-columns: 54px minmax(0, 1fr) 64px; padding: .85rem 1rem; }
+    .topic-list li:nth-last-child(-n + 2) { border-bottom: 1px solid var(--border); }
+    .topic-list li:last-child { border-bottom: 0; }
+    .contribution-panel { padding: 1.2rem; }
+    .contribution-panel > header, .contribution-meta { align-items: start; flex-direction: column; gap: .8rem; }
+    .contribution-grid { min-width: 690px; justify-content: start; }
+    .profile-section { padding: 4.5rem 0; }
+    .profile-card { display: block; }
+    .profile-card > header { gap: 1rem; }
+    .profile-identity { min-height: 210px; padding: 1.5rem 1.2rem; border-right: 0; border-bottom: 1px dashed var(--accent); }
+    .profile-identity h2 { font-size: 2.4rem; }
+    .profile-copy { padding: 1.5rem 1.2rem; }
+    .profile-copy > a { margin-top: 1.5rem; }
+    .explore-section { padding: 4.5rem 0 5.5rem; }
+    .explore-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .explore-grid a { min-height: 112px; padding: 1rem; }
+    .explore-grid a:nth-child(even) { border-right: 0; }
+    .explore-grid a:nth-child(-n + 2) { border-bottom: 1px dashed var(--accent); }
+  }
+  @media (max-width: 360px) {
+    .identity-foot p { font-size: .68rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero { --guitar-x: 0px !important; --guitar-y: 0px !important; }
+    .hero-shell { opacity: 1 !important; transform: none !important; transition: none; }
+  }
+</style>

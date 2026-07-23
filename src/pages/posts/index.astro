@@ -1,0 +1,89 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { locales } from '../../i18n';
+const posts = (await getCollection('posts', ({ data }) => !data.draft)).sort((a,b) => b.data.date.valueOf() - a.data.date.valueOf());
+const translated = await getCollection('postTranslations', ({ data }) => !data.draft);
+const valuesFor = (post: typeof posts[number], field: 'title' | 'description') => Object.fromEntries(locales.map(locale => {
+  const entry = locale === 'zh-TW' ? post : translated.find(item => item.id === `${locale}/${post.id}`);
+  return [locale, entry?.data[field] ?? post.data[field]];
+}));
+const groups = Object.groupBy(posts, post => String(post.data.date.getFullYear()));
+const years = Object.keys(groups).sort((a,b) => Number(b)-Number(a));
+---
+<BaseLayout title="文章" titleKey="meta.posts.title" descriptionKey="meta.posts.description" bodyClass="inner-page">
+  <div class="page-container archive-page">
+    <header class="archive-heading"><div><p>01 / ARCHIVE</p><h1 data-i18n="posts.title">文章</h1><p class="active-filter" hidden><span>FILTER /</span><strong></strong><a href="/posts" aria-label="Clear topic filter">×</a></p></div><p class="count"><strong data-archive-count>{posts.length}</strong> <span data-i18n="posts.count">篇文章</span></p></header>
+    {years.map(year => (
+      <section class="year-group" data-year-group>
+        <div class="year-rail"><span>{year}</span><i></i></div>
+        <ol>
+          {groups[year]?.map(post => (
+            <li data-post-tags={JSON.stringify(post.data.tags)}><a href={`/posts/${post.id}`} data-mascot-preview={JSON.stringify({
+              slug: post.id,
+              titles: valuesFor(post, 'title'),
+              descriptions: valuesFor(post, 'description'),
+              tags: post.data.tags,
+            })}>
+              <time datetime={post.data.date.toISOString()} data-date={post.data.date.toISOString()}>{post.data.date.toLocaleDateString('zh-TW')}</time>
+              <span class="entry"><strong data-i18n-values={JSON.stringify(valuesFor(post,'title'))}>{post.data.title}</strong><span data-i18n-values={JSON.stringify(valuesFor(post,'description'))}>{post.data.description}</span><span class="tags">{post.data.tags.map(tag => <i>{tag}</i>)}</span></span>
+              <span class="arrow">↗</span>
+            </a></li>
+          ))}
+        </ol>
+      </section>
+    ))}
+  </div>
+</BaseLayout>
+<script>
+  function initArchiveFilter() {
+    const page = document.querySelector<HTMLElement>('.archive-page');
+    if (!page || page.dataset.filterBound === 'true') return;
+    page.dataset.filterBound = 'true';
+    const tag = new URL(window.location.href).searchParams.get('tag');
+    if (!tag) return;
+    let visible = 0;
+    page.querySelectorAll<HTMLElement>('[data-post-tags]').forEach(item => {
+      const tags = JSON.parse(item.dataset.postTags ?? '[]') as string[];
+      item.hidden = !tags.includes(tag);
+      if (!item.hidden) visible += 1;
+    });
+    page.querySelectorAll<HTMLElement>('[data-year-group]').forEach(group => {
+      group.hidden = !group.querySelector('[data-post-tags]:not([hidden])');
+    });
+    const filter = page.querySelector<HTMLElement>('.active-filter');
+    const label = filter?.querySelector('strong');
+    if (filter && label) { label.textContent = `#${tag}`; filter.hidden = false; }
+    const count = page.querySelector<HTMLElement>('[data-archive-count]');
+    if (count) count.textContent = String(visible);
+  }
+  initArchiveFilter();
+  document.addEventListener('astro:page-load', initArchiveFilter);
+</script>
+<style>
+.archive-page { padding: 4.5rem 1.5rem 7rem; }
+.archive-heading { display:flex; align-items:end; justify-content:space-between; padding-bottom:2rem; border-bottom:1px solid var(--border); }
+.archive-heading > div > p { color:var(--accent); font:500 .68rem var(--font-mono); }
+h1 { margin-top:.6rem; font-size:clamp(3rem,8vw,5.5rem); font-weight:300; }
+.count { color:var(--text-faint); font:400 .75rem var(--font-ui); }
+.count strong { color:var(--accent); font:400 2rem var(--font-display); }
+.active-filter { display:flex; align-items:center; gap:.55rem; margin-top:1rem; color:var(--text-faint); font:500 .58rem var(--font-mono); }
+.active-filter[hidden] { display:none; }
+.active-filter strong { color:var(--accent); font:600 .68rem var(--font-mono); }
+.active-filter a { width:22px; height:22px; display:grid; place-items:center; border:1px solid var(--border); color:var(--text); }
+.year-group { display:grid; grid-template-columns:100px 1fr; gap:2rem; padding-top:3rem; }
+.year-rail { display:flex; flex-direction:column; color:var(--text-faint); font:400 .72rem var(--font-mono); }
+.year-rail i { width:1px; min-height:72px; flex:1; margin:1rem 0 0 1.2rem; background:var(--border); }
+ol { list-style:none; border-top:1px solid var(--border); }
+li { border-bottom:1px solid var(--border); }
+li a { display:grid; grid-template-columns:120px 1fr 20px; gap:1.2rem; align-items:start; padding:1.25rem .8rem; transition:background var(--transition),padding var(--transition); }
+li a:hover { padding-left:1.2rem; background:var(--accent-glow); }
+time { padding-top:.2rem; color:var(--text-faint); font:400 .7rem var(--font-mono); }
+.entry { display:flex; flex-direction:column; gap:.25rem; }
+.entry strong { color:var(--text); font:500 1rem var(--font-ui); }
+.entry > span:not(.tags) { color:var(--text-muted); font-size:.84rem; line-height:1.5; }
+.tags { display:flex; gap:.35rem; margin-top:.3rem; }
+.tags i { padding:.08rem .4rem; border:1px solid var(--border); border-radius:3px; color:var(--text-faint); font:400 .65rem var(--font-mono); font-style:normal; }
+.arrow { color:var(--accent); }
+@media(max-width:680px) { .year-group{grid-template-columns:1fr;gap:.7rem}.year-rail i{display:none}li a{grid-template-columns:1fr 20px}time{grid-column:1/-1} }
+</style>

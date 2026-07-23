@@ -1,0 +1,102 @@
+---
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import SearchModal from '../components/SearchModal.astro';
+import GlobalScene from '../components/GlobalScene.astro';
+import MascotDock from '../components/MascotDock.astro';
+import ThemeController from '../components/ThemeController.astro';
+import { localizedValues, messages, type MessageKey } from '../i18n';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  bodyClass?: string;
+  description?: string;
+  titleKey?: MessageKey;
+  descriptionKey?: MessageKey;
+  titleValues?: Record<string, string>;
+  descriptionValues?: Record<string, string>;
+  ogImage?: string;
+}
+const { title, bodyClass, description = messages['zh-TW']['meta.home.description'], titleKey, descriptionKey, titleValues, descriptionValues, ogImage } = Astro.props;
+const bodyClasses = bodyClass?.split(/\s+/).filter(Boolean) ?? [];
+const mainSurfaceClass = bodyClasses.includes('home-page') ? 'home-page-surface' : bodyClasses.includes('inner-page') ? 'inner-page-surface' : undefined;
+const mainDetailClass = bodyClasses.includes('post-detail-page') ? 'post-detail-surface' : undefined;
+const resolvedTitles = titleValues ?? (titleKey ? localizedValues(titleKey) : { 'zh-TW': title, en: title, ja: title, ko: title });
+const resolvedDescriptions = descriptionValues ?? (descriptionKey ? localizedValues(descriptionKey) : { 'zh-TW': description, en: description, ja: description, ko: description });
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+---
+<!doctype html>
+<html lang="zh-TW" data-locale="zh-TW" data-scene="campus" data-scene-lead="mafuyu" data-page-title-values={JSON.stringify(resolvedTitles)}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="canonical" href={canonicalURL} />
+    <title>{title === 'Kaiyasi' ? title : `${title} — Kaiyasi`}</title>
+    <meta name="description" content={description} data-i18n-values={JSON.stringify(resolvedDescriptions)} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    <link rel="alternate" type="application/rss+xml" title="Kaiyasi RSS" href="/rss.xml" />
+    <link rel="icon" type="image/png" sizes="256x256" href="/favicon-specialized-v2.png?v=4" />
+    <meta name="theme-color" content="#15191a" />
+    <ThemeController />
+    <script is:inline>
+      (() => {
+        const applyScene = () => {
+          const now = new Date();
+          const hour = now.getHours();
+          const isDay = hour >= 6 && hour < 18;
+          const isWeekend = now.getDay() === 0 || now.getDay() === 6;
+          const scene = isWeekend ? 'weekend' : isDay ? 'campus' : 'stage';
+          const lead = isDay ? 'mafuyu' : 'ritsuka';
+          const root = document.documentElement;
+          const changed = root.dataset.scene !== scene || root.dataset.sceneLead !== lead;
+          root.dataset.scene = scene;
+          root.dataset.sceneLead = lead;
+          if (changed) window.dispatchEvent(new CustomEvent('scenechange', { detail: { scene, lead } }));
+        };
+        const stored = localStorage.getItem('locale');
+        const language = navigator.language.toLowerCase();
+        const locale = stored || (language.startsWith('ja') ? 'ja' : language.startsWith('ko') ? 'ko' : language.startsWith('en') ? 'en' : 'zh-TW');
+        document.documentElement.dataset.locale = locale;
+        document.documentElement.lang = locale;
+        applyScene();
+        window.updateGivenScene = applyScene;
+        window.setInterval(applyScene, 60_000);
+        document.addEventListener('visibilitychange', () => {
+          if (!document.hidden) applyScene();
+        });
+      })();
+    </script>
+  </head>
+  <body class={bodyClass}>
+    <GlobalScene />
+    <Header />
+    <SearchModal />
+    <main class:list={['main-content', mainSurfaceClass, mainDetailClass]}><slot /></main>
+    <Footer />
+    <MascotDock />
+    <script src="../scripts/locale.ts"></script>
+  </body>
+</html>
+<style is:global>
+.inner-page-surface { --inner-page-image: url('/images/pages/mafuyu-room-v1.webp'); --inner-page-image-position: center; --inner-page-image-opacity: .28; --inner-page-image-filter: saturate(.8) contrast(.96); }
+[data-theme='dark'] .inner-page-surface { --inner-page-image: url('/images/pages/ritsuka-room-v1.webp'); --inner-page-image-opacity: .32; --inner-page-image-filter: saturate(.76) brightness(.92) contrast(1.04); }
+.inner-page-surface.post-detail-surface { --inner-page-image-opacity: .17; }
+[data-theme='dark'] .inner-page-surface.post-detail-surface { --inner-page-image-opacity: .2; }
+.inner-page-surface::before { content: ''; position: fixed; z-index: -1; inset: 68px 0 0; background: var(--inner-page-image) var(--inner-page-image-position) / cover no-repeat; opacity: var(--inner-page-image-opacity); filter: var(--inner-page-image-filter); pointer-events: none; }
+body:has(.inner-page-surface) .global-canvas { opacity: .38; }
+.main-content { position: relative; z-index: 1; min-height: 100vh; padding-top: 68px; display: flex; flex-direction: column; }
+@media (max-width: 650px) {
+  .inner-page-surface { --inner-page-image-position: 18% center; --inner-page-image-opacity: .21; }
+  [data-theme='dark'] .inner-page-surface { --inner-page-image-position: 82% center; --inner-page-image-opacity: .24; }
+  .inner-page-surface.post-detail-surface { --inner-page-image-opacity: .13; }
+  [data-theme='dark'] .inner-page-surface.post-detail-surface { --inner-page-image-opacity: .15; }
+  .inner-page-surface::before { top: 64px; }
+  .main-content { padding-top: 64px; }
+}
+.page-container { max-width: 980px; margin: 0 auto; padding: 0 1.5rem; width: 100%; }
+</style>

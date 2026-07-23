@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "cooldownMs": 12000,
+  "arrivalDelayMs": 900,
+  "givenReferenceProbability": 0.18,
+  "spontaneous": {
+    "enabled": true,
+    "delayMs": 75000,
+    "probability": 0.24
+  },
+  "article": {
+    "enabled": true,
+    "thresholds": [0.3, 0.65, 0.9]
+  },
+  "holidays": [
+    { "id": "new-year", "calendar": "fixed", "month": 1, "day": 1, "label": "New Year" },
+    { "id": "childrens-day", "calendar": "fixed", "month": 4, "day": 4, "label": "Children's Day" },
+    { "id": "christmas", "calendar": "fixed", "month": 12, "day": 25, "label": "Christmas" },
+    { "id": "lunar-new-year", "calendar": "chinese", "month": 1, "dayStart": 1, "dayEnd": 5, "label": "Lunar New Year" },
+    { "id": "dragon-boat", "calendar": "chinese", "month": 5, "dayStart": 5, "dayEnd": 5, "label": "Dragon Boat Festival" },
+    { "id": "mid-autumn", "calendar": "chinese", "month": 8, "dayStart": 15, "dayEnd": 15, "label": "Mid-Autumn Festival" }
+  ]
+}

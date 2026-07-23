@@ -1,0 +1,189 @@
+---
+const icons = [
+  {
+    label: 'PUBLIC / MUSIC JOURNAL',
+    title: '一般網站',
+    src: '/favicon-specialized-v2.png?v=4',
+    accent: '#c75b53',
+  },
+  {
+    label: 'ADMIN / CONTROL ROOM',
+    title: '管理後台',
+    src: '/admin-favicon-specialized-v2.png?v=3',
+    accent: '#62a8bb',
+  },
+];
+---
+
+<!doctype html>
+<html lang="zh-TW" data-preview-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#15191a" />
+    <link rel="icon" type="image/png" sizes="256x256" href="/favicon-specialized-v2.png?v=4" />
+    <title>Icon Preview - Kaiyasi</title>
+  </head>
+  <body>
+    <header class="preview-header">
+      <div>
+        <span>IDENTITY / 2026</span>
+        <h1>Website Icons</h1>
+      </div>
+      <div class="preview-controls">
+        <label class="size-control">
+          <span>SIZE</span>
+          <input type="range" min="128" max="560" value="360" step="8" data-size-control />
+          <output data-size-output>360 px</output>
+        </label>
+        <div class="theme-control" role="group" aria-label="預覽背景">
+          <button type="button" aria-pressed="false" data-theme="light" title="淺色背景">☀</button>
+          <button type="button" aria-pressed="true" data-theme="dark" title="深色背景">◐</button>
+        </div>
+        <a href="/" aria-label="返回網站" title="返回網站">←</a>
+      </div>
+    </header>
+
+    <main>
+      {icons.map((icon, index) => (
+        <article class="icon-proof" style={`--accent: ${icon.accent}`}>
+          <header>
+            <span>0{index + 1}</span>
+            <div>
+              <small>{icon.label}</small>
+              <h2>{icon.title}</h2>
+            </div>
+          </header>
+          <div class="large-preview">
+            <img src={icon.src} alt={`${icon.title} Icon`} width="256" height="256" />
+          </div>
+          <footer>
+            {[16, 32, 64].map((size) => (
+              <figure>
+                <span class="actual-size" style={`--actual-size: ${size}px`}>
+                  <img src={icon.src} alt="" width={size} height={size} />
+                </span>
+                <figcaption>{size} PX</figcaption>
+              </figure>
+            ))}
+          </footer>
+        </article>
+      ))}
+    </main>
+
+    <script>
+      const root = document.documentElement;
+      const sizeControl = document.querySelector('[data-size-control]');
+      const sizeOutput = document.querySelector('[data-size-output]');
+      const themeButtons = document.querySelectorAll('[data-theme]');
+
+      const setSize = (value) => {
+        root.style.setProperty('--preview-size', `${value}px`);
+        if (sizeOutput) sizeOutput.textContent = `${value} px`;
+      };
+
+      sizeControl?.addEventListener('input', (event) => setSize(event.currentTarget.value));
+      themeButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          root.dataset.previewTheme = button.dataset.theme;
+          themeButtons.forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
+        });
+      });
+    </script>
+  </body>
+</html>
+
+<style>
+  :root {
+    --preview-size: 360px;
+    --ink: #eff0ec;
+    --muted: #8e989a;
+    --line: rgba(255, 255, 255, .16);
+    --page: #15191a;
+    --surface: #1d2223;
+    color-scheme: dark;
+    font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+    background: var(--page);
+  }
+
+  :root[data-preview-theme='light'] {
+    --ink: #1c2122;
+    --muted: #667073;
+    --line: rgba(21, 25, 26, .18);
+    --page: #e8e8e3;
+    --surface: #f4f2ec;
+    color-scheme: light;
+  }
+
+  * { box-sizing: border-box; }
+  body { min-width: 320px; min-height: 100vh; margin: 0; color: var(--ink); background: var(--page); transition: color 180ms ease, background 180ms ease; }
+
+  .preview-header {
+    position: sticky;
+    z-index: 5;
+    top: 0;
+    display: flex;
+    min-height: 92px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    padding: 1rem clamp(1rem, 4vw, 4rem);
+    border-bottom: 1px solid var(--line);
+    background: color-mix(in srgb, var(--page) 90%, transparent);
+    backdrop-filter: blur(14px);
+  }
+
+  .preview-header span, .icon-proof small, figcaption { color: var(--muted); font: 600 .63rem/1.2 ui-monospace, monospace; letter-spacing: .08em; }
+  h1, h2 { margin: 0; letter-spacing: 0; }
+  h1 { margin-top: .24rem; font-size: clamp(1.25rem, 2vw, 1.8rem); font-weight: 520; }
+  h2 { margin-top: .25rem; font-size: 1.05rem; font-weight: 560; }
+
+  .preview-controls, .size-control, .theme-control { display: flex; align-items: center; }
+  .preview-controls { gap: 1rem; }
+  .size-control { gap: .65rem; }
+  .size-control input { width: clamp(100px, 14vw, 190px); accent-color: #c75b53; }
+  .size-control output { min-width: 52px; color: var(--ink); font: 500 .7rem ui-monospace, monospace; }
+  .theme-control { border: 1px solid var(--line); }
+  button, .preview-controls > a {
+    display: grid;
+    width: 38px;
+    height: 36px;
+    place-items: center;
+    border: 0;
+    color: var(--muted);
+    background: transparent;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  button + button { border-left: 1px solid var(--line); }
+  button[aria-pressed='true'], button:hover, .preview-controls > a:hover { color: var(--ink); background: color-mix(in srgb, var(--ink) 9%, transparent); }
+
+  main { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); min-height: calc(100vh - 92px); }
+  .icon-proof { display: grid; min-width: 0; grid-template-rows: auto 1fr auto; padding: clamp(1.25rem, 3vw, 3rem); }
+  .icon-proof + .icon-proof { border-left: 1px solid var(--line); }
+  .icon-proof > header { display: grid; grid-template-columns: 34px 1fr; gap: 1rem; align-items: start; }
+  .icon-proof > header > span { color: var(--accent); font: 600 .72rem ui-monospace, monospace; }
+
+  .large-preview { display: grid; min-height: calc(var(--preview-size) + 3rem); place-items: center; overflow: auto; padding: 1.5rem 0; }
+  .large-preview img { width: min(var(--preview-size), 100%); height: auto; aspect-ratio: 1; object-fit: contain; transition: width 120ms ease; }
+
+  .icon-proof > footer { display: flex; min-height: 92px; align-items: end; gap: clamp(1.2rem, 4vw, 3.5rem); padding-top: 1.1rem; border-top: 1px solid var(--line); }
+  figure { display: grid; min-width: 64px; min-height: 72px; place-items: end center; gap: .55rem; margin: 0; }
+  .actual-size { display: grid; width: 64px; height: 64px; place-items: center; }
+  .actual-size img { width: var(--actual-size); height: var(--actual-size); }
+
+  @media (max-width: 780px) {
+    .preview-header { position: static; align-items: stretch; flex-direction: column; gap: 1rem; }
+    .preview-controls { justify-content: space-between; }
+    .size-control { flex: 1; }
+    main { grid-template-columns: 1fr; }
+    .icon-proof + .icon-proof { border-top: 1px solid var(--line); border-left: 0; }
+    .large-preview { min-height: min(calc(var(--preview-size) + 3rem), 76vw); }
+  }
+
+  @media (max-width: 480px) {
+    .size-control > span, .size-control output { display: none; }
+    .icon-proof > footer { justify-content: space-between; }
+  }
+</style>

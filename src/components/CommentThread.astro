@@ -1,0 +1,351 @@
+---
+interface Props {
+  resource: string;
+  kind?: 'post' | 'guestbook';
+  collapsibleForm?: boolean;
+}
+
+const { resource, kind = 'post', collapsibleForm = false } = Astro.props;
+const copy = {
+  'zh-TW': {
+    title: kind === 'guestbook' ? '留言板' : '文章回音',
+    eyebrow: kind === 'guestbook' ? 'OPEN WALL / VISITOR NOTES' : 'AFTER NOTE / REPLIES',
+    intro: kind === 'guestbook' ? '路過也可以留下一句話，讓這裡知道你曾經來過。' : '讀完後留下的一點想法，會依照抵達的順序放在這裡。',
+    count: '則回音', loading: '正在整理紙條…', empty: '現在還很安靜。你可以留下第一張紙條。',
+    name: '怎麼稱呼你', message: '想留下的話',
+    avatar: '留言頭像', avatarEmail: 'Gravatar Email', avatarGithub: 'GitHub 帳號', connectDiscord: '使用 Discord 連結', connectedDiscord: '已連結 Discord', avatarError: '請先完成頭像資料或 Discord 連結。', oauthError: 'Discord 連結沒有完成，請再試一次。',
+    namePlaceholder: '名字或暱稱', messagePlaceholder: '寫下一段回音…',
+    submit: '貼上紙條', sending: '正在送出…', success: '紙條已經貼上了。',
+    write: '寫一封信', closeForm: '收起信紙',
+    error: '暫時沒有貼成功，請稍後再試。', rate: '紙條送得有點快，稍後再回來。',
+  },
+  en: {
+    title: kind === 'guestbook' ? 'Guestbook' : 'Post echoes',
+    eyebrow: kind === 'guestbook' ? 'OPEN WALL / VISITOR NOTES' : 'AFTER NOTE / REPLIES',
+    intro: kind === 'guestbook' ? 'Leave a line to let this place know you stopped by.' : 'Thoughts left after reading, kept here in the order they arrived.',
+    count: 'echoes', loading: 'Gathering notes…', empty: 'It is quiet here. You can leave the first note.',
+    name: 'Your name', message: 'Your note', namePlaceholder: 'Name or nickname',
+    avatar: 'Comment avatar', avatarEmail: 'Gravatar email', avatarGithub: 'GitHub username', connectDiscord: 'Connect Discord', connectedDiscord: 'Discord connected', avatarError: 'Complete the avatar field or connect Discord first.', oauthError: 'Discord could not connect. Please try again.',
+    messagePlaceholder: 'Leave an echo…', submit: 'Pin this note', sending: 'Sending…',
+    write: 'Write a letter', closeForm: 'Put away the letter',
+    success: 'Your note is now on the wall.', error: 'The note did not stick. Please try again.', rate: 'Too many notes at once. Please return later.',
+  },
+  ja: {
+    title: kind === 'guestbook' ? 'ゲストブック' : '記事の余韻', eyebrow: kind === 'guestbook' ? 'OPEN WALL / VISITOR NOTES' : 'AFTER NOTE / REPLIES',
+    intro: kind === 'guestbook' ? '立ち寄った印に、一言を残していってください。' : '読み終えたあとの言葉を、届いた順にここへ残します。',
+    count: '件', loading: 'メモを集めています…', empty: 'まだ静かです。最初のメモを残せます。', name: 'お名前',
+    message: '残したい言葉', namePlaceholder: '名前またはニックネーム',
+    avatar: 'コメントのアバター', avatarEmail: 'Gravatar メール', avatarGithub: 'GitHub アカウント', connectDiscord: 'Discord と連携', connectedDiscord: 'Discord 連携済み', avatarError: 'アバター情報を入力するか Discord と連携してください。', oauthError: 'Discord と連携できませんでした。もう一度お試しください。',
+    messagePlaceholder: '余韻を残す…', submit: 'メモを貼る', sending: '送信中…', success: 'メモを貼りました。',
+    write: '手紙を書く', closeForm: '便箋を閉じる',
+    error: '送信できませんでした。もう一度お試しください。', rate: '送信が少し早すぎます。時間をおいてください。',
+  },
+  ko: {
+    title: kind === 'guestbook' ? '방명록' : '글의 메아리', eyebrow: kind === 'guestbook' ? 'OPEN WALL / VISITOR NOTES' : 'AFTER NOTE / REPLIES',
+    intro: kind === 'guestbook' ? '잠시 들렀다는 표시로 한마디를 남겨 주세요.' : '글을 읽은 뒤의 생각을 도착한 순서대로 이곳에 둡니다.',
+    count: '개의 메아리', loading: '메모를 모으는 중…', empty: '아직 조용합니다. 첫 메모를 남겨 보세요.', name: '이름',
+    message: '남길 말', namePlaceholder: '이름 또는 닉네임',
+    avatar: '댓글 프로필', avatarEmail: 'Gravatar 이메일', avatarGithub: 'GitHub 계정', connectDiscord: 'Discord 연결', connectedDiscord: 'Discord 연결됨', avatarError: '프로필 정보를 입력하거나 Discord를 연결해 주세요.', oauthError: 'Discord를 연결하지 못했습니다. 다시 시도해 주세요.',
+    messagePlaceholder: '메아리를 남겨 주세요…', submit: '메모 붙이기', sending: '보내는 중…', success: '메모를 붙였습니다.',
+    write: '편지 쓰기', closeForm: '편지지 접기',
+    error: '메모를 보내지 못했습니다. 다시 시도해 주세요.', rate: '너무 빠르게 보내고 있습니다. 잠시 후 다시 와 주세요.',
+  },
+};
+---
+
+<section class:list={['comment-thread', collapsibleForm && 'is-letterbox']} data-comment-thread data-resource={resource} data-copy={JSON.stringify(copy)} data-collapsible={collapsibleForm ? 'true' : undefined} aria-labelledby={`comments-${resource.replace(/[^a-z0-9]/gi, '-')}`}>
+  <header class="comment-heading">
+    <div>
+      <p data-comment-copy="eyebrow">{copy['zh-TW'].eyebrow}</p>
+      <h2 id={`comments-${resource.replace(/[^a-z0-9]/gi, '-')}`} data-comment-copy="title">{copy['zh-TW'].title}</h2>
+    </div>
+    <strong><span data-comment-count>0</span> <span data-comment-copy="count">{copy['zh-TW'].count}</span></strong>
+  </header>
+  <p class="comment-intro" data-comment-copy="intro">{copy['zh-TW'].intro}</p>
+
+  {collapsibleForm && (
+    <button class="letter-toggle" type="button" data-form-toggle aria-expanded="false">
+      <span data-comment-copy="write">{copy['zh-TW'].write}</span>
+      <b aria-hidden="true">＋</b>
+    </button>
+  )}
+
+  <div class="comment-list" data-comment-list aria-live="polite">
+    <p class="comment-state" data-comment-state data-comment-copy="loading">{copy['zh-TW'].loading}</p>
+  </div>
+
+  <form class="comment-form" data-comment-form hidden={collapsibleForm}>
+    <fieldset class="avatar-picker">
+      <legend data-comment-copy="avatar">{copy['zh-TW'].avatar}</legend>
+      <div class="avatar-modes">
+        <label><input type="radio" name="avatar-source" value="gravatar" checked /><span>Gravatar</span></label>
+        <label><input type="radio" name="avatar-source" value="github" /><span>GitHub</span></label>
+        <label><input type="radio" name="avatar-source" value="discord" /><span>Discord</span></label>
+      </div>
+      <div class="avatar-panel" data-avatar-panel="gravatar">
+        <label><span data-comment-copy="avatarEmail">{copy['zh-TW'].avatarEmail}</span><input type="email" maxlength="160" autocomplete="email" data-avatar-identity="gravatar" placeholder="name@example.com" /></label>
+      </div>
+      <div class="avatar-panel" data-avatar-panel="github" hidden>
+        <label><span data-comment-copy="avatarGithub">{copy['zh-TW'].avatarGithub}</span><input maxlength="39" autocomplete="off" data-avatar-identity="github" placeholder="octocat" /></label>
+      </div>
+      <div class="avatar-panel discord-panel" data-avatar-panel="discord" hidden>
+        <button type="button" data-discord-connect><span data-comment-copy="connectDiscord">{copy['zh-TW'].connectDiscord}</span><b aria-hidden="true">↗</b></button>
+        <span class="discord-identity" data-discord-identity hidden><img alt="" width="36" height="36" /><strong></strong></span>
+      </div>
+    </fieldset>
+    <div class="comment-fields">
+      <label><span data-comment-copy="name">{copy['zh-TW'].name}</span><input name="author" minlength="2" maxlength="40" required autocomplete="name" data-comment-placeholder="namePlaceholder" placeholder={copy['zh-TW'].namePlaceholder} /></label>
+    </div>
+    <label class="comment-message"><span data-comment-copy="message">{copy['zh-TW'].message}</span><textarea name="body" minlength="2" maxlength="1000" rows="4" required data-comment-placeholder="messagePlaceholder" placeholder={copy['zh-TW'].messagePlaceholder}></textarea></label>
+    <label class="comment-trap" aria-hidden="true">Company<input name="company" tabindex="-1" autocomplete="off" /></label>
+    <footer>
+      <p data-comment-feedback role="status"></p>
+      <button type="submit"><span data-comment-submit data-comment-copy="submit">{copy['zh-TW'].submit}</span><b aria-hidden="true">→</b></button>
+    </footer>
+  </form>
+</section>
+
+<script>
+  type CommentCopy = Record<string, string>;
+  type CommentItem = { id: string; author: string; body: string; avatarProvider: string | null; avatarUrl: string | null; createdAt: string };
+
+  function initCommentThreads() {
+    document.querySelectorAll<HTMLElement>('[data-comment-thread]').forEach(panel => {
+      if (panel.dataset.bound === 'true') return;
+      panel.dataset.bound = 'true';
+      const resource = panel.dataset.resource!;
+      const copies = JSON.parse(panel.dataset.copy || '{}') as Record<string, CommentCopy>;
+      const list = panel.querySelector<HTMLElement>('[data-comment-list]')!;
+      const count = panel.querySelector<HTMLElement>('[data-comment-count]')!;
+      const form = panel.querySelector<HTMLFormElement>('[data-comment-form]')!;
+      const formToggle = panel.querySelector<HTMLButtonElement>('[data-form-toggle]');
+      const feedback = panel.querySelector<HTMLElement>('[data-comment-feedback]')!;
+      const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+      const avatarRadios = [...form.querySelectorAll<HTMLInputElement>('input[name="avatar-source"]')];
+      const discordConnect = form.querySelector<HTMLButtonElement>('[data-discord-connect]')!;
+      const discordIdentity = form.querySelector<HTMLElement>('[data-discord-identity]')!;
+      const controller = new AbortController();
+      let comments: CommentItem[] = [];
+      let discordConnected = false;
+
+      const locale = () => document.documentElement.dataset.locale || 'zh-TW';
+      const currentCopy = () => copies[locale()] || copies['zh-TW'];
+      const applyCopy = () => {
+        const words = currentCopy();
+        panel.querySelectorAll<HTMLElement>('[data-comment-copy]').forEach(node => {
+          node.textContent = words[node.dataset.commentCopy!] || '';
+        });
+        panel.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('[data-comment-placeholder]').forEach(node => {
+          node.placeholder = words[node.dataset.commentPlaceholder!] || '';
+        });
+        if (discordConnected) discordConnect.querySelector('span')!.textContent = words.connectedDiscord;
+        if (formToggle) formToggle.querySelector('span')!.textContent = form.hidden ? words.write : words.closeForm;
+        render();
+      };
+      const render = () => {
+        const words = currentCopy();
+        count.textContent = String(comments.length);
+        if (!comments.length) {
+          const empty = document.createElement('p');
+          empty.className = 'comment-state';
+          empty.textContent = words.empty;
+          list.replaceChildren(empty);
+          return;
+        }
+        const fragment = document.createDocumentFragment();
+        comments.forEach((comment, index) => {
+          const article = document.createElement('article');
+          article.className = 'comment-note';
+          const avatar = document.createElement('span');
+          avatar.className = 'comment-avatar';
+          if (comment.avatarUrl) {
+            const image = document.createElement('img');
+            image.src = comment.avatarUrl;
+            image.alt = '';
+            image.width = 48;
+            image.height = 48;
+            image.loading = 'lazy';
+            image.referrerPolicy = 'no-referrer';
+            avatar.append(image);
+          } else {
+            avatar.textContent = comment.author.slice(0, 1).toUpperCase();
+          }
+          const header = document.createElement('header');
+          const number = document.createElement('small');
+          number.textContent = `NOTE ${String(index + 1).padStart(2, '0')}`;
+          const author = document.createElement('strong');
+          author.textContent = comment.author;
+          const time = document.createElement('time');
+          time.dateTime = comment.createdAt;
+          time.textContent = new Intl.DateTimeFormat(locale(), { dateStyle: 'medium' }).format(new Date(comment.createdAt));
+          header.append(number, author, time);
+          const body = document.createElement('p');
+          body.textContent = comment.body;
+          article.append(avatar, header, body);
+          fragment.append(article);
+        });
+        list.replaceChildren(fragment);
+      };
+
+      fetch(`/api/community/comments?resource=${encodeURIComponent(resource)}`, { signal: controller.signal })
+        .then(response => response.ok ? response.json() : Promise.reject(new Error('load_failed')))
+        .then(data => { comments = data.comments || []; render(); })
+        .catch(error => {
+          if (error.name === 'AbortError') return;
+          const state = panel.querySelector<HTMLElement>('[data-comment-state]');
+          if (state) state.textContent = currentCopy().error;
+        });
+
+      const selectAvatarMode = () => {
+        const selected = avatarRadios.find(radio => radio.checked)?.value || 'gravatar';
+        form.querySelectorAll<HTMLElement>('[data-avatar-panel]').forEach(avatarPanel => {
+          const active = avatarPanel.dataset.avatarPanel === selected;
+          avatarPanel.hidden = !active;
+          avatarPanel.querySelectorAll<HTMLInputElement>('input').forEach(input => { input.required = active && selected !== 'discord'; });
+        });
+      };
+      const showDiscordIdentity = (displayName: string, avatarUrl: string) => {
+        discordConnected = true;
+        discordIdentity.hidden = false;
+        discordIdentity.querySelector('img')!.src = avatarUrl;
+        discordIdentity.querySelector('strong')!.textContent = displayName;
+        discordConnect.querySelector('span')!.textContent = currentCopy().connectedDiscord;
+      };
+      avatarRadios.forEach(radio => radio.addEventListener('change', selectAvatarMode, { signal: controller.signal }));
+      formToggle?.addEventListener('click', () => {
+        const willOpen = form.hidden;
+        form.hidden = !willOpen;
+        formToggle.setAttribute('aria-expanded', String(willOpen));
+        formToggle.querySelector('span')!.textContent = willOpen ? currentCopy().closeForm : currentCopy().write;
+        formToggle.querySelector('b')!.textContent = willOpen ? '−' : '＋';
+        if (willOpen) requestAnimationFrame(() => form.querySelector<HTMLInputElement>('input:not([tabindex="-1"])')?.focus());
+      }, { signal: controller.signal });
+      discordConnect.addEventListener('click', () => {
+        const width = 520;
+        const height = 720;
+        const left = Math.max(0, screenX + (outerWidth - width) / 2);
+        const top = Math.max(0, screenY + (outerHeight - height) / 2);
+        const popup = open('/api/community/avatar/discord/start', 'comment-discord-oauth', `popup=yes,width=${width},height=${height},left=${left},top=${top}`);
+        if (!popup) feedback.textContent = currentCopy().oauthError;
+      }, { signal: controller.signal });
+      addEventListener('message', event => {
+        if (event.origin !== location.origin || !event.data || typeof event.data !== 'object') return;
+        if (event.data.type === 'comment-discord-connected') showDiscordIdentity(String(event.data.displayName), String(event.data.avatarUrl));
+        if (event.data.type === 'comment-discord-error') feedback.textContent = currentCopy().oauthError;
+      }, { signal: controller.signal });
+      fetch('/api/community/avatar/discord/me', { signal: controller.signal })
+        .then(response => response.ok ? response.json() : null)
+        .then(identity => { if (identity?.connected) showDiscordIdentity(identity.displayName, identity.avatarUrl); })
+        .catch(() => undefined);
+      selectAvatarMode();
+
+      form.addEventListener('submit', async event => {
+        event.preventDefault();
+        if (!form.reportValidity()) return;
+        const words = currentCopy();
+        const data = new FormData(form);
+        const avatarProvider = avatarRadios.find(radio => radio.checked)?.value || 'gravatar';
+        const avatarIdentity = form.querySelector<HTMLInputElement>(`[data-avatar-identity="${avatarProvider}"]`)?.value.trim() || '';
+        if ((avatarProvider === 'discord' && !discordConnected) || (avatarProvider !== 'discord' && !avatarIdentity)) {
+          feedback.textContent = words.avatarError;
+          return;
+        }
+        submit.disabled = true;
+        feedback.textContent = words.sending;
+        try {
+          const response = await fetch('/api/community/comments', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ resource, locale: locale(), ...Object.fromEntries(data), avatarProvider, avatarIdentity }),
+            signal: controller.signal,
+          });
+          if (!response.ok) throw new Error(response.status === 429 ? 'rate' : 'submit');
+          const result = await response.json();
+          if (result.comment) comments.push(result.comment);
+          form.reset();
+          selectAvatarMode();
+          feedback.textContent = words.success;
+          render();
+        } catch (error) {
+          if ((error as Error).name === 'AbortError') return;
+          feedback.textContent = (error as Error).message === 'rate' ? words.rate : words.error;
+        } finally {
+          submit.disabled = false;
+        }
+      }, { signal: controller.signal });
+      addEventListener('localechange', applyCopy, { signal: controller.signal });
+      document.addEventListener('astro:before-swap', () => controller.abort(), { once: true, signal: controller.signal });
+      applyCopy();
+    });
+  }
+  initCommentThreads();
+  document.addEventListener('astro:page-load', initCommentThreads);
+</script>
+
+<style>
+  .comment-thread { margin-top: 4.5rem; padding-top: 2rem; border-top: 1px solid var(--border); }
+  .comment-heading { display: flex; align-items: end; justify-content: space-between; gap: 1.5rem; }
+  .comment-heading p { color: var(--accent); font: 500 .62rem var(--font-mono); }
+  .comment-heading h2 { margin-top: .4rem; font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 300; }
+  .comment-heading > strong { flex: none; color: var(--text-faint); font: 400 .66rem var(--font-mono); }
+  .comment-heading > strong span:first-child { color: var(--accent); font-size: 1.3rem; }
+  .comment-intro { max-width: 58ch; margin-top: .7rem; color: var(--text-muted); font-size: .9rem; }
+  .letter-toggle { display: inline-flex; align-items: center; justify-content: space-between; gap: 2.5rem; min-width: 170px; min-height: 42px; margin-top: 1.5rem; padding: 0 .8rem 0 1rem; border: 1px solid var(--accent); color: var(--accent); background: transparent; font: 600 .68rem var(--font-ui); cursor: pointer; }
+  .letter-toggle:hover { color: var(--on-accent); background: var(--accent); }
+  .letter-toggle b { font: 400 1.1rem/1 var(--font-ui); }
+  .comment-list { margin-top: 2rem; border-top: 1px solid var(--border); }
+  .comment-state { padding: 2rem 0; color: var(--text-faint); font: 400 .78rem var(--font-ui); }
+  :global(.comment-note) { position: relative; padding: 1.35rem 0 1.5rem 4.5rem; border-bottom: 1px solid var(--border); }
+  :global(.comment-note)::before { content: ''; position: absolute; top: 4.65rem; left: .45rem; width: 2.25rem; height: 5px; background: repeating-linear-gradient(90deg, var(--accent) 0 2px, transparent 2px 6px); opacity: .72; }
+  :global(.comment-avatar) { position: absolute; top: 1.25rem; left: 0; width: 48px; height: 48px; display: grid; place-items: center; overflow: hidden; border: 1px solid var(--border); border-radius: 50%; color: var(--accent); background: var(--bg-surface); font: 600 1rem var(--font-ui); }
+  :global(.comment-avatar img) { width: 100%; height: 100%; object-fit: cover; }
+  :global(.comment-note header) { display: grid; grid-template-columns: auto 1fr auto; align-items: baseline; gap: .8rem; }
+  :global(.comment-note small) { color: var(--text-faint); font: 400 .57rem var(--font-mono); }
+  :global(.comment-note strong) { font: 600 .78rem var(--font-ui); }
+  :global(.comment-note time) { color: var(--text-faint); font: 400 .6rem var(--font-mono); }
+  :global(.comment-note > p) { margin-top: .7rem; color: var(--text-muted); font-size: .91rem; line-height: 1.7; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .comment-form { margin-top: 2.25rem; padding: 1.4rem; border: 1px solid var(--border); background: color-mix(in srgb, var(--bg-surface) 86%, transparent); }
+  .comment-form[hidden] { display: none; }
+  .is-letterbox .comment-list { margin-top: 2.6rem; }
+  .is-letterbox .comment-form { position: relative; background: color-mix(in srgb, var(--bg-surface) 94%, var(--bg)); box-shadow: 8px 8px 0 color-mix(in srgb, var(--accent-secondary) 10%, transparent); }
+  .is-letterbox .comment-form::before { content: 'LETTER / INPUT'; position: absolute; top: -1px; right: 1rem; padding: .3rem .55rem; color: var(--text-faint); background: var(--bg); font: 500 .5rem var(--font-mono); }
+  .avatar-picker { margin: 0 0 1.2rem; padding: 0 0 1.2rem; border: 0; border-bottom: 1px solid var(--border); }
+  .avatar-picker legend { margin-bottom: .65rem; color: var(--text-faint); font: 500 .62rem var(--font-ui); text-transform: uppercase; }
+  .avatar-modes { display: grid; grid-template-columns: repeat(3, 1fr); width: min(360px, 100%); border: 1px solid var(--border); }
+  .avatar-modes label { display: block; }
+  .avatar-modes label + label { border-left: 1px solid var(--border); }
+  .avatar-modes input { position: absolute; opacity: 0; pointer-events: none; }
+  .avatar-modes span { min-height: 34px; display: grid; place-items: center; padding: .3rem; color: var(--text-faint); font: 500 .6rem var(--font-ui); text-transform: none; cursor: pointer; }
+  .avatar-modes input:checked + span { color: var(--on-accent); background: var(--accent); }
+  .avatar-modes input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .avatar-panel { width: min(460px, 100%); margin-top: .8rem; }
+  .avatar-panel[hidden] { display: none; }
+  .discord-panel { min-height: 40px; align-items: center; gap: 1rem; }
+  .discord-panel:not([hidden]) { display: flex; }
+  .discord-panel > button { min-height: 38px; display: inline-flex; align-items: center; gap: 1rem; padding: 0 .8rem; border: 1px solid var(--border); color: var(--text); background: var(--bg); font: 600 .65rem var(--font-ui); cursor: pointer; }
+  .discord-panel > button:hover { border-color: var(--accent-secondary); color: var(--accent-secondary); background: var(--bg); }
+  .discord-identity { align-items: center; gap: .55rem; color: var(--text-muted); }
+  .discord-identity:not([hidden]) { display: inline-flex; }
+  .discord-identity img { width: 36px; height: 36px; border: 1px solid var(--border); border-radius: 50%; object-fit: cover; }
+  .discord-identity strong { font: 500 .68rem var(--font-ui); }
+  .comment-fields { width: min(460px, 100%); }
+  .comment-form label { display: grid; gap: .4rem; color: var(--text-faint); font: 500 .62rem var(--font-ui); text-transform: uppercase; }
+  .comment-form input, .comment-form textarea { width: 100%; border: 0; border-bottom: 1px solid var(--border); border-radius: 0; padding: .65rem 0; color: var(--text); background: transparent; font: 400 .88rem/1.6 var(--font-body); resize: vertical; }
+  .comment-form input:focus, .comment-form textarea:focus { outline: none; border-color: var(--accent); }
+  .comment-message { margin-top: 1rem; }
+  .comment-trap { position: absolute !important; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+  .comment-form footer { min-height: 42px; margin-top: 1rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+  .comment-form footer p { color: var(--text-faint); font: 400 .7rem var(--font-ui); }
+  .comment-form button { flex: none; display: inline-flex; align-items: center; gap: 1.1rem; min-height: 38px; padding: 0 .8rem 0 1rem; border: 1px solid var(--accent); color: var(--accent); background: transparent; font: 600 .68rem var(--font-ui); cursor: pointer; }
+  .comment-form button:hover { color: var(--on-accent); background: var(--accent); }
+  .comment-form button:disabled { opacity: .5; cursor: wait; }
+  .comment-form button b { font-size: 1rem; }
+  @media (max-width: 560px) {
+    .comment-heading { align-items: start; }
+    .comment-fields { grid-template-columns: 1fr; }
+    .comment-form { padding: 1rem; }
+    .comment-form footer { align-items: stretch; flex-direction: column; }
+    .comment-form button { justify-content: space-between; }
+    :global(.comment-note) { padding-left: 3.8rem; }
+  }
+</style>
