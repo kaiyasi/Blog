@@ -106,6 +106,8 @@ if (app) {
     invalid_date: '請確認發布日期。',
     invalid_cover: '封面必須是 src/assets/posts 下的圖片相對路徑。',
     body_too_large: '文章內容超過 1.5 MB。',
+    content_sync_not_configured: '遠端同步尚未完成設定，內容只暫存在目前容器。',
+    content_sync_failed: '內容已暫存，但推送 GitHub 或 GitLab 失敗，請再儲存一次。',
   }[code || ''] || '儲存失敗，請再試一次。');
 
   const slugify = (value: string) => value.toLowerCase().trim()
@@ -435,7 +437,7 @@ if (app) {
       activeSlug = result.post.slug;
       await loadPosts(false);
       fillForm(result.post);
-      postSaveStatus.textContent = draft ? '草稿已儲存。' : '文章已發布。';
+      postSaveStatus.textContent = draft ? '草稿已提交，等待部署。' : '文章已提交，等待部署完成。';
     } catch (error) {
       postSaveStatus.textContent = apiError(error instanceof Error ? error.message : '');
     } finally {
@@ -483,10 +485,12 @@ if (app) {
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || 'save_failed');
       aboutInput.value = JSON.stringify(result.content, null, 2);
-      aboutStatus.textContent = '變更已儲存，正式頁面會立即讀取新內容。';
+      aboutStatus.textContent = '變更已提交，等待部署完成。';
     } catch (error) {
       const code = error instanceof Error ? error.message : '';
-      aboutStatus.textContent = code.startsWith('invalid_') ? `內容驗證失敗：${code.slice(8)}` : '儲存失敗，請再試一次。';
+      aboutStatus.textContent = code.startsWith('invalid_')
+        ? `內容驗證失敗：${code.slice(8)}`
+        : apiError(code);
     } finally {
       button.disabled = false;
     }

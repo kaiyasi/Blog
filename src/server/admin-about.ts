@@ -1,6 +1,7 @@
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { randomUUID } from 'node:crypto';
+import { ContentSyncError, syncContentFile } from './content-sync';
 
 const aboutFile = resolve(process.env.CONTENT_ABOUT_FILE || 'src/content/about.json');
 
@@ -116,10 +117,17 @@ export async function getAboutContent() {
 
 export async function updateAboutContent(value: unknown) {
   const content = validateAboutContent(value);
+  const contents = `${JSON.stringify(content, null, 2)}\n`;
   const directory = dirname(aboutFile);
   await mkdir(directory, { recursive: true });
   const temporary = `${aboutFile}.${randomUUID()}.tmp`;
-  await writeFile(temporary, `${JSON.stringify(content, null, 2)}\n`, { encoding: 'utf8', flag: 'wx' });
+  await writeFile(temporary, contents, { encoding: 'utf8', flag: 'wx' });
   await rename(temporary, aboutFile);
+  try {
+    await syncContentFile('src/content/about.json', contents, 'Update About page');
+  } catch (error) {
+    if (error instanceof ContentSyncError) throw new AdminAboutError(error.code, 502);
+    throw error;
+  }
   return content;
 }

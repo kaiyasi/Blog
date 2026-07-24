@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { mkdir, readdir, readFile, rename, stat, writeFile } from 'node:fs/promises';
 import { dirname, extname, resolve, sep } from 'node:path';
 import { load, dump } from 'js-yaml';
+import { ContentSyncError, syncContentFile } from './content-sync';
 
 const postsDirectory = resolve(process.env.CONTENT_POSTS_DIRECTORY || process.cwd(), process.env.CONTENT_POSTS_DIRECTORY ? '' : 'src/content/posts');
 const slugPattern = /^[a-z0-9]+(?:[a-z0-9-]*[a-z0-9])?(?:\/[a-z0-9]+(?:[a-z0-9-]*[a-z0-9])?)*$/;
@@ -172,7 +173,14 @@ async function atomicWrite(path: string, contents: string) {
 export async function createAdminPost(value: unknown) {
   const post = validateInput(value);
   if (await locate(post.slug)) throw new AdminPostError('already_exists', 409);
-  await atomicWrite(containedPath(`${post.slug}.md`), serializeDocument(post));
+  const contents = serializeDocument(post);
+  await atomicWrite(containedPath(`${post.slug}.md`), contents);
+  try {
+    await syncContentFile(`src/content/posts/${post.slug}.md`, contents, `Create article: ${post.title}`);
+  } catch (error) {
+    if (error instanceof ContentSyncError) throw new AdminPostError(error.code, 502);
+    throw error;
+  }
   return getAdminPost(post.slug);
 }
 
@@ -181,6 +189,13 @@ export async function updateAdminPost(slug: string, value: unknown) {
   if (post.slug !== slug) throw new AdminPostError('slug_immutable', 409);
   const located = await locate(slug);
   if (!located) throw new AdminPostError('not_found', 404);
-  await atomicWrite(located.path, serializeDocument(post));
+  const contents = serializeDocument(post);
+  await atomicWrite(located.path, contents);
+  try {
+    await syncContentFile(`src/content/posts/${post.slug}${located.extension}`, contents, `Update article: ${post.title}`);
+  } catch (error) {
+    if (error instanceof ContentSyncError) throw new AdminPostError(error.code, 502);
+    throw error;
+  }
   return getAdminPost(slug);
 }

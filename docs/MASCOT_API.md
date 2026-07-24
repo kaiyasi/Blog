@@ -14,10 +14,10 @@ JavaScript.
 
 ```bash
 AI_BASE_URL=https://ai.kot.gg/v1
-AI_MODEL=gpt-5.5
+AI_MODEL=nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free
 AI_API_KEY=replace-with-server-secret
 AI_MASCOT_REASONING_EFFORT=low
-AI_TRANSLATION_MODEL=gpt-5.5
+AI_TRANSLATION_MODEL=nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free
 AI_REASONING_EFFORT=low
 ```
 

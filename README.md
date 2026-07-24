@@ -41,6 +41,7 @@ npm run build
 - `ADMIN_ENTRY_PATH`：不公開的管理後台路徑。
 - `ADMIN_PASSWORD`、`ADMIN_SESSION_SECRET`：後台登入資訊。
 - `CONTENT_POSTS_DIRECTORY`：後台建立文章時使用的可寫入目錄。
+- `CONTENT_GITHUB_TOKEN`、`CONTENT_GITLAB_TOKEN`：後台儲存後提交來源檔；兩邊完成後設定 `CONTENT_SYNC_REQUIRED=true`。
 - `DISCORD_CLIENT_ID`、`DISCORD_CLIENT_SECRET`、`DISCORD_REDIRECT_URI`：Discord 頭像 OAuth。
 - `AI_API_KEY`：文章翻譯與吉祥物對話使用的伺服器端金鑰。
 
@@ -48,7 +49,7 @@ npm run build
 
 ## Content
 
-文章來源位於 `src/content/posts/`，支援 Markdown、MDX，以及專案自訂的 callout 與 embed 語法。瀏覽器後台建立的文章必須將 `CONTENT_POSTS_DIRECTORY` 指向正式環境的持久化儲存空間。
+文章來源位於 `src/content/posts/`，支援 Markdown、MDX，以及專案自訂的 callout 與 embed 語法。正式環境的瀏覽器後台會透過 repository file API 提交來源檔，再由部署流程發布。
 
 ## Security
 

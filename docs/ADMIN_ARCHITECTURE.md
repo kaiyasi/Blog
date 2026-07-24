@@ -7,7 +7,7 @@
 
 - About 的文字、技能、Roadmap、專案、經歷、連結與引言集中在 `src/content/about.json`。
 - 後台「關於」分頁可直接讀取、驗證並儲存完整 JSON；格式或必要欄位不正確時不會覆寫原檔。
-- `about.astro` 在每次請求時讀取資料檔，因此儲存後重新整理正式 About 頁面即可看到更新。
+- `about.astro` 在每次請求時讀取資料檔；啟用遠端同步時，儲存會提交來源檔並由部署流程更新正式站。
 - 寫入使用同目錄暫存檔後原子取代，避免中斷時留下半份內容。
 
 若部署時使用持久磁碟，可將 About 檔案位置設定為：
@@ -34,7 +34,24 @@ CONTENT_ABOUT_FILE=/absolute/persistent/path/about.json
 CONTENT_POSTS_DIRECTORY=/absolute/persistent/path/posts
 ```
 
-檔案式文章管理需要可寫且持久化的專案／掛載目錄；唯讀 serverless 映像不適用。
+容器內檔案只用來完成當次讀寫。正式環境應啟用下列 repository file API
+同步，讓每次儲存都更新 GitHub 與 GitLab 的來源檔；GitLab commit 會接續觸發部署：
+
+```sh
+CONTENT_SYNC_REQUIRED=true
+CONTENT_GITHUB_TOKEN=具有指定 repository Contents 寫入權限的 token
+CONTENT_GITHUB_OWNER=kaiyasi
+CONTENT_GITHUB_REPO=Blog
+CONTENT_GITHUB_BRANCH=main
+CONTENT_GITLAB_TOKEN=具有 Kaiyasi/given Repository API 寫入權限的 token
+CONTENT_GITLAB_BASE_URL=https://gitlab.serelix.xyz
+CONTENT_GITLAB_PROJECT=Kaiyasi/given
+CONTENT_GITLAB_BRANCH=main
+```
+
+同步只更新 `src/content/posts/...` 或 `src/content/about.json`，不會覆蓋 GitLab
+的 `.platform/`、`.gitlab-ci.yml` 等部署檔。兩邊都設定完成前可暫時維持
+`CONTENT_SYNC_REQUIRED=false`；此時只同步已有 token 的平台。
 
 ### 大量文章測試
 
