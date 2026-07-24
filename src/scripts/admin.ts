@@ -446,8 +446,146 @@ if (app) {
     }
   });
 
+  type ProjectSummary = { slug: string; title: string; description: string; date: string; tags: string[]; url?: string; github?: string; featured: boolean };
+  type AdminProject = ProjectSummary & { body: string };
+  const projectForm = app.querySelector<HTMLFormElement>('[data-project-form]')!;
+  const projectList = app.querySelector<HTMLElement>('[data-project-list]')!;
+  const projectListStatus = app.querySelector<HTMLElement>('[data-project-list-status]')!;
+  const projectCount = app.querySelector<HTMLElement>('[data-project-count]')!;
+  const projectSearch = app.querySelector<HTMLInputElement>('[data-project-search]')!;
+  const projectSaveStatus = app.querySelector<HTMLElement>('[data-project-save-status]')!;
+  const projectEditorMode = app.querySelector<HTMLElement>('[data-project-editor-mode]')!;
+  const projectEditorTitle = app.querySelector<HTMLElement>('[data-project-editor-title]')!;
+  const projectSlugInput = projectForm.elements.namedItem('slug') as HTMLInputElement;
+  const projectPreviewFrame = app.querySelector<HTMLIFrameElement>('[data-project-preview-frame]')!;
+  const projectPreviewStatus = app.querySelector<HTMLElement>('[data-project-preview-status]')!;
+  let projects: ProjectSummary[] = [];
+  let activeProjectSlug: string | null = null;
+  let projectsLoaded = false;
+  let projectSearchTimer: number | undefined;
+  let activeProjectTab = 'edit';
+  let projectPreviewTimer: number | undefined;
+  let projectPreviewRequest: AbortController | undefined;
+
+  const projectPreviewPayload = () => {
+    const data = new FormData(projectForm);
+    return { kind: 'project', title: String(data.get('title') || ''), description: String(data.get('description') || ''), date: String(data.get('date') || ''), tags: String(data.get('tags') || '').split(',').map(tag => tag.trim()).filter(Boolean), body: String(data.get('body') || ''), theme: document.documentElement.dataset.adminTheme || 'soft' };
+  };
+  const renderProjectPreview = async () => {
+    window.clearTimeout(projectPreviewTimer);
+    projectPreviewRequest?.abort(); projectPreviewRequest = new AbortController();
+    projectPreviewStatus.textContent = '正在產生預覽...';
+    try {
+      const response = await fetch('/api/admin/preview', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(projectPreviewPayload()), signal: projectPreviewRequest.signal });
+      if (response.status === 401) return location.reload();
+      const result = await response.json();
+      if (!response.ok) throw new Error();
+      projectPreviewFrame.srcdoc = result.document;
+      projectPreviewStatus.textContent = '預覽已更新';
+    } catch (error) {
+      if ((error as DOMException).name === 'AbortError') return;
+      projectPreviewStatus.textContent = '無法產生預覽，請檢查 Markdown 語法。';
+    }
+  };
+  const scheduleProjectPreview = () => {
+    if (activeProjectTab !== 'preview') return;
+    window.clearTimeout(projectPreviewTimer);
+    projectPreviewTimer = window.setTimeout(renderProjectPreview, 400);
+  };
+  const setProjectTab = (tab: string) => {
+    activeProjectTab = tab === 'preview' ? 'preview' : 'edit';
+    projectForm.querySelectorAll<HTMLElement>('[data-project-panel]').forEach(panel => { panel.hidden = panel.dataset.projectPanel !== activeProjectTab; });
+    projectForm.querySelectorAll<HTMLButtonElement>('[data-project-tab]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.projectTab === activeProjectTab)));
+    if (activeProjectTab === 'preview') renderProjectPreview();
+  };
+
+  const renderProjects = () => {
+    const query = projectSearch.value.trim().toLocaleLowerCase('zh-Hant');
+    const visible = projects.filter(project => !query || `${project.title} ${project.slug} ${project.description} ${project.tags.join(' ')}`.toLocaleLowerCase('zh-Hant').includes(query));
+    projectCount.textContent = String(projects.length);
+    projectList.replaceChildren();
+    projectListStatus.textContent = visible.length ? `顯示 ${visible.length} 個專案` : '沒有符合條件的專案。';
+    visible.forEach(project => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'project-row';
+      button.setAttribute('aria-current', String(project.slug === activeProjectSlug));
+      const title = document.createElement('strong'); title.textContent = project.title;
+      const meta = document.createElement('span'); meta.textContent = project.slug;
+      const state = document.createElement('i'); state.textContent = project.featured ? '精選' : '一般'; state.className = project.featured ? 'featured' : '';
+      button.append(title, meta, state);
+      button.addEventListener('click', () => openProject(project.slug));
+      projectList.append(button);
+    });
+  };
+  const fillProjectForm = (project: AdminProject) => {
+    activeProjectSlug = project.slug;
+    projectForm.reset();
+    for (const field of ['title', 'slug', 'description', 'date', 'url', 'github', 'body'] as const) (projectForm.elements.namedItem(field) as HTMLInputElement | HTMLTextAreaElement).value = project[field] || '';
+    (projectForm.elements.namedItem('tags') as HTMLInputElement).value = project.tags.join(', ');
+    (projectForm.elements.namedItem('featured') as HTMLInputElement).checked = project.featured;
+    projectSlugInput.disabled = true;
+    projectEditorMode.textContent = project.featured ? 'FEATURED PROJECT' : 'PROJECT DOCUMENT';
+    projectEditorTitle.textContent = project.title;
+    projectSaveStatus.textContent = '已載入專案內容。';
+    renderProjects();
+    scheduleProjectPreview();
+  };
+  const newProject = () => {
+    activeProjectSlug = null;
+    projectForm.reset();
+    (projectForm.elements.namedItem('date') as HTMLInputElement).value = new Date().toISOString().slice(0, 10);
+    projectSlugInput.disabled = false;
+    projectEditorMode.textContent = 'NEW PROJECT'; projectEditorTitle.textContent = '新增專案';
+    projectSaveStatus.textContent = '專案會顯示在公開的專案頁面。';
+    renderProjects();
+    setProjectTab('edit');
+    (projectForm.elements.namedItem('title') as HTMLInputElement).focus();
+  };
+  const openProject = async (slug: string) => {
+    projectSaveStatus.textContent = '正在讀取專案...';
+    try {
+      const response = await fetch(`/api/admin/projects?slug=${encodeURIComponent(slug)}`);
+      if (response.status === 401) return location.reload();
+      if (!response.ok) throw new Error();
+      fillProjectForm((await response.json()).project);
+    } catch { projectSaveStatus.textContent = '無法讀取專案，請再試一次。'; }
+  };
+  const loadProjects = async () => {
+    projectListStatus.textContent = '正在載入專案...';
+    try {
+      const response = await fetch('/api/admin/projects');
+      if (response.status === 401) return location.reload();
+      if (!response.ok) throw new Error();
+      projects = (await response.json()).projects || [];
+      projectsLoaded = true;
+      renderProjects();
+      if (!activeProjectSlug) newProject();
+    } catch { projectListStatus.textContent = '無法載入專案，請稍後再試。'; }
+  };
+  app.querySelector('[data-new-project]')!.addEventListener('click', newProject);
+  app.querySelectorAll<HTMLButtonElement>('[data-project-tab]').forEach(button => button.addEventListener('click', () => setProjectTab(button.dataset.projectTab || 'edit')));
+  projectSearch.addEventListener('input', () => { window.clearTimeout(projectSearchTimer); projectSearchTimer = window.setTimeout(renderProjects, 180); });
+  projectForm.addEventListener('input', scheduleProjectPreview);
+  document.addEventListener('admin-theme-change', scheduleProjectPreview);
+  projectForm.addEventListener('submit', async event => {
+    event.preventDefault();
+    const data = new FormData(projectForm);
+    const payload = { slug: activeProjectSlug || String(data.get('slug') || ''), title: String(data.get('title') || ''), description: String(data.get('description') || ''), date: String(data.get('date') || ''), tags: String(data.get('tags') || '').split(',').map(tag => tag.trim()).filter(Boolean), url: String(data.get('url') || ''), github: String(data.get('github') || ''), featured: data.get('featured') === 'on', body: String(data.get('body') || '') };
+    const submit = projectForm.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+    submit.disabled = true; projectSaveStatus.textContent = '正在儲存專案...';
+    try {
+      const response = await fetch(activeProjectSlug ? `/api/admin/projects?slug=${encodeURIComponent(activeProjectSlug)}` : '/api/admin/projects', { method: activeProjectSlug ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      if (response.status === 401) return location.reload();
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'save_failed');
+      await loadProjects(); fillProjectForm(result.project); projectSaveStatus.textContent = '專案已提交，等待部署完成。';
+    } catch (error) { projectSaveStatus.textContent = apiError(error instanceof Error ? error.message : ''); } finally { submit.disabled = false; }
+  });
+
   const aboutForm = app.querySelector<HTMLFormElement>('[data-about-form]')!;
   const aboutFields = aboutForm.querySelector<HTMLElement>('[data-about-fields]')!;
+  const aboutSectionFields = aboutForm.querySelector<HTMLElement>('[data-about-section-fields]')!;
   const aboutLoading = aboutForm.querySelector<HTMLElement>('[data-about-loading]')!;
   const aboutStatus = app.querySelector<HTMLElement>('[data-about-status]')!;
   const aboutSubmit = aboutForm.querySelector<HTMLButtonElement>('button[type="submit"]')!;
@@ -457,6 +595,7 @@ if (app) {
   let activeAboutTab = 'edit';
   let aboutPreviewTimer: number | undefined;
   let aboutPreviewRequest: AbortController | undefined;
+  let activeAboutSection = 'profile';
 
   const renderAboutPreview = async () => {
     if (!aboutContent) return;
@@ -524,9 +663,11 @@ if (app) {
     return wrapper;
   };
 
-  const section = (code: string, title: string) => {
+  const section = (key: string, code: string, title: string) => {
     const container = document.createElement('section');
     container.className = 'about-form-section';
+    container.dataset.aboutContentSection = key;
+    container.hidden = key !== activeAboutSection;
     const header = document.createElement('header');
     const number = document.createElement('small');
     number.textContent = code;
@@ -536,8 +677,14 @@ if (app) {
     grid.className = 'about-field-grid';
     header.append(number, heading);
     container.append(header, grid);
-    aboutFields.append(container);
+    aboutSectionFields.append(container);
     return grid;
+  };
+
+  const setAboutSection = (key: string) => {
+    activeAboutSection = key;
+    aboutSectionFields.querySelectorAll<HTMLElement>('[data-about-content-section]').forEach(panel => { panel.hidden = panel.dataset.aboutContentSection !== key; });
+    aboutForm.querySelectorAll<HTMLButtonElement>('[data-about-section]').forEach(button => button.toggleAttribute('aria-current', button.dataset.aboutSection === key));
   };
 
   const quoteFields = (target: HTMLElement, quote: any) => {
@@ -562,7 +709,7 @@ if (app) {
     const add = document.createElement('button');
     add.type = 'button';
     add.className = 'about-icon-button';
-    add.textContent = '+';
+    add.innerHTML = '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>';
     add.title = `新增${label}`;
     add.setAttribute('aria-label', `新增${label}`);
     add.addEventListener('click', () => {
@@ -582,7 +729,7 @@ if (app) {
       const remove = document.createElement('button');
       remove.type = 'button';
       remove.className = 'about-icon-button';
-      remove.textContent = '×';
+      remove.innerHTML = '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M10 11v6M14 11v6M9 7l1-3h4l1 3M6 7l1 13h10l1-13"/></svg>';
       remove.title = `移除${label}`;
       remove.setAttribute('aria-label', `移除${label}第 ${index + 1} 項`);
       remove.addEventListener('click', () => {
@@ -597,10 +744,10 @@ if (app) {
 
   const renderAboutForm = () => {
     if (!aboutContent) return;
-    aboutFields.replaceChildren();
+    aboutSectionFields.replaceChildren();
     const { identity, about, skillGroups, roadmap, projects, experience, connect } = aboutContent;
 
-    const profile = section('01', '個人資料');
+    const profile = section('profile', '01', '個人資料');
     profile.append(
       field('名稱', identity.name, value => { identity.name = value; }),
       field('別名', identity.alias, value => { identity.alias = value; }),
@@ -626,7 +773,7 @@ if (app) {
       );
     });
 
-    const biography = section('02', 'About Me');
+    const biography = section('biography', '02', 'About Me');
     biography.append(
       field('開場', about.opening, value => { about.opening = value; }, { multiline: true, markdown: true, wide: true }),
       field('主句', about.statement, value => { about.statement = value; }, { multiline: true, markdown: true, wide: true }),
@@ -636,7 +783,7 @@ if (app) {
     });
     quoteFields(biography, about.quote);
 
-    const skills = section('03', 'Skills');
+    const skills = section('skills', '03', 'Skills');
     repeater(skills, '技能群組', skillGroups, () => ({ title: 'New Group', items: ['New Skill'] }), (row, item: any) => {
       row.append(
         field('群組名稱', item.title, value => { item.title = value; }),
@@ -644,7 +791,7 @@ if (app) {
       );
     });
 
-    const roadmapFields = section('04', 'Roadmap');
+    const roadmapFields = section('roadmap', '04', 'Roadmap');
     repeater(roadmapFields, 'Roadmap 項目', roadmap.items, () => ({ title: 'New Item', body: '內容' }), (row, item: any) => {
       row.append(
         field('標題', item.title, value => { item.title = value; }),
@@ -653,7 +800,7 @@ if (app) {
     });
     quoteFields(roadmapFields, roadmap.quote);
 
-    const projectFields = section('05', 'Projects');
+    const projectFields = section('projects', '05', '關於頁 Projects');
     repeater(projectFields, '專案', projects.items, () => ({ title: 'New Project', url: 'https://', body: '內容' }), (row, item: any) => {
       row.append(
         field('專案名稱', item.title, value => { item.title = value; }),
@@ -663,7 +810,7 @@ if (app) {
     });
     quoteFields(projectFields, projects.quote);
 
-    const experienceFields = section('06', 'Experience');
+    const experienceFields = section('experience', '06', 'Experience');
     repeater(experienceFields, '經歷', experience.items, () => ({ title: 'New Experience', role: '內容' }), (row, item: any) => {
       row.append(
         field('名稱', item.title, value => { item.title = value; }),
@@ -672,7 +819,7 @@ if (app) {
     });
     quoteFields(experienceFields, experience.quote);
 
-    const connectFields = section('07', 'Connect');
+    const connectFields = section('connect', '07', 'Connect');
     repeater(connectFields, '聯絡方式', connect.items, () => ({ label: 'LABEL', value: 'VALUE', url: 'https://' }), (row, item: any) => {
       row.append(
         field('標籤', item.label, value => { item.label = value; }),
@@ -681,6 +828,7 @@ if (app) {
       );
     });
     quoteFields(connectFields, connect.quote);
+    setAboutSection(activeAboutSection);
   };
 
   const loadAbout = async () => {
@@ -737,6 +885,9 @@ if (app) {
   document.addEventListener('admin-theme-change', scheduleAboutPreview);
   aboutForm.querySelectorAll<HTMLButtonElement>('[data-about-tab]').forEach(button => {
     button.addEventListener('click', () => setAboutTab(button.dataset.aboutTab || 'edit'));
+  });
+  aboutForm.querySelectorAll<HTMLButtonElement>('[data-about-section]').forEach(button => {
+    button.addEventListener('click', () => setAboutSection(button.dataset.aboutSection || 'profile'));
   });
   app.querySelector('[data-about-refresh]')!.addEventListener('click', loadAbout);
 
@@ -830,6 +981,7 @@ if (app) {
       app.querySelectorAll<HTMLButtonElement>('[data-view-target]').forEach(item => item.removeAttribute('aria-current'));
       button.setAttribute('aria-current', 'page');
       if (view === 'about' && !aboutLoaded) loadAbout();
+      if (view === 'projects' && !projectsLoaded) loadProjects();
       if (view === 'comments' && !commentsLoaded) loadComments();
     });
   });

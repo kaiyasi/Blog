@@ -1,16 +1,17 @@
 ---
 title: 'Hello, World'
-description: '블로그의 여러 기능을 시험하기 위한 첫 번째 글입니다.'
+description: '첫 번째 글로, Blog의 여러 기능을 테스트하기 위한 글입니다.'
 date: 2026-07-07
 tags: ['meta', 'astro']
+draft: true
 copyright: true
 ---
 
 첫 번째 글입니다.
 
-## H2 제목
+## H2 제목입니다
 
-본문 문단입니다. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+본문 단락입니다. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
 
 ## 코드 테스트
 
@@ -26,11 +27,11 @@ const posts = defineCollection({
 });
 ```
 
-### H3 제목
+### H3 제목입니다
 
 인라인 코드: `const greeting = 'hello'`.
 
-> 마후유의 목소리는 열쇠처럼, 리츠카가 잠근 것조차 잊고 있던 문을 열었다.
+> 인용 블록입니다. Mafuyu의 목소리는 마치 열쇠처럼, Ritsuka가 오래전에 잠갔다는 사실조차 잊은 문을 열었습니다.
 
 ## 마무리
 

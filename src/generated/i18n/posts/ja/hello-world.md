@@ -1,14 +1,15 @@
 ---
 title: 'Hello, World'
-description: 'ブログの各機能を試すための最初の記事です。'
+description: 'これは最初の記事で、ブログの各機能をテストするためのものです。'
 date: 2026-07-07
 tags: ['meta', 'astro']
+draft: true
 copyright: true
 ---
 
 これは最初の記事です。
 
-## H2見出し
+## これは H2 見出しです
 
 本文の段落です。Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
 
@@ -26,12 +27,12 @@ const posts = defineCollection({
 });
 ```
 
-### H3見出し
+### これは H3 見出しです
 
 インラインコード：`const greeting = 'hello'`。
 
-> 真冬の声は鍵のように、立夏が鍵をかけたことさえ忘れていた扉を開いた。
+> これは引用ブロックです。真冬の声は、まるで鍵のように、立夏がとうに鍵をかけたことさえ忘れていた扉を開いた。
 
-## おわりに
+## まとめ
 
 最初の記事はここまでです。

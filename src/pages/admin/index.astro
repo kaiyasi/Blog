@@ -82,8 +82,9 @@ const entryPath = adminEntryPath() || '/admin';
             </a>
             <nav aria-label="後台功能">
               <button type="button" aria-current="page" data-view-target="posts"><small>01</small><span>文章</span></button>
-              <button type="button" data-view-target="about"><small>02</small><span>關於</span></button>
-              <button type="button" data-view-target="comments"><small>03</small><span>留言</span></button>
+              <button type="button" data-view-target="projects"><small>02</small><span>專案</span></button>
+              <button type="button" data-view-target="about"><small>03</small><span>關於</span></button>
+              <button type="button" data-view-target="comments"><small>04</small><span>留言</span></button>
             </nav>
             <div class="topbar-actions" aria-label="後台工具">
               <button type="button" class="toolbar-control theme-control-button" role="switch" aria-checked="false" aria-label="切換為深色模式" title="切換為深色模式" data-tooltip="深色模式" data-admin-theme-toggle>
@@ -227,6 +228,39 @@ console.log('hello');
             </aside>
           </section>
 
+          <section data-admin-view="projects" hidden>
+            <header class="workspace-header">
+              <div><p>CONTENT / PROJECTS</p><h1>專案管理</h1></div>
+              <button type="button" class="command-button" data-new-project><span aria-hidden="true">＋</span> 新增專案</button>
+            </header>
+            <div class="project-workspace">
+              <aside class="project-index" aria-labelledby="project-index-title">
+                <header><h2 id="project-index-title">公開專案</h2><span data-project-count>0</span></header>
+                <label class="post-search"><span class="sr-only">搜尋專案</span><input type="search" placeholder="搜尋名稱、slug 或標籤" data-project-search /></label>
+                <p class="manager-status" data-project-list-status role="status">切換至專案管理時載入。</p>
+                <div class="project-list" data-project-list></div>
+              </aside>
+              <form class="post-editor project-editor" data-project-form>
+                <header><div><small data-project-editor-mode>NEW PROJECT</small><h2 data-project-editor-title>新增專案</h2></div><div class="editor-header-actions"><div class="editor-tabs" aria-label="專案檢視模式"><button type="button" aria-pressed="true" data-project-tab="edit">編輯</button><button type="button" aria-pressed="false" data-project-tab="preview">預覽</button></div><a class="preview-link" href="/projects" target="_blank" rel="noopener">專案頁 ↗</a></div></header>
+                <div data-project-panel="edit">
+                <div class="editor-fields">
+                  <label class="wide"><span>專案名稱</span><input name="title" maxlength="160" required /></label>
+                  <label><span>SLUG</span><input name="slug" maxlength="160" pattern="[a-z0-9][a-z0-9/-]*" required /></label>
+                  <label><span>完成日期</span><input name="date" type="date" required /></label>
+                  <label class="wide"><span>摘要</span><textarea name="description" rows="3" maxlength="500" required></textarea></label>
+                  <label><span>標籤 <i>用逗號分隔</i></span><input name="tags" placeholder="Astro, TypeScript" /></label>
+                  <label class="check-field"><input name="featured" type="checkbox" /><span>列為精選專案</span></label>
+                  <label class="wide"><span>網站網址 <i>選填</i></span><input name="url" type="url" placeholder="https://example.com" /></label>
+                  <label class="wide"><span>GitHub 網址 <i>選填</i></span><input name="github" type="url" placeholder="https://github.com/..." /></label>
+                </div>
+                <label class="body-field"><span class="body-field-label">專案內容 <i>選填，支援 Markdown</i></span><textarea name="body" spellcheck="true" placeholder="記錄專案背景、技術選擇或成果..."></textarea></label>
+                </div>
+                <section class="project-preview-panel" data-project-panel="preview" hidden aria-label="專案預覽"><p data-project-preview-status role="status">切換到預覽後會顯示專案。</p><iframe data-project-preview-frame title="專案預覽" sandbox="allow-same-origin" referrerpolicy="no-referrer"></iframe></section>
+                <footer class="editor-actions"><p data-project-save-status role="status">專案會顯示在公開的專案頁面。</p><div><button type="submit" class="primary">儲存專案</button></div></footer>
+              </form>
+            </div>
+          </section>
+
           <section data-admin-view="about" hidden>
             <header class="workspace-header">
               <div><p>CONTENT / ABOUT</p><h1>關於頁面</h1></div>
@@ -245,7 +279,18 @@ console.log('hello');
               </header>
               <div data-about-panel="edit">
                 <div class="about-loading" data-about-loading role="status">正在讀取內容...</div>
-                <div class="about-form-sections" data-about-fields hidden></div>
+                <div class="about-edit-layout" data-about-fields hidden>
+                  <nav class="about-section-nav" aria-label="關於頁內容區塊">
+                    <button type="button" data-about-section="profile" aria-current="page"><small>01</small><span>個人資料</span></button>
+                    <button type="button" data-about-section="biography"><small>02</small><span>About Me</span></button>
+                    <button type="button" data-about-section="skills"><small>03</small><span>技能</span></button>
+                    <button type="button" data-about-section="roadmap"><small>04</small><span>Roadmap</span></button>
+                    <button type="button" data-about-section="projects"><small>05</small><span>關於頁專案</span></button>
+                    <button type="button" data-about-section="experience"><small>06</small><span>經歷</span></button>
+                    <button type="button" data-about-section="connect"><small>07</small><span>聯絡方式</span></button>
+                  </nav>
+                  <div class="about-form-sections" data-about-section-fields></div>
+                </div>
               </div>
               <div class="about-preview" data-about-panel="preview" hidden>
                 <p data-about-preview-status role="status">載入內容後即可預覽。</p>
@@ -503,6 +548,193 @@ console.log('hello');
     .comment-meta { grid-column: 2 / -1; grid-row: 2; }
     .comment-row > button { grid-column: 3; grid-row: 1; min-width: 70px; }
   }
+</style>
+
+<style is:global>
+  /* Soft mode is a complete workspace palette, not a collection of dark-mode fallbacks. */
+  html[data-admin-theme='soft'] { background: #eef0ec; }
+  html[data-admin-theme='soft'] body { color: #263032; background: #eef0ec; }
+  html[data-admin-theme='soft'] body::before { background: rgba(238,240,236,.92); backdrop-filter: none; }
+  html[data-admin-theme='soft'] .topbar,
+  html[data-admin-theme='soft'] .admin-shell > .topbar { border-bottom: 1px solid #c8cfca; background: rgba(255,254,250,.96); box-shadow: 0 1px 0 rgba(35,48,50,.04); }
+  html[data-admin-theme='soft'] .admin-brand-name { color: #20292b; }
+  html[data-admin-theme='soft'] .admin-brand-edition { color: #718082; }
+  html[data-admin-theme='soft'] .topbar nav button { color: #647174; }
+  html[data-admin-theme='soft'] .topbar nav button small { color: #a26c65; }
+  html[data-admin-theme='soft'] .topbar nav button:hover { color: #216f78; background: #e9f2f1; }
+  html[data-admin-theme='soft'] .topbar nav button[aria-current='page'] { color: #176771; background: #dcedeb; box-shadow: inset 0 -3px #2d7d83; }
+  html[data-admin-theme='soft'] .toolbar-control { border-color: #c8cfca; color: #536366; background: #fffefa; }
+  html[data-admin-theme='soft'] .toolbar-control:hover { border-color: #5b9ea2; color: #176771; background: #e9f4f2; }
+  html[data-admin-theme='soft'] .theme-control-button[aria-checked='false'] { color: #ad7651; }
+  html[data-admin-theme='soft'] .theme-control-button[aria-checked='true'] { color: #287981; }
+  html[data-admin-theme='soft'] .workspace { background: transparent; }
+  html[data-admin-theme='soft'] [data-admin-view] { border: 1px solid #c8cfca; background: #fbfcf8; box-shadow: 0 10px 26px rgba(39,54,55,.06); }
+  html[data-admin-theme='soft'] .workspace-header { border-color: #c8cfca; background: #fffefa; }
+  html[data-admin-theme='soft'] .workspace-header h1 { color: #20292b; }
+  html[data-admin-theme='soft'] .workspace-header p { color: #a84f47; }
+  html[data-admin-theme='soft'] .command-button { border-color: #c8574d; color: #fff; background: #c8574d; box-shadow: 0 2px 0 #a7413a; }
+  html[data-admin-theme='soft'] .command-button:hover { border-color: #ad443d; background: #b94b43; }
+  html[data-admin-theme='soft'] .refresh-button { border-color: #c8cfca; color: #527074; background: #fffefa; }
+  html[data-admin-theme='soft'] .refresh-button:hover { border-color: #438d94; color: #fff; background: #39818a; }
+  html[data-admin-theme='soft'] .post-index,
+  html[data-admin-theme='soft'] .project-index { border-right: 1px solid #c8cfca; color: #263032; background: #f1f4f0; }
+  html[data-admin-theme='soft'] .post-index > header,
+  html[data-admin-theme='soft'] .project-index > header { border-color: #c8cfca; }
+  html[data-admin-theme='soft'] .post-index h2,
+  html[data-admin-theme='soft'] .project-index h2 { color: #344042; }
+  html[data-admin-theme='soft'] .post-index > header span,
+  html[data-admin-theme='soft'] .project-index > header span { border-color: #b9c6c4; color: #b24c45; background: #fffefa; }
+  html[data-admin-theme='soft'] .post-search input { border-color: #bcc8c5; color: #263032; background: #fffefa; }
+  html[data-admin-theme='soft'] .post-search input::placeholder { color: #8a9697; }
+  html[data-admin-theme='soft'] .post-index > .manager-status,
+  html[data-admin-theme='soft'] .project-index > .manager-status { color: #718082; }
+  html[data-admin-theme='soft'] .post-list,
+  html[data-admin-theme='soft'] .project-list { border-color: #c8cfca; }
+  html[data-admin-theme='soft'] .post-row,
+  html[data-admin-theme='soft'] .project-row { border-color: #d7ddd8; color: #263032; }
+  html[data-admin-theme='soft'] .post-row strong,
+  html[data-admin-theme='soft'] .project-row strong { color: #263032; }
+  html[data-admin-theme='soft'] .post-row span,
+  html[data-admin-theme='soft'] .project-row span { color: #748184; }
+  html[data-admin-theme='soft'] .post-row:hover,
+  html[data-admin-theme='soft'] .project-row:hover { background: #e7f1ef; }
+  html[data-admin-theme='soft'] .post-row[aria-current='true'],
+  html[data-admin-theme='soft'] .project-row[aria-current='true'] { background: #dcecea; box-shadow: inset 3px 0 #2d7d83; }
+  html[data-admin-theme='soft'] .post-row i,
+  html[data-admin-theme='soft'] .project-row i { border-color: #bdc9c6; color: #66777a; background: #fffefa; }
+  html[data-admin-theme='soft'] .post-row i.published { color: #287b62; border-color: #8eb8a8; background: #e4f2ec; }
+  html[data-admin-theme='soft'] .post-row i.draft { color: #966b25; border-color: #d9bd8b; background: #f9efdb; }
+  html[data-admin-theme='soft'] .project-row i.featured { color: #87621d; border-color: #d4b06e; background: #fbf1d8; }
+  html[data-admin-theme='soft'] .post-editor,
+  html[data-admin-theme='soft'] .project-editor,
+  html[data-admin-theme='soft'] [data-admin-view='about'] .about-editor { color: #263032; background: #fffefa; }
+  html[data-admin-theme='soft'] .post-editor > header,
+  html[data-admin-theme='soft'] .project-editor > header,
+  html[data-admin-theme='soft'] [data-admin-view='about'] .about-editor > header { border-color: #c8cfca; }
+  html[data-admin-theme='soft'] .post-editor header h2,
+  html[data-admin-theme='soft'] .project-editor header h2 { color: #20292b; }
+  html[data-admin-theme='soft'] .editor-tabs { border-color: #bcc8c5; background: #f2f5f1; }
+  html[data-admin-theme='soft'] .editor-tabs button { color: #637174; }
+  html[data-admin-theme='soft'] .editor-tabs button + button { border-left-color: #bcc8c5; }
+  html[data-admin-theme='soft'] .editor-tabs button[aria-pressed='true'],
+  html[data-admin-theme='soft'] .about-editor .editor-tabs button[aria-selected='true'] { color: #fff; background: #287881; }
+  html[data-admin-theme='soft'] .editor-fields label,
+  html[data-admin-theme='soft'] .body-field { color: #5b696c; }
+  html[data-admin-theme='soft'] .editor-fields input,
+  html[data-admin-theme='soft'] .editor-fields textarea,
+  html[data-admin-theme='soft'] .body-field textarea,
+  html[data-admin-theme='soft'] .about-field input,
+  html[data-admin-theme='soft'] .about-field textarea { border-color: #bcc8c5; color: #263032; background: #fffefa; }
+  html[data-admin-theme='soft'] .editor-fields input:focus,
+  html[data-admin-theme='soft'] .editor-fields textarea:focus,
+  html[data-admin-theme='soft'] .body-field textarea:focus,
+  html[data-admin-theme='soft'] .about-field input:focus,
+  html[data-admin-theme='soft'] .about-field textarea:focus { outline-color: #4c9da1; }
+  html[data-admin-theme='soft'] .editor-actions { border-color: #c8cfca; background: #f1f4f0; }
+  html[data-admin-theme='soft'] .editor-actions p { color: #6c7a7c; }
+  html[data-admin-theme='soft'] .editor-actions button { border-color: #bcc8c5; color: #3b5053; background: #fffefa; }
+  html[data-admin-theme='soft'] .editor-actions button.primary { border-color: #c8574d; color: #fff; background: #c8574d; }
+  html[data-admin-theme='soft'] .preview-panel iframe,
+  html[data-admin-theme='soft'] .project-preview-panel iframe,
+  html[data-admin-theme='soft'] .about-preview iframe { border-color: #c8cfca; background: #f4f6f2; }
+  html[data-admin-theme='soft'] .about-section-nav { border-color: #c8cfca; background: #f1f4f0; }
+  html[data-admin-theme='soft'] .about-section-nav button { color: #5d6c6f; }
+  html[data-admin-theme='soft'] .about-section-nav button:hover { color: #176771; background: #e5f0ee; }
+  html[data-admin-theme='soft'] .about-section-nav button[aria-current='page'] { border-left-color: #2d7d83; color: #176771; background: #dcedeb; }
+  html[data-admin-theme='soft'] [data-admin-view='about'] .about-form-section,
+  html[data-admin-theme='soft'] [data-admin-view='about'] .about-preview > p { border-color: #c8cfca; }
+  html[data-admin-theme='soft'] [data-admin-view='about'] .about-form-section > header h3 { color: #263032; }
+  html[data-admin-theme='soft'] .about-repeat-row,
+  html[data-admin-theme='soft'] [data-admin-view='about'] .about-repeat-row { border-color: #c8cfca; background: #f7f9f5; }
+  html[data-admin-theme='soft'] .about-repeater > header { border-color: #c8cfca; background: #f1f4f0; }
+  html[data-admin-theme='soft'] .about-icon-button { border-color: #9eb9b7; color: #287881; background: #fffefa; }
+  html[data-admin-theme='soft'] .about-icon-button:hover { border-color: #287881; color: #fff; background: #287881; }
+  html[data-admin-theme='soft'] .about-repeat-row > .about-icon-button { border-color: #d5aaa5; color: #b14840; }
+  html[data-admin-theme='soft'] .about-repeat-row > .about-icon-button:hover { border-color: #c8574d; background: #c8574d; }
+  html[data-admin-theme='soft'] [data-admin-view='comments'] { color: #263032; background: #fffefa; }
+  html[data-admin-theme='soft'] .stats { border-color: #c8cfca; background: #f1f4f0; }
+  html[data-admin-theme='soft'] .stats div { border-color: #c8cfca; }
+  html[data-admin-theme='soft'] .stats strong { color: #b84d45; }
+  html[data-admin-theme='soft'] .comment-manager { color: #263032; }
+  html[data-admin-theme='soft'] .manager-toolbar h2 { color: #263032; }
+  html[data-admin-theme='soft'] .filters input,
+  html[data-admin-theme='soft'] .filters select,
+  html[data-admin-theme='soft'] .comment-row > button { border-color: #bcc8c5; color: #334548; background: #fffefa; }
+  html[data-admin-theme='soft'] .comment-manager > .manager-status,
+  html[data-admin-theme='soft'] .comment-table,
+  html[data-admin-theme='soft'] .comment-row { border-color: #d3dad5; }
+  html[data-admin-theme='soft'] .comment-row:hover { background: #f1f7f4; }
+  html[data-admin-theme='soft'] .comment-content > p { color: #5e6c6f; }
+  html[data-admin-theme='soft'] .login-panel { border-color: #c8cfca; background: #fffefa; box-shadow: 12px 12px 0 rgba(44,64,65,.12); }
+  html[data-admin-theme='soft'] .login-panel > header { background: #fffefa; color: #20292b; border-bottom: 1px solid #c8cfca; }
+  html[data-admin-theme='soft'] .login-panel > header p { color: #718082; }
+  html[data-admin-theme='soft'] .brand { color: #20292b; }
+  html[data-admin-theme='soft'] .brand span { color: #718082; }
+  html[data-admin-theme='soft'] .login-copy { border-color: #d3dad5; }
+  html[data-admin-theme='soft'] .login-copy p { color: #5e6c6f; }
+  html[data-admin-theme='soft'] .login-panel input { border-color: #bcc8c5; background: #fffefa; }
+</style>
+
+<style is:global>
+  /* Final project theme rules: this block intentionally follows shared editor overrides. */
+  html[data-admin-theme='soft'] [data-admin-view='projects'] { color: #292d2e; background: rgba(211,211,204,.96); }
+  html[data-admin-theme='soft'] .project-editor { color: #292d2e; background: rgba(211,211,204,.96); }
+  html[data-admin-theme='soft'] .project-editor > header, html[data-admin-theme='soft'] .project-editor .body-field, html[data-admin-theme='soft'] .project-editor .editor-actions { border-color: #9fa39f; }
+  html[data-admin-theme='soft'] .project-editor header h2 { color: #292d2e; }
+  html[data-admin-theme='soft'] .project-editor input, html[data-admin-theme='soft'] .project-editor textarea { border-color: #9fa39f; color: #292d2e; background: rgba(232,231,224,.82); }
+  html[data-admin-theme='soft'] .project-preview-panel iframe { border-color: #9fa39f; background: #d8d8d1; }
+  html[data-admin-theme='dark'] [data-admin-view='projects'] { color: #e7e9e6; background: rgba(29,33,34,.97); }
+  html[data-admin-theme='dark'] .project-editor { color: #e7e9e6; background: rgba(30,34,35,.97); }
+  html[data-admin-theme='dark'] .project-editor > header, html[data-admin-theme='dark'] .project-editor .body-field, html[data-admin-theme='dark'] .project-editor .editor-actions { border-color: #4a5254; }
+  html[data-admin-theme='dark'] .project-editor header h2 { color: #eef0ec; }
+  html[data-admin-theme='dark'] .project-editor header small { color: #dc746b; }
+  html[data-admin-theme='dark'] .project-editor .editor-fields label, html[data-admin-theme='dark'] .project-editor .body-field { color: #adb5b6; }
+  html[data-admin-theme='dark'] .project-editor input, html[data-admin-theme='dark'] .project-editor textarea { border-color: #50595b; color: #edf0ed; background: rgba(39,44,46,.92); caret-color: #e37a70; }
+  html[data-admin-theme='dark'] .project-editor .editor-tabs { border-color: #555e60; background: #282d2f; }
+  html[data-admin-theme='dark'] .project-editor .editor-tabs button { color: #9da6a8; }
+  html[data-admin-theme='dark'] .project-editor .editor-tabs button + button { border-left-color: #555e60; }
+  html[data-admin-theme='dark'] .project-editor .editor-tabs button[aria-pressed='true'] { color: #171a1b; background: #bfc4c2; }
+  html[data-admin-theme='dark'] .project-preview-panel > p, html[data-admin-theme='dark'] .project-editor .editor-actions p { color: #8e989a; }
+  html[data-admin-theme='dark'] .project-preview-panel iframe { border-color: #4c5557; background: #191c1d; }
+  html[data-admin-theme='dark'] .project-editor .editor-actions button { border-color: #596164; color: #d6dcda; background: #292e30; }
+  html[data-admin-theme='dark'] .project-editor .editor-actions button.primary { border-color: #c75f57; color: #fff; background: #c75f57; }
+</style>
+
+<style is:global>
+  /* Project and About controls sit after shared editor styles so theme changes stay complete. */
+  .about-repeater > header { padding: .45rem .55rem; border: 1px solid #b4b8b4; background: rgba(255,255,255,.24); }
+  .about-repeater > header h4 { letter-spacing: 0; }
+  .about-icon-button { width: 34px; height: 34px; border-radius: 50%; transition: color 150ms ease, border-color 150ms ease, background 150ms ease, transform 150ms ease; }
+  .about-icon-button svg { width: 16px; height: 16px; }
+  .about-icon-button:hover { transform: translateY(-1px); }
+  .about-repeat-row > .about-icon-button { width: 30px; height: 30px; margin-top: 5px; border-color: #bd7169; color: #a64c45; }
+  .project-preview-panel { min-height: 64vh; padding-top: 1.2rem; }
+  .project-preview-panel > p { min-height: 28px; color: #677073; font: 500 .56rem var(--font-mono); }
+  .project-preview-panel iframe { width: 100%; height: calc(100vh - 310px); min-height: 590px; display: block; border: 1px solid #aeb2ae; background: #d8d8d1; }
+  html[data-admin-theme='soft'] [data-admin-view='projects'] { color: #292d2e; background: rgba(211,211,204,.96); }
+  html[data-admin-theme='soft'] .project-editor { color: #292d2e; background: rgba(211,211,204,.96); }
+  html[data-admin-theme='soft'] .project-editor > header, html[data-admin-theme='soft'] .project-editor .body-field, html[data-admin-theme='soft'] .project-editor .editor-actions { border-color: #9fa39f; }
+  html[data-admin-theme='soft'] .project-editor header h2 { color: #292d2e; }
+  html[data-admin-theme='soft'] .project-editor input, html[data-admin-theme='soft'] .project-editor textarea { border-color: #9fa39f; color: #292d2e; background: rgba(232,231,224,.82); }
+  html[data-admin-theme='soft'] .project-preview-panel iframe { border-color: #9fa39f; background: #d8d8d1; }
+  html[data-admin-theme='dark'] [data-admin-view='projects'] { color: #e7e9e6; background: rgba(29,33,34,.97); }
+  html[data-admin-theme='dark'] .project-editor { color: #e7e9e6; background: rgba(30,34,35,.97); }
+  html[data-admin-theme='dark'] .project-editor > header, html[data-admin-theme='dark'] .project-editor .body-field, html[data-admin-theme='dark'] .project-editor .editor-actions { border-color: #4a5254; }
+  html[data-admin-theme='dark'] .project-editor header h2 { color: #eef0ec; }
+  html[data-admin-theme='dark'] .project-editor header small { color: #dc746b; }
+  html[data-admin-theme='dark'] .project-editor .editor-fields label, html[data-admin-theme='dark'] .project-editor .body-field { color: #adb5b6; }
+  html[data-admin-theme='dark'] .project-editor input, html[data-admin-theme='dark'] .project-editor textarea { border-color: #50595b; color: #edf0ed; background: rgba(39,44,46,.92); caret-color: #e37a70; }
+  html[data-admin-theme='dark'] .project-editor .editor-tabs { border-color: #555e60; background: #282d2f; }
+  html[data-admin-theme='dark'] .project-editor .editor-tabs button { color: #9da6a8; }
+  html[data-admin-theme='dark'] .project-editor .editor-tabs button + button { border-left-color: #555e60; }
+  html[data-admin-theme='dark'] .project-editor .editor-tabs button[aria-pressed='true'] { color: #171a1b; background: #bfc4c2; }
+  html[data-admin-theme='dark'] .project-preview-panel > p, html[data-admin-theme='dark'] .project-editor .editor-actions p { color: #8e989a; }
+  html[data-admin-theme='dark'] .project-preview-panel iframe { border-color: #4c5557; background: #191c1d; }
+  html[data-admin-theme='dark'] .project-editor .editor-actions button { border-color: #596164; color: #d6dcda; background: #292e30; }
+  html[data-admin-theme='dark'] .project-editor .editor-actions button.primary { border-color: #c75f57; color: #fff; background: #c75f57; }
+  html[data-admin-theme='dark'] .about-repeater > header { border-color: #41494b; background: rgba(12,15,16,.28); }
+  html[data-admin-theme='dark'] .about-repeat-row > .about-icon-button { border-color: #874d49; color: #df827a; }
+  html[data-admin-theme='dark'] .about-repeat-row > .about-icon-button:hover { border-color: #d75c53; background: #b94f47; color: #fff; }
 </style>
 
 <style is:global>
@@ -863,8 +1095,49 @@ console.log('hello');
   html[data-admin-theme='dark'] [data-admin-view='about'] .about-repeat-row { border-color: #41494b; background: rgba(12,15,16,.42); }
   html[data-admin-theme='dark'] [data-admin-view='about'] .editor-actions { background: #191d1e; }
 
+  [data-admin-view='projects'] { color: #202426; background: rgba(242, 242, 237, .95); }
+  .project-workspace { display: grid; grid-template-columns: 310px minmax(0, 1fr); min-height: calc(100vh - 185px); }
+  .project-index { padding: 0; color: #e9eceb; background: rgba(13, 16, 17, .78); }
+  .project-index > header { min-height: 58px; display: flex; align-items: center; justify-content: space-between; padding: 0 1.1rem; border-bottom: 1px solid rgba(255,255,255,.13); }
+  .project-index h2 { color: #f2f2ed; font-size: .7rem; }
+  .project-index > header span { min-width: 30px; padding: .15rem .35rem; border: 1px solid #4f595c; color: #e25549; text-align: center; }
+  .project-index > .manager-status { min-height: 38px; padding: 0 1rem; color: #8a9496; }
+  .project-list { max-height: calc(100vh - 320px); overflow-y: auto; border-top: 1px solid rgba(255,255,255,.12); }
+  .project-row { width: 100%; min-height: 76px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .35rem .75rem; padding: .9rem 1rem; border: 0; border-bottom: 1px solid rgba(255,255,255,.1); color: #dce1e0; background: transparent; text-align: left; cursor: pointer; }
+  .project-row:hover { background: rgba(82,166,189,.09); }
+  .project-row[aria-current='true'] { background: rgba(226,85,73,.1); box-shadow: inset 3px 0 #e25549; }
+  .project-row strong { overflow: hidden; color: #f1f2ee; font: 600 .68rem var(--font-ui); text-overflow: ellipsis; white-space: nowrap; }
+  .project-row span { overflow: hidden; color: #839093; font: 500 .52rem var(--font-mono); text-overflow: ellipsis; white-space: nowrap; }
+  .project-row i { grid-column: 2; grid-row: 1 / 3; align-self: center; padding: .2rem .3rem; border: 1px solid #4b5558; color: #a9b1b3; font: 500 .5rem var(--font-ui); font-style: normal; }
+  .project-row i.featured { border-color: #91733e; color: #e0b85c; background: rgba(190,139,62,.12); }
+  .project-editor { padding: 1.4rem 1.6rem 1.6rem; color: #202426; background: rgba(246,245,240,.96); }
+  .project-editor > header { min-height: 54px; display: flex; align-items: center; justify-content: space-between; gap: 1rem; border-bottom: 1px solid #b7bab5; }
+  .project-editor header small { color: #d0453b; font: 500 .56rem var(--font-mono); }
+  .project-editor header h2 { max-width: 46vw; overflow: hidden; font: 500 1rem var(--font-ui); text-overflow: ellipsis; white-space: nowrap; }
+  .project-editor .editor-fields { grid-template-columns: minmax(0, 1fr) 180px; gap: .85rem 1.25rem; padding: 1.2rem 0; }
+  .project-editor .editor-fields label, .project-editor .body-field { color: #60676a; }
+  .project-editor input, .project-editor textarea { border: 1px solid #aeb3af; color: #1d2123; background: rgba(255,255,255,.7); }
+  .project-editor .body-field { display: grid; border-top: 1px solid #b8bbb7; padding-top: 1rem; }
+  .project-editor .body-field textarea { min-height: 38vh; margin-top: .35rem; padding: 1rem; line-height: 1.8; }
+  .project-editor .editor-actions { min-height: 58px; margin-top: 1rem; padding-top: 0; border-top: 1px solid #b8bbb7; }
+  .project-editor .editor-actions button.primary { border-color: #d94a3f; background: #d94a3f; }
+
+  .about-edit-layout { display: grid; grid-template-columns: 196px minmax(0, 1fr); min-height: 620px; }
+  .about-section-nav { display: flex; flex-direction: column; padding: .75rem 0; border-right: 1px solid #b8bbb7; background: rgba(211,211,205,.55); }
+  .about-section-nav button { min-height: 46px; display: flex; align-items: center; gap: .7rem; padding: 0 1rem; border: 0; border-left: 3px solid transparent; color: #5d6566; background: transparent; text-align: left; cursor: pointer; }
+  .about-section-nav button small { color: #b35048; font: 500 .5rem var(--font-mono); }
+  .about-section-nav button span { font: 600 .63rem var(--font-ui); }
+  .about-section-nav button:hover { color: #236f86; background: rgba(255,255,255,.35); }
+  .about-section-nav button[aria-current='page'] { border-left-color: #d94a3f; color: #202426; background: rgba(255,255,255,.62); }
+  [data-admin-view='about'] .about-form-section { min-height: 550px; }
+  html[data-admin-theme='dark'] .about-section-nav { border-color: #424a4c; background: rgba(15,18,19,.32); }
+  html[data-admin-theme='dark'] .about-section-nav button { color: #adb6b7; }
+  html[data-admin-theme='dark'] .about-section-nav button:hover { color: #8ed0df; background: rgba(255,255,255,.04); }
+  html[data-admin-theme='dark'] .about-section-nav button[aria-current='page'] { color: #f0f2ee; background: rgba(255,255,255,.08); }
+
   @media (max-width: 1050px) {
     [data-admin-view='about'] .about-form-section { grid-template-columns: 120px minmax(0, 1fr); gap: 1rem; }
+    .project-workspace { grid-template-columns: 260px minmax(0, 1fr); }
   }
 
   @media (max-width: 900px) {
@@ -1394,4 +1667,170 @@ console.log('hello');
     .comment-meta { grid-column: 2 / -1; grid-row: 2; }
     .comment-row > button { grid-column: 3; grid-row: 1; }
   }
+</style>
+
+<style is:global>
+  /* Final soft-mode layer. Every manager uses the same quiet work surface. */
+  html[data-admin-theme='soft'] { background: #eef0ec; }
+  html[data-admin-theme='soft'] body { color: #263032; background: #eef0ec; }
+  html[data-admin-theme='soft'] body::before { background: rgba(238,240,236,.92); }
+  html[data-admin-theme='soft'] .topbar, html[data-admin-theme='soft'] .admin-shell > .topbar { border-color: #c8cfca; background: #fffefa; }
+  html[data-admin-theme='soft'] .admin-brand-name, html[data-admin-theme='soft'] .brand, html[data-admin-theme='soft'] .workspace-header h1 { color: #20292b; }
+  html[data-admin-theme='soft'] .admin-brand-edition, html[data-admin-theme='soft'] .brand span { color: #718082; }
+  html[data-admin-theme='soft'] .topbar nav button { color: #647174; }
+  html[data-admin-theme='soft'] .topbar nav button[aria-current='page'] { color: #176771; background: #dcedeb; box-shadow: inset 0 -3px #2d7d83; }
+  html[data-admin-theme='soft'] .toolbar-control { border-color: #c8cfca; color: #536366; background: #fffefa; }
+  html[data-admin-theme='soft'] .workspace { background: transparent; }
+  html[data-admin-theme='soft'] [data-admin-view] { border-color: #c8cfca; background: #fbfcf8; box-shadow: 0 10px 26px rgba(39,54,55,.06); }
+  html[data-admin-theme='soft'] .workspace-header { border-color: #c8cfca; background: #fffefa; }
+  html[data-admin-theme='soft'] .command-button, html[data-admin-theme='soft'] .editor-actions button.primary { border-color: #c8574d; background: #c8574d; }
+  html[data-admin-theme='soft'] .post-index, html[data-admin-theme='soft'] .project-index { border-color: #c8cfca; color: #263032; background: #f1f4f0; }
+  html[data-admin-theme='soft'] .post-index > header, html[data-admin-theme='soft'] .project-index > header, html[data-admin-theme='soft'] .post-list, html[data-admin-theme='soft'] .project-list { border-color: #c8cfca; }
+  html[data-admin-theme='soft'] .post-index h2, html[data-admin-theme='soft'] .project-index h2 { color: #344042; }
+  html[data-admin-theme='soft'] .post-search input { border-color: #bcc8c5; color: #263032; background: #fffefa; }
+  html[data-admin-theme='soft'] .post-row, html[data-admin-theme='soft'] .project-row { border-color: #d7ddd8; color: #263032; }
+  html[data-admin-theme='soft'] .post-row strong, html[data-admin-theme='soft'] .project-row strong { color: #263032; }
+  html[data-admin-theme='soft'] .post-row span, html[data-admin-theme='soft'] .project-row span { color: #748184; }
+  html[data-admin-theme='soft'] .post-row:hover, html[data-admin-theme='soft'] .project-row:hover { background: #e7f1ef; }
+  html[data-admin-theme='soft'] .post-row[aria-current='true'], html[data-admin-theme='soft'] .project-row[aria-current='true'] { background: #dcecea; box-shadow: inset 3px 0 #2d7d83; }
+  html[data-admin-theme='soft'] .post-editor, html[data-admin-theme='soft'] .project-editor, html[data-admin-theme='soft'] [data-admin-view='about'] .about-editor, html[data-admin-theme='soft'] [data-admin-view='comments'] { color: #263032; background: #fffefa; }
+  html[data-admin-theme='soft'] .post-editor > header, html[data-admin-theme='soft'] .project-editor > header, html[data-admin-theme='soft'] [data-admin-view='about'] .about-editor > header, html[data-admin-theme='soft'] .body-field, html[data-admin-theme='soft'] .editor-actions { border-color: #c8cfca; }
+  html[data-admin-theme='soft'] .post-editor header h2, html[data-admin-theme='soft'] .project-editor header h2 { color: #20292b; }
+  html[data-admin-theme='soft'] .editor-tabs { border-color: #bcc8c5; background: #f2f5f1; }
+  html[data-admin-theme='soft'] .editor-tabs button { color: #637174; }
+  html[data-admin-theme='soft'] .editor-tabs button[aria-pressed='true'], html[data-admin-theme='soft'] .about-editor .editor-tabs button[aria-selected='true'] { color: #fff; background: #287881; }
+  html[data-admin-theme='soft'] .editor-fields input, html[data-admin-theme='soft'] .editor-fields textarea, html[data-admin-theme='soft'] .body-field textarea, html[data-admin-theme='soft'] .about-field input, html[data-admin-theme='soft'] .about-field textarea { border-color: #bcc8c5; color: #263032; background: #fffefa; }
+  html[data-admin-theme='soft'] .editor-actions { background: #f1f4f0; }
+  html[data-admin-theme='soft'] .preview-panel iframe, html[data-admin-theme='soft'] .project-preview-panel iframe, html[data-admin-theme='soft'] .about-preview iframe { border-color: #c8cfca; background: #f4f6f2; }
+  html[data-admin-theme='soft'] .about-section-nav { border-color: #c8cfca; background: #f1f4f0; }
+  html[data-admin-theme='soft'] .about-section-nav button { color: #5d6c6f; }
+  html[data-admin-theme='soft'] .about-section-nav button[aria-current='page'] { border-left-color: #2d7d83; color: #176771; background: #dcedeb; }
+  html[data-admin-theme='soft'] [data-admin-view='about'] .about-form-section, html[data-admin-theme='soft'] [data-admin-view='about'] .about-preview > p { border-color: #c8cfca; }
+  html[data-admin-theme='soft'] .about-repeat-row, html[data-admin-theme='soft'] [data-admin-view='about'] .about-repeat-row, html[data-admin-theme='soft'] .about-repeater > header { border-color: #c8cfca; background: #f7f9f5; }
+  html[data-admin-theme='soft'] .stats { border-color: #c8cfca; background: #f1f4f0; }
+  html[data-admin-theme='soft'] .stats div, html[data-admin-theme='soft'] .comment-manager > .manager-status, html[data-admin-theme='soft'] .comment-table, html[data-admin-theme='soft'] .comment-row { border-color: #d3dad5; }
+  html[data-admin-theme='soft'] .filters input, html[data-admin-theme='soft'] .filters select, html[data-admin-theme='soft'] .comment-row > button { border-color: #bcc8c5; color: #334548; background: #fffefa; }
+  html[data-admin-theme='soft'] .login-panel { border-color: #c8cfca; background: #fffefa; box-shadow: 12px 12px 0 rgba(44,64,65,.12); }
+  html[data-admin-theme='soft'] .login-panel > header { border-bottom: 1px solid #c8cfca; background: #fffefa; }
+  html[data-admin-theme='soft'] .login-panel input { border-color: #bcc8c5; background: #fffefa; }
+</style>
+
+<style is:global>
+  /* Must remain last: shared editor styles above intentionally have lower priority. */
+  html[data-admin-theme='soft'] body { color: #182123; background: #111516; }
+  html[data-admin-theme='soft'] body::before {
+    background-color: rgba(11,15,16,.18);
+    background-image: url('/images/admin/rehearsal-control-room-v1.png');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-blend-mode: multiply;
+  }
+  html[data-admin-theme='soft'] .topbar, html[data-admin-theme='soft'] .admin-shell > .topbar { background: rgba(255,254,250,.94); backdrop-filter: blur(12px); }
+  html[data-admin-theme='soft'] .workspace { background: transparent; }
+  html[data-admin-theme='soft'] [data-admin-view] { border-color: #b7c0bc; background: #f7f8f4; box-shadow: 0 18px 46px rgba(0,0,0,.28); backdrop-filter: none; }
+  html[data-admin-theme='soft'] .workspace-header { border-color: #c3cbc7; background: #eef1ed; }
+  html[data-admin-theme='soft'] .post-editor,
+  html[data-admin-theme='soft'] .project-editor,
+  html[data-admin-theme='soft'] [data-admin-view='about'] .about-editor,
+  html[data-admin-theme='soft'] [data-admin-view='comments'] { color: #182123; background: #fbfcf8; }
+  html[data-admin-theme='soft'] .post-index,
+  html[data-admin-theme='soft'] .project-index,
+  html[data-admin-theme='soft'] .about-section-nav,
+  html[data-admin-theme='soft'] .stats,
+  html[data-admin-theme='soft'] .editor-actions { background: #edf1ed; }
+  html[data-admin-theme='soft'] .project-editor > header, html[data-admin-theme='soft'] .project-editor .body-field, html[data-admin-theme='soft'] .project-editor .editor-actions { border-color: #c8cfca; }
+  html[data-admin-theme='soft'] .editor-fields label,
+  html[data-admin-theme='soft'] .body-field,
+  html[data-admin-theme='soft'] .about-field > span,
+  html[data-admin-theme='soft'] .about-repeater > header h4 { color: #465558; }
+  html[data-admin-theme='soft'] .editor-fields input,
+  html[data-admin-theme='soft'] .editor-fields textarea,
+  html[data-admin-theme='soft'] .body-field textarea,
+  html[data-admin-theme='soft'] .about-field input,
+  html[data-admin-theme='soft'] .about-field textarea,
+  html[data-admin-theme='soft'] .filters input,
+  html[data-admin-theme='soft'] .filters select { border: 1px solid #aab5b1; color: #182123; background: #fff; box-shadow: inset 0 1px 2px rgba(34,49,50,.05); }
+  html[data-admin-theme='soft'] input::placeholder,
+  html[data-admin-theme='soft'] textarea::placeholder { color: #82908f; }
+  html[data-admin-theme='soft'] .post-row strong,
+  html[data-admin-theme='soft'] .project-row strong,
+  html[data-admin-theme='soft'] .manager-toolbar h2,
+  html[data-admin-theme='soft'] .comment-content strong { color: #182123; }
+  html[data-admin-theme='soft'] .manager-status,
+  html[data-admin-theme='soft'] .editor-actions p,
+  html[data-admin-theme='soft'] .comment-content > p { color: #536366; }
+  html[data-admin-theme='soft'] .login-panel { color: #263032; background: rgba(255,254,250,.9); box-shadow: -32px 0 80px rgba(0,0,0,.3); backdrop-filter: blur(10px); }
+  html[data-admin-theme='soft'] .login-copy h1 { color: #20292b; }
+  html[data-admin-theme='soft'] .login-panel label { color: #5d6c6f; }
+  .admin-shell > .topbar .topbar-actions { gap: 0; padding: 0; border: 1px solid #aeb9b5; border-radius: 4px; background: rgba(255,255,255,.56); overflow: hidden; }
+  .admin-shell > .topbar .topbar-actions > .toolbar-control {
+    width: 36px;
+    min-width: 36px;
+    height: 36px;
+    min-height: 36px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .admin-shell > .topbar .topbar-actions > .toolbar-control + .toolbar-control { border-left: 1px solid #aeb9b5; }
+  .admin-shell > .topbar .topbar-actions > .toolbar-control + .toolbar-control::before { content: none; }
+  html[data-admin-theme='soft'] .admin-shell > .topbar .topbar-actions > .toolbar-control { color: #526164; background: transparent; }
+  html[data-admin-theme='soft'] .admin-shell > .topbar .topbar-actions > .toolbar-control:hover { color: #176771; background: #e4efed; }
+  html[data-admin-theme='soft'] .admin-shell > .topbar .topbar-actions > .logout-control:hover { color: #a33f38; background: #f5e7e4; }
+  html[data-admin-theme='dark'] .admin-shell > .topbar .topbar-actions { border-color: #4d585a; background: rgba(255,255,255,.025); }
+  html[data-admin-theme='dark'] .admin-shell > .topbar .topbar-actions > .toolbar-control { color: #aeb8b8; background: transparent; }
+  html[data-admin-theme='dark'] .admin-shell > .topbar .topbar-actions > .toolbar-control + .toolbar-control { border-left-color: #4d585a; }
+  html[data-admin-theme='dark'] .admin-shell > .topbar .topbar-actions > .toolbar-control:hover { color: #eef1ee; background: #303738; }
+  html[data-admin-theme='dark'] .admin-shell > .topbar .topbar-actions > .logout-control:hover { color: #ef8b82; background: #362526; }
+  [data-admin-view='posts'] .post-pagination { min-height: 48px; grid-template-columns: 42px minmax(76px, 1fr) 42px; gap: 0; padding: 0; }
+  [data-admin-view='posts'] .post-pagination button { width: 42px; height: 47px; border: 0; border-radius: 0; }
+  [data-admin-view='posts'] .post-pagination > span { min-height: 47px; display: flex; align-items: center; justify-content: center; border: 0; border-inline: 1px solid; border-radius: 0; }
+  html[data-admin-theme='soft'] [data-admin-view='posts'] .post-pagination { border-color: #c3cbc7; color: #59696c; background: #edf1ed; }
+  html[data-admin-theme='soft'] [data-admin-view='posts'] .post-pagination button { color: #2a6f76; background: transparent; box-shadow: none; }
+  html[data-admin-theme='soft'] [data-admin-view='posts'] .post-pagination button:hover:not(:disabled) { color: #176771; background: #dceae7; }
+  html[data-admin-theme='soft'] [data-admin-view='posts'] .post-pagination button:disabled { color: #a8b2af; background: transparent; opacity: 1; }
+  html[data-admin-theme='soft'] [data-admin-view='posts'] .post-pagination > span { border-color: #c3cbc7; background: transparent; }
+  html[data-admin-theme='soft'] [data-admin-view='posts'] .post-pagination b { color: #ad4f47; }
+  html[data-admin-theme='soft'] .post-index-controls select {
+    color-scheme: light;
+    border: 1px solid #aab5b1;
+    color: #263032;
+    background-color: #fff;
+    box-shadow: none;
+  }
+  html[data-admin-theme='soft'] .post-index-controls select:hover { border-color: #6f9797; }
+  html[data-admin-theme='soft'] .post-index-controls select:focus { outline: 2px solid #39818a; outline-offset: 1px; border-color: transparent; }
+  html[data-admin-theme='soft'] .post-index-controls select option { color: #263032; background: #fff; }
+  html[data-admin-theme='soft'] .editor-actions,
+  html[data-admin-theme='soft'] [data-admin-view='about'] .editor-actions {
+    min-height: 64px;
+    margin-top: 1rem;
+    padding: .75rem 0 0;
+    border-top: 1px solid #c3cbc7;
+    background: transparent;
+  }
+  html[data-admin-theme='soft'] [data-admin-view='about'] .editor-actions { margin: 0; padding: 0 1.5rem; background: #f2f4f1; }
+  html[data-admin-theme='soft'] .editor-actions button { border-color: #aeb9b5; color: #344548; background: #fff; }
+  html[data-admin-theme='soft'] .editor-actions button:hover { border-color: #39818a; color: #226b73; background: #edf5f3; }
+  html[data-admin-theme='soft'] .editor-actions button.primary { border-color: #c4544b; color: #fff; background: #c4544b; }
+  html[data-admin-theme='soft'] .editor-actions button.primary:hover { border-color: #aa443d; color: #fff; background: #aa443d; }
+  html[data-admin-theme='dark'] .post-index-controls select { color-scheme: dark; border-color: #41494c; color: #c4cccd; background-color: #202526; }
+  html[data-admin-theme='dark'] .post-index-controls select option { color: #e4e8e6; background: #202526; }
+  html[data-admin-theme='dark'] [data-admin-view='posts'] .post-pagination { border-color: #414a4c; color: #929c9e; background: #171b1c; }
+  html[data-admin-theme='dark'] [data-admin-view='posts'] .post-pagination button { color: #b8c2c2; background: transparent; }
+  html[data-admin-theme='dark'] [data-admin-view='posts'] .post-pagination button:hover:not(:disabled) { color: #fff; background: #293638; }
+  html[data-admin-theme='dark'] [data-admin-view='posts'] .post-pagination > span { border-color: #414a4c; background: transparent; }
+  html[data-admin-theme='dark'] [data-admin-view='projects'], html[data-admin-theme='dark'] .project-editor { color: #e7e9e6; background: rgba(30,34,35,.97); }
+  html[data-admin-theme='dark'] .project-editor > header, html[data-admin-theme='dark'] .project-editor .body-field, html[data-admin-theme='dark'] .project-editor .editor-actions { border-color: #4a5254; }
+  html[data-admin-theme='dark'] .project-editor header h2 { color: #eef0ec; }
+  html[data-admin-theme='dark'] .project-editor .editor-fields label, html[data-admin-theme='dark'] .project-editor .body-field { color: #adb5b6; }
+  html[data-admin-theme='dark'] .project-editor input, html[data-admin-theme='dark'] .project-editor textarea { border-color: #50595b; color: #edf0ed; background: rgba(39,44,46,.92); }
+  html[data-admin-theme='dark'] .project-editor .editor-tabs { border-color: #555e60; background: #282d2f; }
+  html[data-admin-theme='dark'] .project-editor .editor-tabs button { color: #9da6a8; }
+  html[data-admin-theme='dark'] .project-editor .editor-tabs button[aria-pressed='true'] { color: #171a1b; background: #bfc4c2; }
+  html[data-admin-theme='dark'] .project-preview-panel iframe { border-color: #4c5557; background: #191c1d; }
 </style>

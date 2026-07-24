@@ -1,18 +1,19 @@
 ---
 title: 'Hello, World'
-description: 'The first post, used to test the features of this blog.'
+description: 'This is the first post, created to test the various features of the blog.'
 date: 2026-07-07
 tags: ['meta', 'astro']
+draft: true
 copyright: true
 ---
 
 This is the first post.
 
-## This is an H2 heading
+## This Is an H2 Heading
 
-A paragraph of body text. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+Body paragraph. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
 
-## Code test
+## Code Test
 
 ```typescript
 // src/content/config.ts
@@ -26,12 +27,12 @@ const posts = defineCollection({
 });
 ```
 
-### This is an H3 heading
+### This Is an H3 Heading
 
 Inline code: `const greeting = 'hello'`.
 
-> Mafuyu's voice was like a key, opening a door Ritsuka had long forgotten to lock.
+> This is a blockquote. Mafuyu's voice was like a key, opening a door Ritsuka had long forgotten he'd locked.
 
-## Closing
+## Conclusion
 
-That is all for the first post.
+That concludes the first post.

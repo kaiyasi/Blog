@@ -1,6 +1,6 @@
 # 管理後台架構
 
-目前 `/admin` 提供文章、About 頁面與留言管理。文章仍以 Markdown／MDX 檔案作為唯一來源，
+目前 `/admin` 提供文章、專案、About 頁面與留言管理。文章與專案仍以 Markdown／MDX 檔案作為唯一來源，
 但可直接在瀏覽器建立、編輯、儲存草稿與發布。
 
 ## About 頁面管理
@@ -36,6 +36,19 @@ CONTENT_ABOUT_FILE=/absolute/persistent/path/about.json
 CONTENT_POSTS_DIRECTORY=/absolute/persistent/path/posts
 ```
 
+## 專案管理
+
+- 後台「專案」管理公開 `/projects` 頁面使用的 `src/content/projects/` Markdown／MDX 檔案。
+- 可建立、編輯專案名稱、摘要、日期、標籤、網站與 GitHub 連結、Markdown 內容，並設定是否列為精選。
+- 專案 slug 與既有檔案副檔名保持不變；不提供永久刪除，避免公開連結意外失效。
+- About 頁面的「Projects」是個人經歷中的專案介紹區塊，與公開作品集清單分開維護，避免兩種用途的內容互相覆寫。
+
+預設專案目錄是 `src/content/projects/`。若部署環境需要持久磁碟，設定：
+
+```sh
+CONTENT_PROJECTS_DIRECTORY=/absolute/persistent/path/projects
+```
+
 容器可寫時會同步更新當次執行中的檔案；唯讀正式容器則以 repository file API
 作為寫入目標。每次儲存都更新 GitHub 與 GitLab 的來源檔，GitLab commit 會接續觸發部署：
 
@@ -51,7 +64,7 @@ CONTENT_GITLAB_PROJECT=Kaiyasi/given
 CONTENT_GITLAB_BRANCH=main
 ```
 
-同步只更新 `src/content/posts/...` 或 `src/content/about.json`，不會覆蓋 GitLab
+同步只更新 `src/content/posts/...`、`src/content/projects/...` 或 `src/content/about.json`，不會覆蓋 GitLab
 的 `.platform/`、`.gitlab-ci.yml` 等部署檔。兩邊都設定完成前可暫時維持
 `CONTENT_SYNC_REQUIRED=false`；此時只同步已有 token 的平台。
 
