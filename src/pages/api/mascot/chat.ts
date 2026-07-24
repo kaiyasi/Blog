@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { generateMascotLine, type MascotContext } from '../../../server/mascot-provider';
 import eventConfig from '../../../config/mascot-events.json';
+import { sameOrigin } from '../../../server/community-http';
 
 export const prerender = false;
 
@@ -95,8 +96,7 @@ const validContext = (value: unknown): value is MascotContext => {
 };
 
 export const POST: APIRoute = async ({ request }) => {
-  const origin = request.headers.get('origin');
-  if (origin && origin !== new URL(request.url).origin) return json({ error: 'origin_not_allowed' }, 403);
+  if (!sameOrigin(request)) return json({ error: 'origin_not_allowed' }, 403);
   if (!request.headers.get('content-type')?.includes('application/json')) return json({ error: 'invalid_content_type' }, 415);
   if (rateLimited(request)) return json({ error: 'rate_limited' }, 429);
 

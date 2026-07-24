@@ -10,7 +10,24 @@ export const communityJson = (body: unknown, status = 200) => new Response(JSON.
 
 export function sameOrigin(request: Request) {
   const origin = request.headers.get('origin');
-  return !origin || origin === new URL(request.url).origin;
+  if (!origin) return true;
+  let normalizedOrigin: string;
+  try {
+    const parsed = new URL(origin);
+    if (!['http:', 'https:'].includes(parsed.protocol)) return false;
+    normalizedOrigin = parsed.origin;
+  } catch {
+    return false;
+  }
+
+  const requestUrl = new URL(request.url);
+  const forwardedHost = request.headers.get('x-forwarded-host')?.split(',')[0]?.trim();
+  const forwardedProtocol = request.headers.get('x-forwarded-proto')?.split(',')[0]?.trim();
+  const host = forwardedHost || request.headers.get('host')?.trim();
+  const protocol = forwardedProtocol || requestUrl.protocol.replace(':', '');
+  const accepted = new Set([requestUrl.origin]);
+  if (host && ['http', 'https'].includes(protocol)) accepted.add(`${protocol}://${host}`);
+  return accepted.has(normalizedOrigin);
 }
 
 export function rateLimited(request: Request, scope: string, maximum: number, windowMs: number) {
