@@ -170,17 +170,38 @@ async function atomicWrite(path: string, contents: string) {
   await rename(temporary, path);
 }
 
-export async function createAdminPost(value: unknown) {
-  const post = validateInput(value);
-  if (await locate(post.slug)) throw new AdminPostError('already_exists', 409);
-  const contents = serializeDocument(post);
-  await atomicWrite(containedPath(`${post.slug}.md`), contents);
+function immutableFileSystem(error: unknown) {
+  const code = (error as NodeJS.ErrnoException)?.code;
+  return code === 'EROFS' || code === 'EPERM' || code === 'EACCES';
+}
+
+async function persistPost(path: string, contents: string, repositoryPath: string, message: string) {
+  let synced = false;
   try {
-    await syncContentFile(`src/content/posts/${post.slug}.md`, contents, `Create article: ${post.title}`);
+    synced = await syncContentFile(repositoryPath, contents, message);
   } catch (error) {
     if (error instanceof ContentSyncError) throw new AdminPostError(error.code, 502);
     throw error;
   }
+  try {
+    await atomicWrite(path, contents);
+  } catch (error) {
+    if (!synced || !immutableFileSystem(error)) throw error;
+  }
+  return synced;
+}
+
+export async function createAdminPost(value: unknown) {
+  const post = validateInput(value);
+  if (await locate(post.slug)) throw new AdminPostError('already_exists', 409);
+  const contents = serializeDocument(post);
+  const synced = await persistPost(
+    containedPath(`${post.slug}.md`),
+    contents,
+    `src/content/posts/${post.slug}.md`,
+    `Create article: ${post.title}`,
+  );
+  if (synced) return { ...post, extension: '.md' as const, updatedAt: new Date().toISOString() };
   return getAdminPost(post.slug);
 }
 
@@ -190,12 +211,12 @@ export async function updateAdminPost(slug: string, value: unknown) {
   const located = await locate(slug);
   if (!located) throw new AdminPostError('not_found', 404);
   const contents = serializeDocument(post);
-  await atomicWrite(located.path, contents);
-  try {
-    await syncContentFile(`src/content/posts/${post.slug}${located.extension}`, contents, `Update article: ${post.title}`);
-  } catch (error) {
-    if (error instanceof ContentSyncError) throw new AdminPostError(error.code, 502);
-    throw error;
-  }
+  const synced = await persistPost(
+    located.path,
+    contents,
+    `src/content/posts/${post.slug}${located.extension}`,
+    `Update article: ${post.title}`,
+  );
+  if (synced) return { ...post, extension: located.extension, updatedAt: new Date().toISOString() };
   return getAdminPost(slug);
 }

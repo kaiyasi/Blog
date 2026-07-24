@@ -93,7 +93,7 @@ export async function syncContentFile(path: string, contents: string, message: s
     if (value('CONTENT_SYNC_REQUIRED').toLowerCase() === 'true') {
       throw new ContentSyncError('content_sync_not_configured');
     }
-    return;
+    return false;
   }
   if (value('CONTENT_SYNC_REQUIRED').toLowerCase() === 'true' && (!configured.github || !configured.gitlab)) {
     throw new ContentSyncError('content_sync_not_configured');
@@ -111,4 +111,5 @@ export async function syncContentFile(path: string, contents: string, message: s
     console.error(`Content sync failed for ${path}: ${failures.join('; ')}`);
     throw new ContentSyncError('content_sync_failed');
   }
+  return true;
 }

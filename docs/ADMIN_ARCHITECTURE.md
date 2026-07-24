@@ -34,8 +34,8 @@ CONTENT_ABOUT_FILE=/absolute/persistent/path/about.json
 CONTENT_POSTS_DIRECTORY=/absolute/persistent/path/posts
 ```
 
-容器內檔案只用來完成當次讀寫。正式環境應啟用下列 repository file API
-同步，讓每次儲存都更新 GitHub 與 GitLab 的來源檔；GitLab commit 會接續觸發部署：
+容器可寫時會同步更新當次執行中的檔案；唯讀正式容器則以 repository file API
+作為寫入目標。每次儲存都更新 GitHub 與 GitLab 的來源檔，GitLab commit 會接續觸發部署：
 
 ```sh
 CONTENT_SYNC_REQUIRED=true

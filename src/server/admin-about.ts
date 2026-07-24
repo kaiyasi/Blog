@@ -118,16 +118,22 @@ export async function getAboutContent() {
 export async function updateAboutContent(value: unknown) {
   const content = validateAboutContent(value);
   const contents = `${JSON.stringify(content, null, 2)}\n`;
-  const directory = dirname(aboutFile);
-  await mkdir(directory, { recursive: true });
-  const temporary = `${aboutFile}.${randomUUID()}.tmp`;
-  await writeFile(temporary, contents, { encoding: 'utf8', flag: 'wx' });
-  await rename(temporary, aboutFile);
+  let synced = false;
   try {
-    await syncContentFile('src/content/about.json', contents, 'Update About page');
+    synced = await syncContentFile('src/content/about.json', contents, 'Update About page');
   } catch (error) {
     if (error instanceof ContentSyncError) throw new AdminAboutError(error.code, 502);
     throw error;
+  }
+  const directory = dirname(aboutFile);
+  try {
+    await mkdir(directory, { recursive: true });
+    const temporary = `${aboutFile}.${randomUUID()}.tmp`;
+    await writeFile(temporary, contents, { encoding: 'utf8', flag: 'wx' });
+    await rename(temporary, aboutFile);
+  } catch (error) {
+    const code = (error as NodeJS.ErrnoException)?.code;
+    if (!synced || !['EROFS', 'EPERM', 'EACCES'].includes(code || '')) throw error;
   }
   return content;
 }
