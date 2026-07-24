@@ -108,6 +108,7 @@ if (app) {
     body_too_large: '文章內容超過 1.5 MB。',
     content_sync_not_configured: '遠端同步尚未完成設定，內容只暫存在目前容器。',
     content_sync_failed: '內容已暫存，但推送 GitHub 或 GitLab 失敗，請再儲存一次。',
+    translation_failed: '自動翻譯失敗，尚未發布變更，請稍後再試。',
   }[code || ''] || '儲存失敗，請再試一次。');
 
   const slugify = (value: string) => value.toLowerCase().trim()
@@ -472,7 +473,7 @@ if (app) {
       if (response.status === 401) return location.reload();
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || 'preview_failed');
-      aboutPreviewFrame.srcdoc = result.document;
+      aboutPreviewFrame.src = `${result.url}&theme=${encodeURIComponent(document.documentElement.dataset.adminTheme || 'soft')}`;
       aboutPreviewStatus.textContent = '預覽已更新';
     } catch (error) {
       if ((error as DOMException).name === 'AbortError') return;
@@ -607,12 +608,10 @@ if (app) {
       field('頭像替代文字', identity.avatarAlt, value => { identity.avatarAlt = value; }),
       field('照片標記', identity.portraitCaption, value => { identity.portraitCaption = value; }, { wide: true }),
     );
-    for (const [locale, name] of [['zh-TW', '繁體中文'], ['en', 'English'], ['ja', '日本語'], ['ko', '한국어']] as const) {
-      profile.append(
-        field(`${name} 副標題`, identity.subtitle[locale], value => { identity.subtitle[locale] = value; }),
-        field(`${name} 簡介`, identity.intro[locale], value => { identity.intro[locale] = value; }, { multiline: true }),
-      );
-    }
+    profile.append(
+      field('副標題', identity.subtitle['zh-TW'], value => { identity.subtitle['zh-TW'] = value; }),
+      field('簡介', identity.intro['zh-TW'], value => { identity.intro['zh-TW'] = value; }, { multiline: true }),
+    );
     quoteFields(profile, identity.quote);
     repeater(profile, '社群連結', identity.socialLinks, () => ({ label: 'GitHub', url: 'https://' }), (row, item: any) => {
       row.append(

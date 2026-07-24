@@ -1,0 +1,6 @@
+---
+import ErrorPage from '../components/ErrorPage.astro';
+
+export const prerender = false;
+---
+<ErrorPage code="500" title="演出暫時中斷" description="伺服器沒有完成這次請求。稍後重試，或先回到首頁繼續瀏覽。" />

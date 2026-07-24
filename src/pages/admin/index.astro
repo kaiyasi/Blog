@@ -24,6 +24,12 @@ const entryPath = adminEntryPath() || '/admin';
     </script>
   </head>
   <body>
+    <main class="desktop-required" aria-labelledby="desktop-required-title">
+      <div class="desktop-required-mark" aria-hidden="true"><i></i><i></i><i></i></div>
+      <p>ADMIN / DESKTOP ONLY</p>
+      <h1 id="desktop-required-title">請使用桌面裝置</h1>
+      <a href="/">返回網站</a>
+    </main>
     {!authenticated ? (
       <main class="login-page">
         <section class="login-panel" aria-labelledby="login-title">
@@ -243,7 +249,7 @@ console.log('hello');
               </div>
               <div class="about-preview" data-about-panel="preview" hidden>
                 <p data-about-preview-status role="status">載入內容後即可預覽。</p>
-                <iframe data-about-preview-frame title="關於頁面預覽" sandbox="allow-popups"></iframe>
+                <iframe data-about-preview-frame title="關於頁面預覽" sandbox="allow-same-origin allow-popups"></iframe>
               </div>
               <footer class="editor-actions">
                 <p data-about-status role="status">切換至關於頁面時載入。</p>
@@ -825,6 +831,52 @@ console.log('hello');
     .post-editor .markdown-editor.syntax-open > .body-field { display: none; }
     .post-editor .markdown-editor > .syntax-drawer { grid-column: 1; width: 100%; height: min(62vh, 620px); border-left: 1px solid #9fa39f; }
     html[data-admin-theme='dark'] .post-editor .markdown-editor > .syntax-drawer { border-left-color: #50595b; }
+  }
+
+  .desktop-required { display: none; }
+
+  /* Final About workspace rules live last so earlier shared editor themes cannot override them. */
+  [data-admin-view='about'] .about-editor { width: 100%; padding: 0; color: #252a2b; background: #e5e4de; }
+  [data-admin-view='about'] .about-editor > header { min-height: 68px; padding: .85rem 1.5rem; border-bottom: 1px solid #b6b9b5; }
+  [data-admin-view='about'] .about-form-sections { gap: 0; margin: 0; border: 0; background: transparent; }
+  [data-admin-view='about'] .about-form-section { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 1.5rem; padding: 1.5rem; border-bottom: 1px solid #b8bbb7; background: transparent; }
+  [data-admin-view='about'] .about-form-section > header { align-self: start; display: block; margin: 0; padding: .35rem 0 0; border: 0; }
+  [data-admin-view='about'] .about-form-section > header small { display: block; margin-bottom: .45rem; }
+  [data-admin-view='about'] .about-form-section > header h3 { color: #303536; font-size: .76rem; line-height: 1.45; }
+  [data-admin-view='about'] .about-field-grid { gap: 1rem 1.15rem; }
+  [data-admin-view='about'] .about-field input,
+  [data-admin-view='about'] .about-field textarea { border: 1px solid #aeb3af; color: #252a2b; background: #f5f4ef; }
+  [data-admin-view='about'] .about-repeat-row { padding: .85rem; border: 1px solid #b4b8b4; background: rgba(255,255,255,.34); }
+  [data-admin-view='about'] .about-preview { min-height: 72vh; padding: 0; }
+  [data-admin-view='about'] .about-preview > p { min-height: 42px; display: flex; align-items: center; margin: 0; padding: 0 1.5rem; border-bottom: 1px solid #b8bbb7; }
+  [data-admin-view='about'] .about-preview iframe { height: calc(100vh - 260px); min-height: 680px; border: 0; border-radius: 0; }
+  [data-admin-view='about'] .editor-actions { min-height: 66px; margin: 0; padding: 0 1.5rem; border-top: 0; background: #d9d9d3; }
+  html[data-admin-theme='soft'] .refresh-button { border-color: #9ca4a1; color: #41494b; background: #f2f1ec; }
+  html[data-admin-theme='soft'] .refresh-button:hover { color: #fff; border-color: #398ba3; background: #398ba3; }
+  html[data-admin-theme='dark'] [data-admin-view='about'] .about-editor { color: #e6e9e6; background: #202526; }
+  html[data-admin-theme='dark'] [data-admin-view='about'] .about-editor > header,
+  html[data-admin-theme='dark'] [data-admin-view='about'] .about-form-section,
+  html[data-admin-theme='dark'] [data-admin-view='about'] .about-preview > p { border-color: #424a4c; }
+  html[data-admin-theme='dark'] [data-admin-view='about'] .about-form-section > header h3 { color: #eef0ed; }
+  html[data-admin-theme='dark'] [data-admin-view='about'] .about-field input,
+  html[data-admin-theme='dark'] [data-admin-view='about'] .about-field textarea { border-color: #485153; color: #e5e8e5; background: #141819; }
+  html[data-admin-theme='dark'] [data-admin-view='about'] .about-repeat-row { border-color: #41494b; background: rgba(12,15,16,.42); }
+  html[data-admin-theme='dark'] [data-admin-view='about'] .editor-actions { background: #191d1e; }
+
+  @media (max-width: 1050px) {
+    [data-admin-view='about'] .about-form-section { grid-template-columns: 120px minmax(0, 1fr); gap: 1rem; }
+  }
+
+  @media (max-width: 900px) {
+    body { background-position: center; }
+    body > .login-page, body > .admin-shell { display: none !important; }
+    .desktop-required { min-height: 100vh; display: grid; place-content: center; justify-items: center; gap: .8rem; padding: 2rem; color: #edf0ed; background: rgba(10,13,14,.82); text-align: center; }
+    .desktop-required-mark { width: 30px; display: flex; flex-direction: column; gap: 5px; color: #e25549; transform: rotate(-8deg); }
+    .desktop-required-mark i { height: 2px; background: currentColor; }
+    .desktop-required-mark i:nth-child(2) { width: 17px; }
+    .desktop-required p { color: #70afc0; font: 600 .55rem var(--font-mono); }
+    .desktop-required h1 { font: 400 2rem var(--font-display); }
+    .desktop-required a { min-height: 40px; display: inline-flex; align-items: center; margin-top: .7rem; padding: 0 1rem; border: 1px solid #586164; color: #dce1df; font: 600 .62rem var(--font-ui); }
   }
 </style>
 

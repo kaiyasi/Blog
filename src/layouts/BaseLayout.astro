@@ -17,8 +17,9 @@ interface Props {
   titleValues?: Record<string, string>;
   descriptionValues?: Record<string, string>;
   ogImage?: string;
+  forcedTheme?: 'light' | 'dark';
 }
-const { title, bodyClass, description = messages['zh-TW']['meta.home.description'], titleKey, descriptionKey, titleValues, descriptionValues, ogImage } = Astro.props;
+const { title, bodyClass, description = messages['zh-TW']['meta.home.description'], titleKey, descriptionKey, titleValues, descriptionValues, ogImage, forcedTheme } = Astro.props;
 const bodyClasses = bodyClass?.split(/\s+/).filter(Boolean) ?? [];
 const mainSurfaceClass = bodyClasses.includes('home-page') ? 'home-page-surface' : bodyClasses.includes('inner-page') ? 'inner-page-surface' : undefined;
 const mainDetailClass = bodyClasses.includes('post-detail-page') ? 'post-detail-surface' : undefined;
@@ -27,7 +28,7 @@ const resolvedDescriptions = descriptionValues ?? (descriptionKey ? localizedVal
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 ---
 <!doctype html>
-<html lang="zh-TW" data-locale="zh-TW" data-scene="campus" data-scene-lead="mafuyu" data-page-title-values={JSON.stringify(resolvedTitles)}>
+<html lang="zh-TW" data-locale="zh-TW" data-theme={forcedTheme} data-scene="campus" data-scene-lead="mafuyu" data-page-title-values={JSON.stringify(resolvedTitles)}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />

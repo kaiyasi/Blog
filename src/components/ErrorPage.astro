@@ -1,0 +1,79 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  code: '404' | '500';
+  title: string;
+  description: string;
+}
+
+const { code, title, description } = Astro.props;
+---
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <meta name="theme-color" content="#0c1011" />
+    <link rel="icon" type="image/png" sizes="256x256" href="/favicon-specialized-v2.png?v=4" />
+    <title>{code} — Kaiyasi</title>
+  </head>
+  <body class:list={['error-page', `error-${code}`]}>
+    <img class="error-backdrop" src="/images/errors/empty-stage-v1.webp" alt="" width="1672" height="941" />
+    <div class="error-shade" aria-hidden="true"></div>
+    <header class="error-header">
+      <a href="/" aria-label="Kaiyasi 首頁"><span aria-hidden="true"><i></i><i></i><i></i></span><strong>KAIYASI</strong></a>
+      <small>SIGNAL / {code}</small>
+    </header>
+    <main>
+      <p>CONNECTION INTERRUPTED</p>
+      <h1>{code}</h1>
+      <div class="error-copy"><h2>{title}</h2><p>{description}</p></div>
+      <nav aria-label="錯誤頁操作">
+        <a class="primary" href="/">返回首頁</a>
+        <button type="button" onclick="history.back()">回上一頁</button>
+      </nav>
+    </main>
+    <footer><span>STATUS</span><b>{code === '404' ? 'ROUTE NOT FOUND' : 'SERVICE ERROR'}</b></footer>
+  </body>
+</html>
+
+<style>
+  :global(*) { box-sizing: border-box; }
+  :global(body.error-page) { min-height: 100svh; margin: 0; overflow: hidden; color: #f2f4f1; background: #0c1011; font-family: var(--font-body); }
+  .error-backdrop, .error-shade { position: fixed; inset: 0; width: 100%; height: 100%; }
+  .error-backdrop { object-fit: cover; object-position: center; }
+  .error-shade { background: linear-gradient(180deg, rgba(5,8,9,.44), rgba(5,8,9,.2) 45%, rgba(5,8,9,.68)); }
+  .error-shade::after { content: ''; position: absolute; inset: 0; background: rgba(4,7,8,.28); }
+  .error-header { position: fixed; z-index: 2; top: 0; right: 0; left: 0; min-height: 72px; display: flex; align-items: center; justify-content: space-between; padding: 0 clamp(1.25rem, 4vw, 4rem); border-bottom: 1px solid rgba(255,255,255,.18); }
+  .error-header a { display: inline-flex; align-items: center; gap: .7rem; color: #fff; text-decoration: none; }
+  .error-header a > span { width: 24px; display: flex; flex-direction: column; gap: 4px; color: #e06b62; transform: rotate(-8deg); }
+  .error-header i { height: 2px; background: currentColor; }
+  .error-header i:nth-child(2) { width: 14px; }
+  .error-header strong, .error-header small { font: 600 .65rem var(--font-mono); letter-spacing: 0; }
+  .error-header small { color: #83bccc; }
+  main { position: relative; z-index: 1; min-height: 100svh; width: min(980px, 100%); display: grid; align-content: center; grid-template-columns: minmax(0, 1fr) minmax(280px, 380px); gap: .5rem 4rem; margin: auto; padding: 7rem 1.5rem 6rem; }
+  main > p { grid-column: 1 / -1; color: #83bccc; font: 600 .62rem var(--font-mono); }
+  h1 { grid-column: 1; grid-row: 2 / 4; align-self: center; margin: 0; color: rgba(255,255,255,.94); font: 300 clamp(8rem, 20vw, 15rem)/.78 var(--font-display); }
+  .error-copy { grid-column: 2; align-self: end; padding: 1.3rem 0 1.4rem; border-block: 1px solid rgba(255,255,255,.2); }
+  .error-copy h2 { margin: 0; font: 400 1.65rem var(--font-display); }
+  .error-copy p { max-width: 34ch; margin: .65rem 0 0; color: #bac2c3; font-size: .82rem; line-height: 1.75; }
+  nav { grid-column: 2; display: flex; gap: .65rem; align-self: start; margin-top: .9rem; }
+  nav a, nav button { min-height: 42px; display: inline-flex; align-items: center; justify-content: center; padding: 0 1rem; border: 1px solid rgba(255,255,255,.3); color: #edf0ed; background: rgba(9,13,14,.5); font: 600 .62rem var(--font-ui); text-decoration: none; cursor: pointer; }
+  nav .primary { border-color: #d8675f; background: #c95f57; }
+  nav a:hover, nav button:hover { border-color: #72afc0; background: #337d92; }
+  footer { position: fixed; z-index: 2; right: clamp(1.25rem, 4vw, 4rem); bottom: 1.5rem; display: flex; gap: .6rem; color: #98a2a4; font: 600 .5rem var(--font-mono); }
+  footer b { color: #df766e; font: inherit; }
+  .error-500 .error-header a > span, .error-500 footer b { color: #e4a753; }
+  .error-500 nav .primary { border-color: #bf8236; background: #a96f2e; }
+  @media (max-width: 700px) {
+    .error-backdrop { object-position: 58% center; }
+    main { width: 100%; grid-template-columns: 1fr; align-content: end; gap: .8rem; padding: 7rem 1rem 5rem; }
+    main > p, h1, .error-copy, nav { grid-column: 1; grid-row: auto; }
+    h1 { font-size: clamp(6.8rem, 36vw, 10rem); }
+    .error-copy { max-width: 420px; }
+    nav { flex-wrap: wrap; }
+    footer { right: 1rem; bottom: 1rem; }
+  }
+</style>

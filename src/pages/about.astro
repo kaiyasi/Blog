@@ -2,11 +2,17 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import CommentThread from '../components/CommentThread.astro';
 import { getAboutContent } from '../server/admin-about';
+import { getAboutPreview } from '../server/admin-about-preview';
+import { isAdminAuthenticated } from '../server/admin-auth';
 import { createMarkdownProcessor } from '@astrojs/markdown-remark';
 
 export const prerender = false;
 
-const content = await getAboutContent();
+const previewToken = Astro.url.searchParams.get('preview');
+const previewContent = previewToken && isAdminAuthenticated(Astro.request) ? getAboutPreview(previewToken) : undefined;
+const previewTheme = previewContent ? (Astro.url.searchParams.get('theme') === 'dark' ? 'dark' : 'light') : undefined;
+const content = previewContent || await getAboutContent();
+if (previewContent) Astro.response.headers.set('Cache-Control', 'private, no-store');
 const { identity, about, skillGroups, roadmap, projects, experience, connect } = content;
 const processor = createMarkdownProcessor();
 const markdown = async (source: string) => (await (await processor).render(source)).code;
@@ -20,7 +26,7 @@ const rendered = {
 };
 ---
 
-<BaseLayout title="關於" titleKey="meta.about.title" descriptionKey="meta.about.description" bodyClass="inner-page about-body">
+<BaseLayout title="關於" titleKey="meta.about.title" descriptionKey="meta.about.description" bodyClass="inner-page about-body" forcedTheme={previewTheme}>
   <div class="about-page">
     <section class="identity-section" aria-labelledby="about-title">
       <div class="string-lines" aria-hidden="true"></div>

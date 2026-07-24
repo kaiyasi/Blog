@@ -6,7 +6,7 @@ import { locales, type Locale } from '../../i18n';
 const posts=(await getCollection('posts',({data})=>!data.draft)).sort((a,b)=>a.data.date.valueOf()-b.data.date.valueOf());
 const allTranslations=await getCollection('postTranslations',({data})=>!data.draft);
 const post=posts.find(item=>item.id===Astro.params.slug);
-if (!post) return Astro.redirect('/404');
+if (!post) return Astro.rewrite('/404');
 
 const translations=allTranslations.filter(item=>item.id.endsWith(`/${post.id}`));
 const titleValues=(entry:typeof post)=>Object.fromEntries(locales.map(locale=>{

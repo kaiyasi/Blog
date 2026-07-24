@@ -2,6 +2,7 @@ import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { ContentSyncError, syncContentFile } from './content-sync';
+import { requestAIText } from './mascot-provider';
 
 const aboutFile = resolve(process.env.CONTENT_ABOUT_FILE || 'src/content/about.json');
 
@@ -115,8 +116,45 @@ export async function getAboutContent() {
   }
 }
 
+async function translateIdentity(content: AboutContent) {
+  let current: AboutContent | undefined;
+  try { current = await getAboutContent(); } catch {}
+  const subtitle = content.identity.subtitle['zh-TW'];
+  const intro = content.identity.intro['zh-TW'];
+  if (current?.identity.subtitle['zh-TW'] === subtitle && current.identity.intro['zh-TW'] === intro) return content;
+
+  try {
+    const result = await requestAIText({
+      model: process.env.AI_TRANSLATION_MODEL || undefined,
+      reasoningEffort: 'low',
+      maxOutputTokens: 1_200,
+      timeoutMs: 90_000,
+      instructions: [
+        'Translate two Traditional Chinese profile fields into natural English, Japanese, and Korean.',
+        'Return only valid JSON with exactly these keys: enSubtitle, enIntro, jaSubtitle, jaIntro, koSubtitle, koIntro.',
+        'Preserve the concise personal-blog voice. Do not add facts, Markdown fences, or explanations.',
+      ].join(' '),
+      input: JSON.stringify({ subtitle, intro }),
+    });
+    const translated = JSON.parse(result.text.trim().replace(/^```json\s*/i, '').replace(/\s*```$/, '')) as Record<string, unknown>;
+    for (const key of ['enSubtitle', 'enIntro', 'jaSubtitle', 'jaIntro', 'koSubtitle', 'koIntro']) {
+      if (typeof translated[key] !== 'string' || !translated[key].trim()) throw new Error(`Missing ${key}`);
+    }
+    content.identity.subtitle.en = String(translated.enSubtitle);
+    content.identity.intro.en = String(translated.enIntro);
+    content.identity.subtitle.ja = String(translated.jaSubtitle);
+    content.identity.intro.ja = String(translated.jaIntro);
+    content.identity.subtitle.ko = String(translated.koSubtitle);
+    content.identity.intro.ko = String(translated.koIntro);
+    return validateAboutContent(content);
+  } catch (error) {
+    console.error('About translation failed', error instanceof Error ? error.message : error);
+    throw new AdminAboutError('translation_failed', 502);
+  }
+}
+
 export async function updateAboutContent(value: unknown) {
-  const content = validateAboutContent(value);
+  const content = await translateIdentity(validateAboutContent(value));
   const contents = `${JSON.stringify(content, null, 2)}\n`;
   let synced = false;
   try {
