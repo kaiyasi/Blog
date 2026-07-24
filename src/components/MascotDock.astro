@@ -1,5 +1,4 @@
 ---
-import { existsSync } from 'node:fs';
 import eventConfig from '../config/mascot-events.json';
 
 const assetNames = {
@@ -12,9 +11,7 @@ const assets = Object.fromEntries(Object.entries(assetNames).map(([scene, pair])
   scene,
   Object.fromEntries(Object.entries(pair).map(([character, filename]) => [
     character,
-    existsSync(new URL(`../../public/images/mascots/${filename}`, import.meta.url))
-      ? `/images/mascots/${filename}`
-      : null,
+    `/images/mascots/${filename}`,
   ])),
 ]));
 const isHome = Astro.url.pathname === '/';
