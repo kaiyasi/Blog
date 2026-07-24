@@ -2,7 +2,9 @@
 title: '[預覽] 佔位文章 001'
 description: '用來檢查大量文章分頁、搜尋與草稿狀態的第 001 篇測試內容。'
 date: '2026-07-23'
-tags: ['Placeholder', 'Astro']
+tags:
+  - 'Placeholder'
+  - 'Astro'
 draft: true
 copyright: true
 ---
