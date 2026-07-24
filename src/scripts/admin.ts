@@ -92,6 +92,7 @@ if (app) {
   let activeSlug: string | null = null;
   let slugTouched = false;
   let commentsLoaded = false;
+  let aboutLoaded = false;
   let activeEditorTab = 'edit';
   let previewTimer: number | undefined;
   let previewRequest: AbortController | undefined;
@@ -442,6 +443,56 @@ if (app) {
     }
   });
 
+  const aboutForm = app.querySelector<HTMLFormElement>('[data-about-form]')!;
+  const aboutInput = aboutForm.elements.namedItem('content') as HTMLTextAreaElement;
+  const aboutStatus = app.querySelector<HTMLElement>('[data-about-status]')!;
+  const loadAbout = async () => {
+    aboutStatus.textContent = '正在載入關於頁面...';
+    try {
+      const response = await fetch('/api/admin/about');
+      if (response.status === 401) return location.reload();
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'load_failed');
+      aboutInput.value = JSON.stringify(result.content, null, 2);
+      aboutLoaded = true;
+      aboutStatus.textContent = '已載入最新內容。';
+    } catch {
+      aboutStatus.textContent = '無法載入關於頁面，請稍後再試。';
+    }
+  };
+  aboutForm.addEventListener('submit', async event => {
+    event.preventDefault();
+    let content: unknown;
+    try {
+      content = JSON.parse(aboutInput.value);
+    } catch {
+      aboutStatus.textContent = 'JSON 格式有誤，請檢查逗號、引號與括號。';
+      aboutInput.focus();
+      return;
+    }
+    const button = aboutForm.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+    button.disabled = true;
+    aboutStatus.textContent = '正在儲存關於頁面...';
+    try {
+      const response = await fetch('/api/admin/about', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(content),
+      });
+      if (response.status === 401) return location.reload();
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'save_failed');
+      aboutInput.value = JSON.stringify(result.content, null, 2);
+      aboutStatus.textContent = '變更已儲存，正式頁面會立即讀取新內容。';
+    } catch (error) {
+      const code = error instanceof Error ? error.message : '';
+      aboutStatus.textContent = code.startsWith('invalid_') ? `內容驗證失敗：${code.slice(8)}` : '儲存失敗，請再試一次。';
+    } finally {
+      button.disabled = false;
+    }
+  });
+  app.querySelector('[data-about-refresh]')!.addEventListener('click', loadAbout);
+
   const table = app.querySelector<HTMLElement>('[data-comment-table]')!;
   const commentStatus = app.querySelector<HTMLElement>('[data-manager-status]')!;
   const search = app.querySelector<HTMLInputElement>('[data-search]')!;
@@ -531,6 +582,7 @@ if (app) {
       app.querySelectorAll<HTMLElement>('[data-admin-view]').forEach(section => { section.hidden = section.dataset.adminView !== view; });
       app.querySelectorAll<HTMLButtonElement>('[data-view-target]').forEach(item => item.removeAttribute('aria-current'));
       button.setAttribute('aria-current', 'page');
+      if (view === 'about' && !aboutLoaded) loadAbout();
       if (view === 'comments' && !commentsLoaded) loadComments();
     });
   });

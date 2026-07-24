@@ -76,7 +76,8 @@ const entryPath = adminEntryPath() || '/admin';
             </a>
             <nav aria-label="後台功能">
               <button type="button" aria-current="page" data-view-target="posts"><small>01</small><span>文章</span></button>
-              <button type="button" data-view-target="comments"><small>02</small><span>留言</span></button>
+              <button type="button" data-view-target="about"><small>02</small><span>關於</span></button>
+              <button type="button" data-view-target="comments"><small>03</small><span>留言</span></button>
             </nav>
             <div class="topbar-actions" aria-label="後台工具">
               <button type="button" class="toolbar-control theme-control-button" role="switch" aria-checked="false" aria-label="切換為深色模式" title="切換為深色模式" data-tooltip="深色模式" data-admin-theme-toggle>
@@ -220,6 +221,27 @@ console.log('hello');
             </aside>
           </section>
 
+          <section data-admin-view="about" hidden>
+            <header class="workspace-header">
+              <div><p>CONTENT / ABOUT</p><h1>關於頁面</h1></div>
+              <a class="command-button about-preview-link" href="/about" target="_blank" rel="noopener">正式頁面 ↗</a>
+            </header>
+            <form class="post-editor about-editor" data-about-form>
+              <header>
+                <div><small>ABOUT DOCUMENT</small><h2>頁面內容</h2></div>
+                <button type="button" class="refresh-button" data-about-refresh aria-label="重新載入關於頁面" title="重新載入">↻</button>
+              </header>
+              <label class="body-field about-content-field">
+                <span class="body-field-label">JSON 內容</span>
+                <textarea name="content" spellcheck="false" required></textarea>
+              </label>
+              <footer class="editor-actions">
+                <p data-about-status role="status">切換至關於頁面時載入。</p>
+                <div><button type="submit" class="primary">儲存變更</button></div>
+              </footer>
+            </form>
+          </section>
+
           <section data-admin-view="comments" hidden>
             <header class="workspace-header">
               <div><p>COMMUNITY / COMMENTS</p><h1>留言管理</h1></div>
@@ -296,6 +318,7 @@ console.log('hello');
   .workspace-header { display: flex; align-items: end; justify-content: space-between; gap: 1rem; padding-bottom: 1.5rem; border-bottom: 1px solid #bfc2be; }
   .workspace-header h1 { margin-top: .3rem; font: 400 2.25rem var(--font-display); }
   .command-button { min-height: 38px; padding: 0 .8rem; border: 1px solid #c83f35; color: #fff; background: #c83f35; font: 600 .63rem var(--font-ui); cursor: pointer; }
+  .about-preview-link { display: inline-flex; align-items: center; }
   .command-button span { margin-right: .35rem; font-size: .9rem; }
   .refresh-button { width: 36px; height: 36px; border: 1px solid #aeb2ae; color: #4d5356; background: rgba(248,248,245,.65); font-size: 1rem; cursor: pointer; }
   .refresh-button:hover { color: #fff; border-color: #c83f35; background: #c83f35; }
@@ -348,6 +371,10 @@ console.log('hello');
   .editor-actions button { min-height: 38px; padding: 0 .8rem; border: 1px solid #9fa4a1; color: #43494b; background: rgba(252,252,249,.82); font: 600 .6rem var(--font-ui); cursor: pointer; }
   .editor-actions button.primary { color: #fff; border-color: #c83f35; background: #c83f35; }
   .editor-actions button:disabled { opacity: .5; cursor: wait; }
+  .about-editor { max-width: 1040px; padding-left: 0; }
+  .about-editor > header { align-items: center; }
+  .about-content-field { padding-top: 1.25rem; }
+  .about-content-field textarea { min-height: 62vh; white-space: pre; }
 
   .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 160px)); border-bottom: 1px solid #c7c9c5; }
   .stats div { min-height: 82px; display: flex; align-items: end; justify-content: space-between; padding: 1rem; border-right: 1px solid #c7c9c5; }

@@ -1,56 +1,12 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import CommentThread from '../components/CommentThread.astro';
+import { getAboutContent } from '../server/admin-about';
 
-const text = {
-  subtitle: {
-    'zh-TW': '技術筆記與學習心得',
-    en: 'Development notes and learning reflections',
-    ja: '開発ノートと学びの記録',
-    ko: '개발 노트와 배움의 기록',
-  },
-  intro: {
-    'zh-TW': '記錄開發筆記、學習心得與參與經驗。',
-    en: 'Notes on development, learning, and the experiences along the way.',
-    ja: '開発、学び、参加した活動の記録を残しています。',
-    ko: '개발과 배움, 참여 경험을 기록합니다.',
-  },
-};
+export const prerender = false;
 
-const skillGroups = [
-  { title: 'Frontend', items: ['HTML', 'CSS', 'React', 'Vue.js', 'JavaScript', 'TypeScript', 'Tailwind CSS'] },
-  { title: 'Tooling / SSG', items: ['Astro', 'Hexo', 'Hugo'] },
-  { title: 'Backend', items: ['FastAPI', 'Node.js', 'Python 3.12+', 'RESTful API', 'Socket Programming'] },
-  { title: 'Database', items: ['PostgreSQL', 'Redis', 'SQLite'] },
-  { title: 'DevOps / Deployment', items: ['Docker / Docker Compose', 'Nginx Reverse Proxy', 'Cloudflare Tunnel', 'Debian'] },
-  { title: 'Security / CTF', items: ['Pwn (Learning)', 'Web', 'Misc', 'Crypto', 'Reverse'] },
-];
-
-const roadmap = [
-  { title: 'Moment', body: 'A sophisticated timetable tool designed for university life, optimizing schedule management and bridging the information gap between departments.' },
-  { title: 'Serelix Studio Prep', body: 'Establishing a personal tech studio brand, dedicated to developing impactful digital products and open-source projects.' },
-  { title: 'SCAICT Official Website', body: 'The digital hub for the Southern & Central Academic Information Confederation of Taiwan, connecting student tech communities and resource integration.' },
-  { title: '116th Special Enrollment Portal', body: 'A dedicated information portal for the 116th Special Enrollment candidates, featuring intuitive admission guides and alumni experience sharing.' },
-  { title: 'Department of Applied Mathematics, NCHU Exam Bank', body: 'An automated exam bank system tailored for Department of Applied Mathematics, National Chung Hsing University courses, enhancing study efficiency through systematic resource categorization.' },
-];
-
-const projects = [
-  { title: 'ForumKit', url: 'https://github.com/kaiyasi/FourmKit', body: 'A modular and extensible forum starter kit built with high scalability, designed to streamline the development of modern community platforms.' },
-  { title: 'SCIST WinterCamp 2026 Website', url: 'https://github.com/scist-tw/WinterCamp2026', body: 'The official digital portal for the 2026 SCIST x SCAICT Joint Winter Camp, integrating event documentation, participant guides, and regional tech community resources.' },
-  { title: 'Kairo', url: 'https://github.com/kaiyasi/Kairo', body: 'A multifunctional attendance and management bot designed for high school tech communities, providing automated check-in systems, status tracking, and streamlined event coordination.' },
-  { title: 'CipherKit', url: 'https://github.com/kaiyasi/CipherKit', body: 'A comprehensive web-based toolkit offering practical cryptographic utilities, encoding/decoding tools, and programming helpers, built for students and CTF enthusiasts.' },
-  { title: 'Cardium', url: 'https://github.com/kaiyasi/Cardium', body: 'A modern digital identity generator designed to unify and visually present personal or organizational profiles, focusing on clean UI design and structured metadata presentation.' },
-];
-
-const experience = [
-  { title: 'Taipei Municipal Dong-Hu Elementary School', role: '72nd graduated' },
-  { title: 'Taipei Municipal Dong-Hu Junior High School', role: '31st graduated' },
-  { title: 'Neihu Senior High School · 13th Computer Science Class', role: '36th graduated (NHCS 13th)' },
-  { title: '115th Special Enrollment Candidate', role: 'Recognized specialized talent in the 115th Special Enrollment admissions program.' },
-  { title: 'SCIST × SCAICT WinterCamp 2026', role: 'IT Team Member · Contributed to the development and maintenance of the official event infrastructure.' },
-  { title: 'SCAICT', role: 'Head of Information Technology (5th) · Directing IT operations and community platform development.' },
-  { title: 'Serelix Studio', role: 'Co-Founder & Chief Technology Officer (CTO) · Leading technical strategy and overseeing digital product development and open-source initiatives.' },
-];
+const content = await getAboutContent();
+const { identity, about, skillGroups, roadmap, projects, experience, connect } = content;
 ---
 
 <BaseLayout title="關於" titleKey="meta.about.title" descriptionKey="meta.about.description" bodyClass="inner-page about-body">
@@ -59,32 +15,28 @@ const experience = [
       <div class="string-lines" aria-hidden="true"></div>
       <div class="about-shell identity-layout">
         <figure class="portrait">
-          <div class="portrait-image"><img src="/images/pages/kaiyasi-avatar.png" alt="Kaiyasi" width="480" height="480" /></div>
-          <figcaption>KAIYASI / SERELIX UI</figcaption>
+          <div class="portrait-image"><img src={identity.avatar} alt={identity.avatarAlt} width="720" height="720" /></div>
+          <figcaption>{identity.portraitCaption}</figcaption>
         </figure>
 
         <div class="identity-copy">
           <p class="eyebrow">ABOUT ME</p>
-          <h1 id="about-title">Kaiyasi</h1>
-          <p class="alias">Serelix UI</p>
-          <strong data-i18n-values={JSON.stringify(text.subtitle)}>{text.subtitle['zh-TW']}</strong>
-          <p class="intro" data-i18n-values={JSON.stringify(text.intro)}>{text.intro['zh-TW']}</p>
+          <h1 id="about-title">{identity.name}</h1>
+          <p class="alias">{identity.alias}</p>
+          <strong data-i18n-values={JSON.stringify(identity.subtitle)}>{identity.subtitle['zh-TW']}</strong>
+          <p class="intro" data-i18n-values={JSON.stringify(identity.intro)}>{identity.intro['zh-TW']}</p>
 
           <blockquote lang="ja">
-            <p>戦えない人間なんかいない。戦うか、戦わないか、その選択があるだけだ！</p>
-            <cite>Kirito</cite>
+            <p>{identity.quote.text}</p>
+            <cite>{identity.quote.source}</cite>
           </blockquote>
 
           <nav class="social-links" aria-label="Social links">
-            <a href="https://github.com/kaiyasi" target="_blank" rel="noopener"><span>GitHub</span><b aria-hidden="true">↗</b></a>
-            <a href="https://www.instagram.com/kaiyasi_0315/" target="_blank" rel="noopener"><span>Instagram</span><b aria-hidden="true">↗</b></a>
-            <a href="https://discord.com/users/759651999036997672" target="_blank" rel="noopener"><span>Discord</span><b aria-hidden="true">↗</b></a>
+            {identity.socialLinks.map((link) => <a href={link.url} target="_blank" rel="noopener"><span>{link.label}</span><b aria-hidden="true">↗</b></a>)}
           </nav>
 
           <div class="profile-meta" aria-label="Site information">
-            <span><small>SINCE</small>2026.02.12</span>
-            <span><small>TIMEZONE</small>ASIA / TAIPEI</span>
-            <span><small>LANGUAGE</small>ZH-TW</span>
+            {identity.metadata.map((item) => <span><small>{item.label}</small>{item.value}</span>)}
           </div>
         </div>
       </div>
@@ -95,15 +47,10 @@ const experience = [
         <section class="detail-section" id="about-me">
           <header><span>01</span><h2>About Me</h2></header>
           <div class="detail-body about-list">
-            <p class="opening">Class of 2026 (Special Selection) · Full-stack Developer · CTF Novice</p>
-            <p class="statement">“Programming isn’t just a stack of logic; it’s an order waiting to be defined.”</p>
-            <ul>
-              <li>From Neihu High School (36th IT Class) to an incoming NCHU Applied Mathematics student, I am navigating the intersection where mathematics meets code.</li>
-              <li>As the IT Head of SCAICT, I thrive on leading teams to build “generational” projects rather than just coding in isolation.</li>
-              <li>Dedicated to developing projects that streamline the student academic journey, using code to bring meaningful change to the educational environment.</li>
-              <li>A Full-Stack developer and CTF novice, constantly pushing my limits through the thrill of building systems and hunting for vulnerabilities.</li>
-            </ul>
-            <blockquote class="section-quote" lang="ja"><p>世界は、自分の思っているより、ずっとずっとカラフルなんだ。</p><cite>《ホリミヤ》</cite></blockquote>
+            <p class="opening">{about.opening}</p>
+            <p class="statement">{about.statement}</p>
+            <ul>{about.items.map((item) => <li>{item}</li>)}</ul>
+            <blockquote class="section-quote" lang="ja"><p>{about.quote.text}</p><cite>{about.quote.source}</cite></blockquote>
           </div>
         </section>
 
@@ -122,45 +69,43 @@ const experience = [
         <section class="detail-section" id="roadmap">
           <header><span>03</span><h2>Roadmap</h2></header>
           <div class="detail-body indexed-list">
-            {roadmap.map((item, index) => (
+            {roadmap.items.map((item, index) => (
               <article><small>{String(index + 1).padStart(2, '0')}</small><div><h3>{item.title}</h3><p>{item.body}</p></div></article>
             ))}
-            <blockquote class="section-quote given-quote" lang="ja"><p>先のことなんてわかんねーけど、今はただ、弾くしかねーんだ。</p><cite>《GIVEN》</cite></blockquote>
+            <blockquote class="section-quote given-quote" lang="ja"><p>{roadmap.quote.text}</p><cite>{roadmap.quote.source}</cite></blockquote>
           </div>
         </section>
 
         <section class="detail-section" id="projects">
           <header><span>04</span><h2>Projects</h2></header>
           <div class="detail-body indexed-list">
-            {projects.map((project, index) => (
+            {projects.items.map((project, index) => (
               <article>
                 <small>{String(index + 1).padStart(2, '0')}</small>
                 <div><h3><a href={project.url} target="_blank" rel="noopener">{project.title}<b aria-hidden="true">↗</b></a></h3><p>{project.body}</p></div>
               </article>
             ))}
-            <blockquote class="section-quote" lang="ja"><p>未来はそこにある。見たことのない景色、一緒に見に行こう。</p><cite>《Free! -Eternal Summer-》</cite></blockquote>
+            <blockquote class="section-quote" lang="ja"><p>{projects.quote.text}</p><cite>{projects.quote.source}</cite></blockquote>
           </div>
         </section>
 
         <section class="detail-section" id="experience">
           <header><span>05</span><h2>Experience</h2></header>
           <div class="detail-body experience-list">
-            {experience.map((item, index) => (
+            {experience.items.map((item, index) => (
               <article><time>{String(index + 1).padStart(2, '0')}</time><div><h3>{item.title}</h3><p>{item.role}</p></div></article>
             ))}
-            <blockquote class="section-quote" lang="ja"><p>目的地が同じなら、いつかまた会える。……道中、ご無事で。</p><cite>《86 －エイティシックス－》</cite></blockquote>
+            <blockquote class="section-quote" lang="ja"><p>{experience.quote.text}</p><cite>{experience.quote.source}</cite></blockquote>
           </div>
         </section>
 
         <section class="detail-section" id="connect">
           <header><span>06</span><h2>Connect</h2></header>
           <div class="detail-body connect-list">
-            <a href="https://github.com/kaiyasi" target="_blank" rel="noopener"><small>GITHUB</small><span>kaiyasi</span><b aria-hidden="true">↗</b></a>
-            <a href="mailto:zengcode0315@gmail.com"><small>PROFESSIONAL EMAIL</small><span>zengcode0315@gmail.com</span><b aria-hidden="true">↗</b></a>
-            <a href="mailto:zengeric0315@gmail.com"><small>PERSONAL EMAIL</small><span>zengeric0315@gmail.com</span><b aria-hidden="true">↗</b></a>
-            <a href="https://discord.com/users/759651999036997672" target="_blank" rel="noopener"><small>DISCORD</small><span>kaiyasi</span><b aria-hidden="true">↗</b></a>
-            <a href="https://www.instagram.com/kaiyasi_0315/" target="_blank" rel="noopener"><small>INSTAGRAM</small><span>kaiyasi_0315</span><b aria-hidden="true">↗</b></a>
-            <blockquote class="section-quote" lang="ja"><p>口で言うより、行動で示せ。それが俺のやり方だ。</p><cite>《青の祓魔師》</cite></blockquote>
+            {connect.items.map((item) => (
+              <a href={item.url} target={item.url.startsWith('mailto:') ? undefined : '_blank'} rel={item.url.startsWith('mailto:') ? undefined : 'noopener'}><small>{item.label}</small><span>{item.value}</span><b aria-hidden="true">↗</b></a>
+            ))}
+            <blockquote class="section-quote" lang="ja"><p>{connect.quote.text}</p><cite>{connect.quote.source}</cite></blockquote>
           </div>
         </section>
       </div>

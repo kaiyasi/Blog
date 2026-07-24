@@ -1,7 +1,20 @@
 # 管理後台架構
 
-目前 `/admin` 提供文章與留言管理。文章仍以 Markdown／MDX 檔案作為唯一來源，
+目前 `/admin` 提供文章、About 頁面與留言管理。文章仍以 Markdown／MDX 檔案作為唯一來源，
 但可直接在瀏覽器建立、編輯、儲存草稿與發布。
+
+## About 頁面管理
+
+- About 的文字、技能、Roadmap、專案、經歷、連結與引言集中在 `src/content/about.json`。
+- 後台「關於」分頁可直接讀取、驗證並儲存完整 JSON；格式或必要欄位不正確時不會覆寫原檔。
+- `about.astro` 在每次請求時讀取資料檔，因此儲存後重新整理正式 About 頁面即可看到更新。
+- 寫入使用同目錄暫存檔後原子取代，避免中斷時留下半份內容。
+
+若部署時使用持久磁碟，可將 About 檔案位置設定為：
+
+```sh
+CONTENT_ABOUT_FILE=/absolute/persistent/path/about.json
+```
 
 ## 文章管理
 
