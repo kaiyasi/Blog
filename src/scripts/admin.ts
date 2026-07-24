@@ -836,9 +836,21 @@ if (app) {
   search.addEventListener('input', renderComments);
   filter.addEventListener('change', renderComments);
   app.querySelector('[data-refresh]')!.addEventListener('click', loadComments);
-  app.querySelector('[data-logout]')!.addEventListener('click', async () => {
-    await fetch('/api/admin/session', { method: 'DELETE' });
-    location.reload();
+  app.querySelector<HTMLButtonElement>('[data-logout]')!.addEventListener('click', async event => {
+    const button = event.currentTarget as HTMLButtonElement;
+    button.disabled = true;
+    try {
+      const response = await fetch('/api/admin/logout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: '{}',
+      });
+      if (!response.ok) throw new Error();
+      location.replace('/');
+    } catch {
+      button.disabled = false;
+      window.alert('登出失敗，請重新再試。');
+    }
   });
 
   loadPosts();

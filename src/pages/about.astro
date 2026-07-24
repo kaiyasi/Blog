@@ -12,7 +12,7 @@ const previewToken = Astro.url.searchParams.get('preview');
 const previewContent = previewToken && isAdminAuthenticated(Astro.request) ? getAboutPreview(previewToken) : undefined;
 const previewTheme = previewContent ? (Astro.url.searchParams.get('theme') === 'dark' ? 'dark' : 'light') : undefined;
 const content = previewContent || await getAboutContent();
-if (previewContent) Astro.response.headers.set('Cache-Control', 'private, no-store');
+Astro.response.headers.set('Cache-Control', previewContent ? 'private, no-store' : 'no-store');
 const { identity, about, skillGroups, roadmap, projects, experience, connect } = content;
 const processor = createMarkdownProcessor();
 const markdown = async (source: string) => (await (await processor).render(source)).code;

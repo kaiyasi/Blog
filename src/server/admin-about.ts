@@ -5,6 +5,7 @@ import { ContentSyncError, syncContentFile } from './content-sync';
 import { requestAIText } from './mascot-provider';
 
 const aboutFile = resolve(process.env.CONTENT_ABOUT_FILE || 'src/content/about.json');
+let runtimeContent: AboutContent | undefined;
 
 export class AdminAboutError extends Error {
   constructor(public code: string, public status = 400) {
@@ -107,6 +108,7 @@ export function validateAboutContent(value: unknown): AboutContent {
 }
 
 export async function getAboutContent() {
+  if (runtimeContent) return structuredClone(runtimeContent);
   try {
     return validateAboutContent(JSON.parse(await readFile(aboutFile, 'utf8')));
   } catch (error) {
@@ -173,5 +175,6 @@ export async function updateAboutContent(value: unknown) {
     const code = (error as NodeJS.ErrnoException)?.code;
     if (!synced || !['EROFS', 'EPERM', 'EACCES'].includes(code || '')) throw error;
   }
-  return content;
+  runtimeContent = structuredClone(content);
+  return structuredClone(content);
 }

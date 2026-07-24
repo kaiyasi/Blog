@@ -27,8 +27,13 @@ function signature(payload: string) {
   return createHmac('sha256', secret()).update(payload).digest('base64url');
 }
 
+function isSecureRequest(request: Request) {
+  const forwardedProtocol = request.headers.get('x-forwarded-proto')?.split(',')[0]?.trim();
+  return forwardedProtocol === 'https' || new URL(request.url).protocol === 'https:';
+}
+
 function cookie(request: Request, value: string, maxAge: number) {
-  const secure = new URL(request.url).protocol === 'https:' ? '; Secure' : '';
+  const secure = isSecureRequest(request) ? '; Secure' : '';
   return `${ADMIN_COOKIE}=${encodeURIComponent(value)}; Path=/; Max-Age=${maxAge}; HttpOnly; SameSite=Strict${secure}`;
 }
 

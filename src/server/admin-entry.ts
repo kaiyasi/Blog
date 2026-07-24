@@ -23,6 +23,11 @@ function signature(payload: string) {
   return createHmac('sha256', secret()).update(`admin-entry:${payload}`).digest('base64url');
 }
 
+function isSecureRequest(request: Request) {
+  const forwardedProtocol = request.headers.get('x-forwarded-proto')?.split(',')[0]?.trim();
+  return forwardedProtocol === 'https' || new URL(request.url).protocol === 'https:';
+}
+
 export function adminEntryPath() {
   const value = (process.env.ADMIN_ENTRY_PATH || import.meta.env.ADMIN_ENTRY_PATH || '').trim();
   const normalized = value.startsWith('/') ? value : `/${value}`;
@@ -35,7 +40,7 @@ export function createAdminEntryCookie(request: Request) {
     nonce: randomBytes(18).toString('base64url'),
   };
   const payload = Buffer.from(JSON.stringify(grant)).toString('base64url');
-  const secure = new URL(request.url).protocol === 'https:' ? '; Secure' : '';
+  const secure = isSecureRequest(request) ? '; Secure' : '';
   return `${ENTRY_COOKIE}=${encodeURIComponent(`${payload}.${signature(payload)}`)}; Path=/; Max-Age=${ENTRY_SECONDS}; HttpOnly; SameSite=Strict${secure}`;
 }
 
