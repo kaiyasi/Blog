@@ -446,45 +446,284 @@ if (app) {
   });
 
   const aboutForm = app.querySelector<HTMLFormElement>('[data-about-form]')!;
-  const aboutInput = aboutForm.elements.namedItem('content') as HTMLTextAreaElement;
+  const aboutFields = aboutForm.querySelector<HTMLElement>('[data-about-fields]')!;
+  const aboutLoading = aboutForm.querySelector<HTMLElement>('[data-about-loading]')!;
   const aboutStatus = app.querySelector<HTMLElement>('[data-about-status]')!;
+  const aboutSubmit = aboutForm.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+  const aboutPreviewFrame = aboutForm.querySelector<HTMLIFrameElement>('[data-about-preview-frame]')!;
+  const aboutPreviewStatus = aboutForm.querySelector<HTMLElement>('[data-about-preview-status]')!;
+  let aboutContent: any = null;
+  let activeAboutTab = 'edit';
+  let aboutPreviewTimer: number | undefined;
+  let aboutPreviewRequest: AbortController | undefined;
+
+  const renderAboutPreview = async () => {
+    if (!aboutContent) return;
+    aboutPreviewRequest?.abort();
+    aboutPreviewRequest = new AbortController();
+    aboutPreviewStatus.textContent = '正在產生預覽...';
+    try {
+      const response = await fetch('/api/admin/about-preview', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: aboutContent, theme: document.documentElement.dataset.adminTheme || 'soft' }),
+        signal: aboutPreviewRequest.signal,
+      });
+      if (response.status === 401) return location.reload();
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'preview_failed');
+      aboutPreviewFrame.srcdoc = result.document;
+      aboutPreviewStatus.textContent = '預覽已更新';
+    } catch (error) {
+      if ((error as DOMException).name === 'AbortError') return;
+      aboutPreviewStatus.textContent = '無法產生預覽，請檢查必填欄位與 Markdown。';
+    }
+  };
+
+  const scheduleAboutPreview = () => {
+    if (activeAboutTab !== 'preview') return;
+    window.clearTimeout(aboutPreviewTimer);
+    aboutPreviewTimer = window.setTimeout(renderAboutPreview, 400);
+  };
+
+  const setAboutTab = (tab: string) => {
+    activeAboutTab = tab === 'preview' ? 'preview' : 'edit';
+    aboutForm.querySelectorAll<HTMLElement>('[data-about-panel]').forEach(panel => {
+      panel.hidden = panel.dataset.aboutPanel !== activeAboutTab;
+    });
+    aboutForm.querySelectorAll<HTMLButtonElement>('[data-about-tab]').forEach(button => {
+      const selected = button.dataset.aboutTab === activeAboutTab;
+      button.setAttribute('aria-selected', String(selected));
+      button.tabIndex = selected ? 0 : -1;
+    });
+    if (activeAboutTab === 'preview') renderAboutPreview();
+  };
+
+  const field = (
+    label: string,
+    current: unknown,
+    update: (value: string) => void,
+    options: { multiline?: boolean; markdown?: boolean; wide?: boolean; type?: string } = {},
+  ) => {
+    const wrapper = document.createElement('label');
+    wrapper.className = `about-field${options.wide ? ' wide' : ''}${options.markdown ? ' markdown' : ''}`;
+    const caption = document.createElement('span');
+    caption.textContent = label;
+    if (options.markdown) {
+      const format = document.createElement('small');
+      format.textContent = 'MARKDOWN';
+      caption.append(format);
+    }
+    const control = options.multiline ? document.createElement('textarea') : document.createElement('input');
+    if (control instanceof HTMLInputElement) control.type = options.type || 'text';
+    control.value = typeof current === 'string' ? current : '';
+    control.required = true;
+    control.addEventListener('input', () => update(control.value));
+    wrapper.append(caption, control);
+    return wrapper;
+  };
+
+  const section = (code: string, title: string) => {
+    const container = document.createElement('section');
+    container.className = 'about-form-section';
+    const header = document.createElement('header');
+    const number = document.createElement('small');
+    number.textContent = code;
+    const heading = document.createElement('h3');
+    heading.textContent = title;
+    const grid = document.createElement('div');
+    grid.className = 'about-field-grid';
+    header.append(number, heading);
+    container.append(header, grid);
+    aboutFields.append(container);
+    return grid;
+  };
+
+  const quoteFields = (target: HTMLElement, quote: any) => {
+    target.append(
+      field('引言', quote.text, value => { quote.text = value; }, { multiline: true, wide: true }),
+      field('引言來源', quote.source, value => { quote.source = value; }),
+    );
+  };
+
+  const repeater = <T>(
+    target: HTMLElement,
+    label: string,
+    items: T[],
+    blank: () => T,
+    render: (container: HTMLElement, item: T, index: number) => void,
+  ) => {
+    const block = document.createElement('section');
+    block.className = 'about-repeater';
+    const header = document.createElement('header');
+    const heading = document.createElement('h4');
+    heading.textContent = label;
+    const add = document.createElement('button');
+    add.type = 'button';
+    add.className = 'about-icon-button';
+    add.textContent = '+';
+    add.title = `新增${label}`;
+    add.setAttribute('aria-label', `新增${label}`);
+    add.addEventListener('click', () => {
+      items.push(blank());
+      renderAboutForm();
+    });
+    header.append(heading, add);
+    block.append(header);
+    items.forEach((item, index) => {
+      const row = document.createElement('article');
+      row.className = 'about-repeat-row';
+      const number = document.createElement('small');
+      number.textContent = String(index + 1).padStart(2, '0');
+      const controls = document.createElement('div');
+      controls.className = 'about-repeat-fields';
+      render(controls, item, index);
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.className = 'about-icon-button';
+      remove.textContent = '×';
+      remove.title = `移除${label}`;
+      remove.setAttribute('aria-label', `移除${label}第 ${index + 1} 項`);
+      remove.addEventListener('click', () => {
+        items.splice(index, 1);
+        renderAboutForm();
+      });
+      row.append(number, controls, remove);
+      block.append(row);
+    });
+    target.append(block);
+  };
+
+  const renderAboutForm = () => {
+    if (!aboutContent) return;
+    aboutFields.replaceChildren();
+    const { identity, about, skillGroups, roadmap, projects, experience, connect } = aboutContent;
+
+    const profile = section('01', '個人資料');
+    profile.append(
+      field('名稱', identity.name, value => { identity.name = value; }),
+      field('別名', identity.alias, value => { identity.alias = value; }),
+      field('頭像路徑', identity.avatar, value => { identity.avatar = value; }),
+      field('頭像替代文字', identity.avatarAlt, value => { identity.avatarAlt = value; }),
+      field('照片標記', identity.portraitCaption, value => { identity.portraitCaption = value; }, { wide: true }),
+    );
+    for (const [locale, name] of [['zh-TW', '繁體中文'], ['en', 'English'], ['ja', '日本語'], ['ko', '한국어']] as const) {
+      profile.append(
+        field(`${name} 副標題`, identity.subtitle[locale], value => { identity.subtitle[locale] = value; }),
+        field(`${name} 簡介`, identity.intro[locale], value => { identity.intro[locale] = value; }, { multiline: true }),
+      );
+    }
+    quoteFields(profile, identity.quote);
+    repeater(profile, '社群連結', identity.socialLinks, () => ({ label: 'GitHub', url: 'https://' }), (row, item: any) => {
+      row.append(
+        field('名稱', item.label, value => { item.label = value; }),
+        field('網址', item.url, value => { item.url = value; }, { type: 'url' }),
+      );
+    });
+    repeater(profile, '個人資訊', identity.metadata, () => ({ label: 'LABEL', value: 'VALUE' }), (row, item: any) => {
+      row.append(
+        field('標籤', item.label, value => { item.label = value; }),
+        field('內容', item.value, value => { item.value = value; }),
+      );
+    });
+
+    const biography = section('02', 'About Me');
+    biography.append(
+      field('開場', about.opening, value => { about.opening = value; }, { multiline: true, markdown: true, wide: true }),
+      field('主句', about.statement, value => { about.statement = value; }, { multiline: true, markdown: true, wide: true }),
+    );
+    repeater(biography, '自我介紹段落', about.items, () => '新的段落', (row, _item: string, index) => {
+      row.append(field('內容', _item, value => { about.items[index] = value; }, { multiline: true, markdown: true, wide: true }));
+    });
+    quoteFields(biography, about.quote);
+
+    const skills = section('03', 'Skills');
+    repeater(skills, '技能群組', skillGroups, () => ({ title: 'New Group', items: ['New Skill'] }), (row, item: any) => {
+      row.append(
+        field('群組名稱', item.title, value => { item.title = value; }),
+        field('技能（逗號分隔）', item.items.join(', '), value => { item.items = value.split(',').map(part => part.trim()).filter(Boolean); }, { wide: true }),
+      );
+    });
+
+    const roadmapFields = section('04', 'Roadmap');
+    repeater(roadmapFields, 'Roadmap 項目', roadmap.items, () => ({ title: 'New Item', body: '內容' }), (row, item: any) => {
+      row.append(
+        field('標題', item.title, value => { item.title = value; }),
+        field('內容', item.body, value => { item.body = value; }, { multiline: true, markdown: true, wide: true }),
+      );
+    });
+    quoteFields(roadmapFields, roadmap.quote);
+
+    const projectFields = section('05', 'Projects');
+    repeater(projectFields, '專案', projects.items, () => ({ title: 'New Project', url: 'https://', body: '內容' }), (row, item: any) => {
+      row.append(
+        field('專案名稱', item.title, value => { item.title = value; }),
+        field('專案網址', item.url, value => { item.url = value; }, { type: 'url' }),
+        field('專案說明', item.body, value => { item.body = value; }, { multiline: true, markdown: true, wide: true }),
+      );
+    });
+    quoteFields(projectFields, projects.quote);
+
+    const experienceFields = section('06', 'Experience');
+    repeater(experienceFields, '經歷', experience.items, () => ({ title: 'New Experience', role: '內容' }), (row, item: any) => {
+      row.append(
+        field('名稱', item.title, value => { item.title = value; }),
+        field('說明', item.role, value => { item.role = value; }, { multiline: true, markdown: true, wide: true }),
+      );
+    });
+    quoteFields(experienceFields, experience.quote);
+
+    const connectFields = section('07', 'Connect');
+    repeater(connectFields, '聯絡方式', connect.items, () => ({ label: 'LABEL', value: 'VALUE', url: 'https://' }), (row, item: any) => {
+      row.append(
+        field('標籤', item.label, value => { item.label = value; }),
+        field('顯示內容', item.value, value => { item.value = value; }),
+        field('連結', item.url, value => { item.url = value; }, { wide: true }),
+      );
+    });
+    quoteFields(connectFields, connect.quote);
+  };
+
   const loadAbout = async () => {
+    aboutSubmit.disabled = true;
+    aboutFields.hidden = true;
+    aboutLoading.hidden = false;
+    aboutLoading.textContent = '正在讀取內容...';
     aboutStatus.textContent = '正在載入關於頁面...';
     try {
       const response = await fetch('/api/admin/about');
       if (response.status === 401) return location.reload();
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || 'load_failed');
-      aboutInput.value = JSON.stringify(result.content, null, 2);
+      aboutContent = result.content;
+      renderAboutForm();
       aboutLoaded = true;
+      aboutLoading.hidden = true;
+      aboutFields.hidden = false;
+      aboutSubmit.disabled = false;
       aboutStatus.textContent = '已載入最新內容。';
+      scheduleAboutPreview();
     } catch {
+      aboutLoading.textContent = '內容讀取失敗';
       aboutStatus.textContent = '無法載入關於頁面，請稍後再試。';
     }
   };
   aboutForm.addEventListener('submit', async event => {
     event.preventDefault();
-    let content: unknown;
-    try {
-      content = JSON.parse(aboutInput.value);
-    } catch {
-      aboutStatus.textContent = 'JSON 格式有誤，請檢查逗號、引號與括號。';
-      aboutInput.focus();
-      return;
-    }
-    const button = aboutForm.querySelector<HTMLButtonElement>('button[type="submit"]')!;
-    button.disabled = true;
+    if (!aboutContent) return;
+    aboutSubmit.disabled = true;
     aboutStatus.textContent = '正在儲存關於頁面...';
     try {
       const response = await fetch('/api/admin/about', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(content),
+        body: JSON.stringify(aboutContent),
       });
       if (response.status === 401) return location.reload();
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || 'save_failed');
-      aboutInput.value = JSON.stringify(result.content, null, 2);
+      aboutContent = result.content;
+      renderAboutForm();
       aboutStatus.textContent = '變更已提交，等待部署完成。';
     } catch (error) {
       const code = error instanceof Error ? error.message : '';
@@ -492,8 +731,13 @@ if (app) {
         ? `內容驗證失敗：${code.slice(8)}`
         : apiError(code);
     } finally {
-      button.disabled = false;
+      aboutSubmit.disabled = false;
     }
+  });
+  aboutForm.addEventListener('input', scheduleAboutPreview);
+  document.addEventListener('admin-theme-change', scheduleAboutPreview);
+  aboutForm.querySelectorAll<HTMLButtonElement>('[data-about-tab]').forEach(button => {
+    button.addEventListener('click', () => setAboutTab(button.dataset.aboutTab || 'edit'));
   });
   app.querySelector('[data-about-refresh]')!.addEventListener('click', loadAbout);
 

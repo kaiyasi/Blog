@@ -2,11 +2,22 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import CommentThread from '../components/CommentThread.astro';
 import { getAboutContent } from '../server/admin-about';
+import { createMarkdownProcessor } from '@astrojs/markdown-remark';
 
 export const prerender = false;
 
 const content = await getAboutContent();
 const { identity, about, skillGroups, roadmap, projects, experience, connect } = content;
+const processor = createMarkdownProcessor();
+const markdown = async (source: string) => (await (await processor).render(source)).code;
+const rendered = {
+  opening: await markdown(about.opening),
+  statement: await markdown(about.statement),
+  aboutItems: await Promise.all(about.items.map(markdown)),
+  roadmap: await Promise.all(roadmap.items.map(item => markdown(item.body))),
+  projects: await Promise.all(projects.items.map(item => markdown(item.body))),
+  experience: await Promise.all(experience.items.map(item => markdown(item.role))),
+};
 ---
 
 <BaseLayout title="關於" titleKey="meta.about.title" descriptionKey="meta.about.description" bodyClass="inner-page about-body">
@@ -47,9 +58,9 @@ const { identity, about, skillGroups, roadmap, projects, experience, connect } =
         <section class="detail-section" id="about-me">
           <header><span>01</span><h2>About Me</h2></header>
           <div class="detail-body about-list">
-            <p class="opening">{about.opening}</p>
-            <p class="statement">{about.statement}</p>
-            <ul>{about.items.map((item) => <li>{item}</li>)}</ul>
+            <div class="opening markdown-copy" set:html={rendered.opening}></div>
+            <div class="statement markdown-copy" set:html={rendered.statement}></div>
+            <ul>{rendered.aboutItems.map((item) => <li><div class="markdown-copy" set:html={item}></div></li>)}</ul>
             <blockquote class="section-quote" lang="ja"><p>{about.quote.text}</p><cite>{about.quote.source}</cite></blockquote>
           </div>
         </section>
@@ -70,7 +81,7 @@ const { identity, about, skillGroups, roadmap, projects, experience, connect } =
           <header><span>03</span><h2>Roadmap</h2></header>
           <div class="detail-body indexed-list">
             {roadmap.items.map((item, index) => (
-              <article><small>{String(index + 1).padStart(2, '0')}</small><div><h3>{item.title}</h3><p>{item.body}</p></div></article>
+              <article><small>{String(index + 1).padStart(2, '0')}</small><div><h3>{item.title}</h3><div class="markdown-copy" set:html={rendered.roadmap[index]}></div></div></article>
             ))}
             <blockquote class="section-quote given-quote" lang="ja"><p>{roadmap.quote.text}</p><cite>{roadmap.quote.source}</cite></blockquote>
           </div>
@@ -82,7 +93,7 @@ const { identity, about, skillGroups, roadmap, projects, experience, connect } =
             {projects.items.map((project, index) => (
               <article>
                 <small>{String(index + 1).padStart(2, '0')}</small>
-                <div><h3><a href={project.url} target="_blank" rel="noopener">{project.title}<b aria-hidden="true">↗</b></a></h3><p>{project.body}</p></div>
+                <div><h3><a href={project.url} target="_blank" rel="noopener">{project.title}<b aria-hidden="true">↗</b></a></h3><div class="markdown-copy" set:html={rendered.projects[index]}></div></div>
               </article>
             ))}
             <blockquote class="section-quote" lang="ja"><p>{projects.quote.text}</p><cite>{projects.quote.source}</cite></blockquote>
@@ -93,7 +104,7 @@ const { identity, about, skillGroups, roadmap, projects, experience, connect } =
           <header><span>05</span><h2>Experience</h2></header>
           <div class="detail-body experience-list">
             {experience.items.map((item, index) => (
-              <article><time>{String(index + 1).padStart(2, '0')}</time><div><h3>{item.title}</h3><p>{item.role}</p></div></article>
+              <article><time>{String(index + 1).padStart(2, '0')}</time><div><h3>{item.title}</h3><div class="markdown-copy" set:html={rendered.experience[index]}></div></div></article>
             ))}
             <blockquote class="section-quote" lang="ja"><p>{experience.quote.text}</p><cite>{experience.quote.source}</cite></blockquote>
           </div>
@@ -167,6 +178,10 @@ const { identity, about, skillGroups, roadmap, projects, experience, connect } =
   .about-list > ul { margin-top: 2rem; list-style: none; border-top: 1px solid var(--border); }
   .about-list > ul li { position: relative; padding: 1rem 0 1rem 1.5rem; border-bottom: 1px solid var(--border); color: var(--text-muted); font-size: .87rem; }
   .about-list > ul li::before { content: ''; position: absolute; top: 1.65rem; left: 0; width: 7px; height: 7px; border: 2px solid var(--accent); border-radius: 50%; }
+  .markdown-copy :global(p) { margin: 0; }
+  .markdown-copy :global(p + p), .markdown-copy :global(ul), .markdown-copy :global(ol) { margin-top: .7rem; }
+  .markdown-copy :global(ul), .markdown-copy :global(ol) { padding-left: 1.25rem; }
+  .markdown-copy :global(a) { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
   .section-quote { max-width: none; margin-top: 3rem; padding: 1.2rem 1.4rem; border: 0; border-left: 4px solid var(--accent-secondary); background: color-mix(in srgb, var(--accent-secondary) 6%, var(--bg-surface)); }
   .section-quote p { color: var(--text); font: 400 1rem/1.7 var(--font-display); }
   .section-quote cite { color: var(--text-faint); }
@@ -185,7 +200,7 @@ const { identity, about, skillGroups, roadmap, projects, experience, connect } =
   .indexed-list h3 a { display: inline-flex; align-items: center; gap: .6rem; }
   .indexed-list h3 a:hover { color: var(--accent); }
   .indexed-list h3 b { color: var(--accent); }
-  .indexed-list article p, .experience-list article p { max-width: 66ch; margin-top: .35rem; color: var(--text-muted); font-size: .8rem; line-height: 1.7; }
+  .indexed-list article .markdown-copy, .experience-list article .markdown-copy { max-width: 66ch; margin-top: .35rem; color: var(--text-muted); font-size: .8rem; line-height: 1.7; }
 
   .connect-list { border-top: 1px solid var(--border); }
   .connect-list > a { display: grid; grid-template-columns: 170px 1fr auto; gap: 1rem; align-items: center; min-height: 56px; border-bottom: 1px solid var(--border); }
