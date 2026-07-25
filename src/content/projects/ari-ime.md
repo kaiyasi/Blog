@@ -1,9 +1,14 @@
 ---
-title: 'Ari IME'
-description: '不必切換模式，就能在同一段輸入中自然混用英文與注音的 Fcitx5 繁體中文輸入法。'
-date: 2026-06-30
-tags: ['C++', 'Fcitx5', 'Linux', 'libchewing']
-github: 'https://github.com/kaiyasi/Ari-IME'
+title: "Ari IME"
+description: "不必切換模式，就能在同一段輸入中自然混用英文與注音的 Fcitx5 繁體中文輸入法。"
+date: "2026-06-30"
+tags:
+  - "C++"
+  - "Fcitx5"
+  - "Linux"
+  - "libchewing"
+url: "https://aur.archlinux.org/packages/fcitx5-ari-ime"
+github: "https://github.com/kaiyasi/Ari-IME"
 featured: true
 ---
 
