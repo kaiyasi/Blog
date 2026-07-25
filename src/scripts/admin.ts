@@ -579,7 +579,10 @@ if (app) {
       if (response.status === 401) return location.reload();
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || 'save_failed');
-      await loadProjects(); fillProjectForm(result.project); projectSaveStatus.textContent = '專案已提交，等待部署完成。';
+      projects = [result.project, ...projects.filter(project => project.slug !== result.project.slug)];
+      projectsLoaded = true;
+      fillProjectForm(result.project);
+      projectSaveStatus.textContent = '專案已提交，等待部署完成。';
     } catch (error) { projectSaveStatus.textContent = apiError(error instanceof Error ? error.message : ''); } finally { submit.disabled = false; }
   });
 
