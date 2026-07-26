@@ -76,6 +76,7 @@ CONTENT_GITLAB_BRANCH=main
 ## 留言管理
 
 - 以 `ADMIN_PASSWORD` 登入，成功後使用 12 小時有效的 HttpOnly 簽章 Cookie。
+- 快速連點吉祥物十次會建立綁定同一瀏覽器、五分鐘有效的隨機入口；登入後入口票券立即失效，該路徑只在 Session 有效期間可再次存取。
 - Session 簽章使用 `ADMIN_SESSION_SECRET`；未設定時可沿用
   `COMMUNITY_SESSION_SECRET`，secret 必須至少 32 字元。
 - 管理員可以搜尋留言、依公開狀態篩選，以及隱藏或恢復留言。

@@ -82,14 +82,14 @@ const enabled = Astro.url.pathname !== '/mascots';
   @keyframes reaction-startled { 20% { transform: translateY(-10px) rotate(-3deg); } 48% { transform: translateY(-5px) rotate(3deg); } 74% { transform: translateY(-2px) rotate(-1deg); } }
 
   @media (max-width: 700px) {
-    .mascot-dock { width: 105px; height: 178px; }
+    .mascot-dock { width: 60px; height: 102px; }
     :global([data-theme='light']) .mascot-dock { left: max(.25rem, env(safe-area-inset-left)); }
     :global([data-theme='dark']) .mascot-dock { right: max(.25rem, env(safe-area-inset-right)); }
-    .mascot-slot { height: 150px; }
-    .mascot { width: 94px; height: 150px; }
-    .mascot-action { right: 0; bottom: 106px; width: 29px; height: 23px; }
-    .mascot-dialog { left: 62px; bottom: 137px; width: min(230px, calc(100vw - 72px)); min-height: 72px; padding: .68rem .62rem .72rem .75rem; }
-    :global([data-theme='dark']) .mascot-dialog { right: 62px; left: auto; }
+    .mascot-slot { height: 86px; }
+    .mascot { width: 54px; height: 86px; }
+    .mascot-action { right: 0; bottom: 58px; width: 23px; height: 19px; }
+    .mascot-dialog { left: 38px; bottom: 81px; width: min(230px, calc(100vw - 48px)); min-height: 72px; padding: .68rem .62rem .72rem .75rem; }
+    :global([data-theme='dark']) .mascot-dialog { right: 38px; left: auto; }
     .mascot-dialog p { font-size: .78rem; }
   }
   @media (prefers-reduced-motion: reduce) {

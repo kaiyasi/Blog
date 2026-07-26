@@ -121,4 +121,13 @@ document.addEventListener('astro:page-load', initHeader);
   .header-actions { gap: 2px; padding-left: .2rem; }
   .icon-btn { width: 30px; height: 34px; }
 }
+@media (max-width: 360px) {
+  .logo { padding: 0 .55rem; }
+  .logo-edition { display: none; }
+  .nav { min-width: 0; flex: 1; }
+  .nav-link { min-width: 0; flex: 1; padding: .35rem .22rem; font-size: .57rem; }
+  .nav-link small { display: none; }
+  .header-actions { flex: 0 0 auto; }
+  .icon-btn { width: 30px; }
+}
 </style>

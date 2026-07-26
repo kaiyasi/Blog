@@ -1,27 +1,25 @@
 import { defineMiddleware } from 'astro:middleware';
-import { adminEntryPath, hasAdminEntryGrant } from './server/admin-entry';
-import { isAdminAuthenticated } from './server/admin-auth';
+import { hasAdminEntryGrant } from './server/admin-entry';
+import { adminSessionEntryPath } from './server/admin-auth';
 
-const hiddenResponse = () => new Response('Not Found', {
-  status: 404,
-  headers: {
-    'Cache-Control': 'no-store',
-    'Content-Type': 'text/plain; charset=utf-8',
-    'X-Content-Type-Options': 'nosniff',
-    'X-Robots-Tag': 'noindex, nofollow',
-  },
-});
+const hiddenResponse = async (render404: () => Promise<Response>) => {
+  const response = await render404();
+  const headers = new Headers(response.headers);
+  headers.set('Cache-Control', 'no-store');
+  headers.set('X-Content-Type-Options', 'nosniff');
+  headers.set('X-Robots-Tag', 'noindex, nofollow');
+  return new Response(response.body, { status: 404, statusText: 'Not Found', headers });
+};
 
 export const onRequest = defineMiddleware(async (context, next) => {
-  const entryPath = adminEntryPath();
-  if (!entryPath) return next();
-
   if (context.url.pathname === '/admin' || context.url.pathname.startsWith('/admin/')) {
-    return hiddenResponse();
+    return hiddenResponse(() => next('/404'));
   }
 
-  if (context.url.pathname !== entryPath) return next();
-  if (!hasAdminEntryGrant(context.request) && !isAdminAuthenticated(context.request)) return hiddenResponse();
+  const sessionPath = adminSessionEntryPath(context.request);
+  const hasEntry = hasAdminEntryGrant(context.request, context.url.pathname);
+  const hasSession = sessionPath === context.url.pathname;
+  if (!hasEntry && !hasSession) return next();
 
   const response = await next('/admin');
   const headers = new Headers(response.headers);

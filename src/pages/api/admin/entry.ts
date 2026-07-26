@@ -1,12 +1,12 @@
 import type { APIRoute } from 'astro';
-import { adminEntryPath, createAdminEntryCookie } from '../../../server/admin-entry';
+import { createAdminEntry } from '../../../server/admin-entry';
+import { adminConfigured } from '../../../server/admin-auth';
 import { communityJson, rateLimited, sameOrigin } from '../../../server/community-http';
 
 export const prerender = false;
 
 export const POST: APIRoute = async ({ request }) => {
-  const location = adminEntryPath();
-  if (!location) return communityJson({ error: 'entry_not_configured' }, 503);
+  if (!adminConfigured()) return communityJson({ error: 'admin_not_configured' }, 503);
   if (!sameOrigin(request)) return communityJson({ error: 'origin_not_allowed' }, 403);
   if (!request.headers.get('content-type')?.includes('application/json')) {
     return communityJson({ error: 'invalid_content_type' }, 415);
@@ -21,12 +21,13 @@ export const POST: APIRoute = async ({ request }) => {
   if (clicks !== 10 || typeof elapsedMs !== 'number' || elapsedMs < 0 || elapsedMs > 4_000) {
     return communityJson({ error: 'invalid_sequence' }, 400);
   }
-  return new Response(JSON.stringify({ location }), {
+  const entry = createAdminEntry(request);
+  return new Response(JSON.stringify({ location: entry.location }), {
     status: 200,
     headers: {
       'Content-Type': 'application/json; charset=utf-8',
       'Cache-Control': 'no-store',
-      'Set-Cookie': createAdminEntryCookie(request),
+      'Set-Cookie': entry.cookie,
     },
   });
 };

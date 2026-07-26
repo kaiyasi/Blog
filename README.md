@@ -38,8 +38,7 @@ npm run build
 
 - `COMMUNITY_DB_PATH`：留言與朋友申請使用的 SQLite 路徑。
 - `COMMUNITY_SESSION_SECRET`：留言身分簽章密鑰。
-- `ADMIN_ENTRY_PATH`：不公開的管理後台路徑。
-- `ADMIN_PASSWORD`、`ADMIN_SESSION_SECRET`：後台登入資訊。
+- `ADMIN_PASSWORD`、`ADMIN_SESSION_SECRET`：後台登入資訊；快速連點吉祥物十次會建立短效隨機入口。
 - `CONTENT_POSTS_DIRECTORY`：後台建立文章時使用的可寫入目錄。
 - `CONTENT_GITHUB_TOKEN`、`CONTENT_GITLAB_TOKEN`：後台儲存後提交來源檔；兩邊完成後設定 `CONTENT_SYNC_REQUIRED=true`。
 - `DISCORD_CLIENT_ID`、`DISCORD_CLIENT_SECRET`、`DISCORD_REDIRECT_URI`：Discord 頭像 OAuth。

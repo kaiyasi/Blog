@@ -1,13 +1,12 @@
 ---
 import { adminConfigured, isAdminAuthenticated } from '../../server/admin-auth';
-import { adminEntryPath } from '../../server/admin-entry';
 import '../../styles/global.css';
 
 export const prerender = false;
 
 const configured = adminConfigured();
 const authenticated = isAdminAuthenticated(Astro.request);
-const entryPath = adminEntryPath() || '/admin';
+const entryPath = Astro.url.pathname;
 ---
 
 <!doctype html>

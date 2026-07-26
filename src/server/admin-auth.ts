@@ -1,9 +1,11 @@
 import { createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
+import { adminEntryPath } from './admin-entry';
 
 const ADMIN_COOKIE = 'kaiyasi_admin_session';
 const SESSION_SECONDS = 12 * 60 * 60;
 
 interface AdminSession {
+  entryPath: string;
   expiresAt: number;
   nonce: string;
 }
@@ -50,6 +52,7 @@ export function validAdminPassword(value: unknown) {
 
 export function createAdminSessionCookie(request: Request) {
   const session: AdminSession = {
+    entryPath: adminEntryPath(request),
     expiresAt: Date.now() + SESSION_SECONDS * 1000,
     nonce: randomBytes(18).toString('base64url'),
   };
@@ -73,8 +76,22 @@ export function isAdminAuthenticated(request: Request) {
   if (actual.length !== expected.length || !timingSafeEqual(actual, expected)) return false;
   try {
     const session = JSON.parse(Buffer.from(payload, 'base64url').toString()) as AdminSession;
-    return typeof session.nonce === 'string' && session.nonce.length >= 20 && session.expiresAt > Date.now();
+    return typeof session.entryPath === 'string' && session.entryPath.startsWith('/access-')
+      && typeof session.nonce === 'string' && session.nonce.length >= 20 && session.expiresAt > Date.now();
   } catch {
     return false;
+  }
+}
+
+export function adminSessionEntryPath(request: Request) {
+  if (!isAdminAuthenticated(request)) return '';
+  const value = cookieValue(request, ADMIN_COOKIE);
+  if (!value) return '';
+  try {
+    const [payload] = value.split('.');
+    const session = JSON.parse(Buffer.from(payload, 'base64url').toString()) as AdminSession;
+    return session.entryPath;
+  } catch {
+    return '';
   }
 }
