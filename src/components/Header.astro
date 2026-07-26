@@ -111,23 +111,25 @@ document.addEventListener('astro:page-load', initHeader);
 :global([data-theme='dark']) .icon-moon { display: block; }
 :global([data-theme='dark']) .theme-toggle { color: var(--accent); border-color: var(--accent); background: var(--accent-glow); }
 @media (max-width: 650px) {
-  .header-inner { height: 64px; padding: 3px 0 0; }
-  .logo { margin-left: 0; padding: 0 .72rem; }
-  .logo-name { display: none; }
-  .logo-edition { padding-left: .35rem; border-left: 0; }
+  .header-inner { height: 96px; padding: 3px 0 0; display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: 49px 44px; }
+  .logo { grid-column: 1; grid-row: 1; margin-left: 0; padding: 0 .9rem; }
+  .logo-name { display: inline; }
+  .logo-edition { padding-left: .45rem; }
   .header-issue { display: none; }
-  .nav-link { min-width: 52px; padding: .35rem .42rem; font-size: .66rem; }
-  .nav-link small { font-size: .43rem; }
-  .header-actions { gap: 2px; padding-left: .2rem; }
-  .icon-btn { width: 30px; height: 34px; }
+  .nav { grid-column: 1 / -1; grid-row: 2; align-self: stretch; width: 100%; margin-left: 0; border-top: 1px solid var(--chrome-border); }
+  .nav-link { min-width: 0; flex: 1; flex-direction: row; align-items: center; justify-content: center; gap: .45rem; padding: 0 .5rem; font-size: .67rem; }
+  .nav-link:first-child { border-left: 0; }
+  .nav-link small { font-size: .44rem; }
+  .nav-link::after { height: 3px; }
+  .header-actions { grid-column: 2; grid-row: 1; gap: 3px; padding: 0 .55rem; border-left: 0; }
+  .icon-btn { width: 34px; height: 34px; }
 }
 @media (max-width: 360px) {
-  .logo { padding: 0 .55rem; }
+  .logo { padding: 0 .7rem; }
+  .logo-name { font-size: .82rem; }
   .logo-edition { display: none; }
-  .nav { min-width: 0; flex: 1; }
-  .nav-link { min-width: 0; flex: 1; padding: .35rem .22rem; font-size: .57rem; }
-  .nav-link small { display: none; }
-  .header-actions { flex: 0 0 auto; }
-  .icon-btn { width: 30px; }
+  .nav-link { padding: 0 .3rem; font-size: .62rem; }
+  .header-actions { padding: 0 .4rem; }
+  .icon-btn { width: 32px; }
 }
 </style>
