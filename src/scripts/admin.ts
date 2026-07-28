@@ -687,7 +687,10 @@ if (app) {
   const setAboutSection = (key: string) => {
     activeAboutSection = key;
     aboutSectionFields.querySelectorAll<HTMLElement>('[data-about-content-section]').forEach(panel => { panel.hidden = panel.dataset.aboutContentSection !== key; });
-    aboutForm.querySelectorAll<HTMLButtonElement>('[data-about-section]').forEach(button => button.toggleAttribute('aria-current', button.dataset.aboutSection === key));
+    aboutForm.querySelectorAll<HTMLButtonElement>('[data-about-section]').forEach(button => {
+      if (button.dataset.aboutSection === key) button.setAttribute('aria-current', 'page');
+      else button.removeAttribute('aria-current');
+    });
   };
 
   const quoteFields = (target: HTMLElement, quote: any) => {
