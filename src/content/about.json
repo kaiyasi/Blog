@@ -187,64 +187,10 @@
   "experience": {
     "items": [
       {
-        "title": "2026 THJCC CTF Summer Edition",
-        "time": "2026-08-15",
+        "title": "Taipei Municipal Dong-Hu Elementary School",
+        "time": "2020-06-22",
         "link": "",
-        "role": "CTF Network Admin · Infrastructure & Competition Operations"
-      },
-      {
-        "title": "COSCUP x UbuCon Asia 2026 ",
-        "time": "2026-08-08",
-        "link": "",
-        "role": "Booth Section Chief · Stall Management & On-site Coordination"
-      },
-      {
-        "title": "SITCON Camp 2026",
-        "time": "2026-07-08",
-        "link": "",
-        "role": "Development Team Member · Web & Outdoor Game Development"
-      },
-      {
-        "title": "Neihu Senior High School · 13th Computer Science Class",
-        "time": "2026-06-02",
-        "link": "",
-        "role": "36th graduated (NHCS 13th)"
-      },
-      {
-        "title": "g0v 2026 Summit",
-        "time": "2026-05-23",
-        "link": "",
-        "role": "Field Operations Team Member · Venue Logistics & On-site Coordination"
-      },
-      {
-        "title": "SCAICT",
-        "time": "2026-03-29",
-        "link": "",
-        "role": "Head of Information Technology (5th) · Directing IT operations and community platform development."
-      },
-      {
-        "title": "STA.tw 116",
-        "time": "2026-02-09",
-        "link": "",
-        "role": "Web Development Team Member · Frontend Development & UI Design"
-      },
-      {
-        "title": "SCIST × SCAICT WinterCamp 2026",
-        "time": "2026-02-05",
-        "link": "",
-        "role": "IT Team Member · Contributed to the development and maintenance of the official event infrastructure."
-      },
-      {
-        "title": "115th Special Enrollment Candidate",
-        "time": "2025-12-25",
-        "link": "",
-        "role": "Recognized specialized talent in the 115th Special Enrollment admissions program."
-      },
-      {
-        "title": "Serelix Studio",
-        "time": "2025-08-13",
-        "link": "",
-        "role": "Co-Founder & Chief Technology Officer (CTO) · Leading technical strategy and overseeing digital product development and open-source initiatives."
+        "role": "72nd graduated"
       },
       {
         "title": "Taipei Municipal Dong-Hu Junior High School",
@@ -253,10 +199,64 @@
         "role": "31st graduated"
       },
       {
-        "title": "Taipei Municipal Dong-Hu Elementary School",
-        "time": "2020-06-22",
+        "title": "Serelix Studio",
+        "time": "2025-08-13",
         "link": "",
-        "role": "72nd graduated"
+        "role": "Co-Founder & Chief Technology Officer (CTO) · Leading technical strategy and overseeing digital product development and open-source initiatives."
+      },
+      {
+        "title": "115th Special Enrollment Candidate",
+        "time": "2025-12-25",
+        "link": "",
+        "role": "Recognized specialized talent in the 115th Special Enrollment admissions program."
+      },
+      {
+        "title": "SCIST × SCAICT WinterCamp 2026",
+        "time": "2026-02-05",
+        "link": "https://scist.camp/team",
+        "role": "IT Team Member · Contributed to the development and maintenance of the official event infrastructure."
+      },
+      {
+        "title": "STA.tw 116",
+        "time": "2026-02-09",
+        "link": "",
+        "role": "Web Development Team Member · Frontend Development & UI Design"
+      },
+      {
+        "title": "SCAICT",
+        "time": "2026-03-29",
+        "link": "https://scaict.org/",
+        "role": "Head of Information Technology (5th) · Directing IT operations and community platform development."
+      },
+      {
+        "title": "g0v 2026 Summit",
+        "time": "2026-05-23",
+        "link": "https://summit.g0v.tw/2026/staff/",
+        "role": "Field Operations Team Member · Venue Logistics & On-site Coordination"
+      },
+      {
+        "title": "Neihu Senior High School · 13th Computer Science Class",
+        "time": "2026-06-02",
+        "link": "",
+        "role": "36th graduated (NHCS 13th)"
+      },
+      {
+        "title": "SITCON Camp 2026",
+        "time": "2026-07-08",
+        "link": "https://sitcon.camp/2026/about/",
+        "role": "Development Team Member · Web & Outdoor Game Development"
+      },
+      {
+        "title": "COSCUP x UbuCon Asia 2026 ",
+        "time": "2026-08-08",
+        "link": "https://coscup.org/2026/staff",
+        "role": "Booth Section Chief · Stall Management & On-site Coordination"
+      },
+      {
+        "title": "2026 THJCC CTF Summer Edition",
+        "time": "2026-08-15",
+        "link": "https://thjcc.org/2026-summer/",
+        "role": "CTF Network Admin · Infrastructure & Competition Operations"
       }
     ],
     "quote": {
