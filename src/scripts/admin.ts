@@ -749,6 +749,10 @@ if (app) {
     if (!aboutContent) return;
     aboutSectionFields.replaceChildren();
     const { identity, about, skillGroups, roadmap, projects, experience, connect } = aboutContent;
+    experience.items = experience.items
+      .map((item: any, index: number) => ({ item, index }))
+      .sort((left: any, right: any) => String(left.item.time || '').localeCompare(String(right.item.time || '')) || left.index - right.index)
+      .map(({ item }: any) => item);
 
     const profile = section('profile', '01', '個人資料');
     profile.append(
