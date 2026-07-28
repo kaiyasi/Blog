@@ -187,58 +187,58 @@
   "experience": {
     "items": [
       {
-        "title": "Taipei Municipal Dong-Hu Elementary School",
-        "time": "",
-        "link": "",
-        "role": "72nd graduated"
-      },
-      {
-        "title": "Taipei Municipal Dong-Hu Junior High School",
-        "time": "",
-        "link": "",
-        "role": "31st graduated"
-      },
-      {
-        "title": "Neihu Senior High School · 13th Computer Science Class",
-        "time": "",
-        "link": "",
-        "role": "36th graduated (NHCS 13th)"
-      },
-      {
-        "title": "115th Special Enrollment Candidate",
-        "time": "",
-        "link": "",
-        "role": "Recognized specialized talent in the 115th Special Enrollment admissions program."
-      },
-      {
-        "title": "SCIST × SCAICT WinterCamp 2026",
-        "time": "",
-        "link": "",
-        "role": "IT Team Member · Contributed to the development and maintenance of the official event infrastructure."
-      },
-      {
-        "title": "SCAICT",
-        "time": "",
-        "link": "",
-        "role": "Head of Information Technology (5th) · Directing IT operations and community platform development."
-      },
-      {
-        "title": "Serelix Studio",
-        "time": "",
-        "link": "",
-        "role": "Co-Founder & Chief Technology Officer (CTO) · Leading technical strategy and overseeing digital product development and open-source initiatives."
-      },
-      {
         "title": "SITCON Camp 2026",
-        "time": "",
+        "time": "2026-07-08",
         "link": "",
         "role": "Development Team Member · Web & Outdoor Game Development"
       },
       {
+        "title": "Neihu Senior High School · 13th Computer Science Class",
+        "time": "2026-06-02",
+        "link": "",
+        "role": "36th graduated (NHCS 13th)"
+      },
+      {
         "title": "g0v 2026 Summit",
-        "time": "",
+        "time": "2026-05-23",
         "link": "",
         "role": "Field Operations Team Member · Venue Logistics & On-site Coordination"
+      },
+      {
+        "title": "SCAICT",
+        "time": "2026-03-29",
+        "link": "",
+        "role": "Head of Information Technology (5th) · Directing IT operations and community platform development."
+      },
+      {
+        "title": "SCIST × SCAICT WinterCamp 2026",
+        "time": "2026-02-05",
+        "link": "",
+        "role": "IT Team Member · Contributed to the development and maintenance of the official event infrastructure."
+      },
+      {
+        "title": "115th Special Enrollment Candidate",
+        "time": "2025-12-25",
+        "link": "",
+        "role": "Recognized specialized talent in the 115th Special Enrollment admissions program."
+      },
+      {
+        "title": "Serelix Studio",
+        "time": "2025-08-13",
+        "link": "",
+        "role": "Co-Founder & Chief Technology Officer (CTO) · Leading technical strategy and overseeing digital product development and open-source initiatives."
+      },
+      {
+        "title": "Taipei Municipal Dong-Hu Junior High School",
+        "time": "2023-06-13",
+        "link": "",
+        "role": "31st graduated"
+      },
+      {
+        "title": "Taipei Municipal Dong-Hu Elementary School",
+        "time": "2020-06-22",
+        "link": "",
+        "role": "72nd graduated"
       },
       {
         "title": "COSCUP x UbuCon Asia 2026 ",
