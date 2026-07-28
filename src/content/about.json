@@ -187,6 +187,18 @@
   "experience": {
     "items": [
       {
+        "title": "2026 THJCC CTF Summer Edition",
+        "time": "2026-08-15",
+        "link": "",
+        "role": "CTF Network Admin · Infrastructure & Competition Operations"
+      },
+      {
+        "title": "COSCUP x UbuCon Asia 2026 ",
+        "time": "2026-08-08",
+        "link": "",
+        "role": "Booth Section Chief · Stall Management & On-site Coordination"
+      },
+      {
         "title": "SITCON Camp 2026",
         "time": "2026-07-08",
         "link": "",
@@ -209,6 +221,12 @@
         "time": "2026-03-29",
         "link": "",
         "role": "Head of Information Technology (5th) · Directing IT operations and community platform development."
+      },
+      {
+        "title": "STA.tw 116",
+        "time": "2026-02-09",
+        "link": "",
+        "role": "Web Development Team Member · Frontend Development & UI Design"
       },
       {
         "title": "SCIST × SCAICT WinterCamp 2026",
@@ -239,24 +257,6 @@
         "time": "2020-06-22",
         "link": "",
         "role": "72nd graduated"
-      },
-      {
-        "title": "COSCUP x UbuCon Asia 2026 ",
-        "time": "",
-        "link": "",
-        "role": "Booth Section Chief · Stall Management & On-site Coordination"
-      },
-      {
-        "title": "2026 THJCC CTF Summer Edition",
-        "time": "",
-        "link": "",
-        "role": "CTF Network Admin · Infrastructure & Competition Operations"
-      },
-      {
-        "title": "STA.tw 116",
-        "time": "",
-        "link": "",
-        "role": "Web Development Team Member · Frontend Development & UI Design"
       }
     ],
     "quote": {
