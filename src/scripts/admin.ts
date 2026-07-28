@@ -646,7 +646,7 @@ if (app) {
     label: string,
     current: unknown,
     update: (value: string) => void,
-    options: { multiline?: boolean; markdown?: boolean; wide?: boolean; type?: string } = {},
+    options: { multiline?: boolean; markdown?: boolean; wide?: boolean; type?: string; required?: boolean } = {},
   ) => {
     const wrapper = document.createElement('label');
     wrapper.className = `about-field${options.wide ? ' wide' : ''}${options.markdown ? ' markdown' : ''}`;
@@ -660,7 +660,7 @@ if (app) {
     const control = options.multiline ? document.createElement('textarea') : document.createElement('input');
     if (control instanceof HTMLInputElement) control.type = options.type || 'text';
     control.value = typeof current === 'string' ? current : '';
-    control.required = true;
+    control.required = options.required !== false;
     control.addEventListener('input', () => update(control.value));
     wrapper.append(caption, control);
     return wrapper;
@@ -814,9 +814,11 @@ if (app) {
     quoteFields(projectFields, projects.quote);
 
     const experienceFields = section('experience', '06', 'Experience');
-    repeater(experienceFields, '經歷', experience.items, () => ({ title: 'New Experience', role: '內容' }), (row, item: any) => {
+    repeater(experienceFields, '經歷', experience.items, () => ({ title: 'New Experience', time: '', link: '', role: '內容' }), (row, item: any) => {
       row.append(
         field('名稱', item.title, value => { item.title = value; }),
+        field('排序日期（前台不顯示）', item.time, value => { item.time = value; }, { type: 'date', required: false }),
+        field('工作人員頁面連結（選填）', item.link, value => { item.link = value; }, { type: 'url', required: false, wide: true }),
         field('說明', item.role, value => { item.role = value; }, { multiline: true, markdown: true, wide: true }),
       );
     });

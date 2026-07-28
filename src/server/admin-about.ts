@@ -16,6 +16,13 @@ export class AdminAboutError extends Error {
 type RecordValue = Record<string, unknown>;
 export type AboutContent = typeof import('../content/about.json').default;
 
+export function sortExperienceItems(items: AboutContent['experience']['items']) {
+  return items
+    .map((item, index) => ({ item, index }))
+    .sort((left, right) => right.item.time.localeCompare(left.item.time) || left.index - right.index)
+    .map(({ item }) => item);
+}
+
 function isRecord(value: unknown): value is RecordValue {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 }
@@ -92,6 +99,15 @@ export function validateAboutContent(value: unknown): AboutContent {
       requireString(row.title, `${sectionName}_items_${index}_title`, 500);
       requireString(row[sectionName === 'experience' ? 'role' : 'body'], `${sectionName}_items_${index}_body`);
       if (sectionName === 'projects') validateUrl(row.url, `${sectionName}_items_${index}_url`);
+      if (sectionName === 'experience') {
+        if (row.time === undefined) row.time = '';
+        if (row.link === undefined) row.link = '';
+        if (typeof row.time !== 'string' || (row.time && !/^\d{4}-\d{2}-\d{2}$/.test(row.time))) {
+          throw new AdminAboutError(`invalid_experience_items_${index}_time`);
+        }
+        if (typeof row.link !== 'string') throw new AdminAboutError(`invalid_experience_items_${index}_link`);
+        if (row.link) validateUrl(row.link, `experience_items_${index}_link`);
+      }
     });
     validateQuote(section.quote, `${sectionName}_quote`);
   }
@@ -157,6 +173,7 @@ async function translateIdentity(content: AboutContent) {
 
 export async function updateAboutContent(value: unknown) {
   const content = await translateIdentity(validateAboutContent(value));
+  content.experience.items = sortExperienceItems(content.experience.items);
   const contents = `${JSON.stringify(content, null, 2)}\n`;
   let synced = false;
   try {

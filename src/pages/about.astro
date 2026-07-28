@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import CommentThread from '../components/CommentThread.astro';
-import { getAboutContent } from '../server/admin-about';
+import { getAboutContent, sortExperienceItems } from '../server/admin-about';
 import { getAboutPreview } from '../server/admin-about-preview';
 import { isAdminAuthenticated } from '../server/admin-auth';
 import { createMarkdownProcessor } from '@astrojs/markdown-remark';
@@ -14,6 +14,7 @@ const previewTheme = previewContent ? (Astro.url.searchParams.get('theme') === '
 const content = previewContent || await getAboutContent();
 Astro.response.headers.set('Cache-Control', previewContent ? 'private, no-store' : 'no-store');
 const { identity, about, skillGroups, roadmap, projects, experience, connect } = content;
+const experienceItems = sortExperienceItems(experience.items);
 const processor = createMarkdownProcessor();
 const markdown = async (source: string) => (await (await processor).render(source)).code;
 const rendered = {
@@ -22,7 +23,7 @@ const rendered = {
   aboutItems: await Promise.all(about.items.map(markdown)),
   roadmap: await Promise.all(roadmap.items.map(item => markdown(item.body))),
   projects: await Promise.all(projects.items.map(item => markdown(item.body))),
-  experience: await Promise.all(experience.items.map(item => markdown(item.role))),
+  experience: await Promise.all(experienceItems.map(item => markdown(item.role))),
 };
 ---
 
@@ -109,8 +110,8 @@ const rendered = {
         <section class="detail-section" id="experience">
           <header><span>05</span><h2>Experience</h2></header>
           <div class="detail-body experience-list">
-            {experience.items.map((item, index) => (
-              <article><time>{String(index + 1).padStart(2, '0')}</time><div><h3>{item.title}</h3><div class="markdown-copy" set:html={rendered.experience[index]}></div></div></article>
+            {experienceItems.map((item, index) => (
+              <article><time>{String(index + 1).padStart(2, '0')}</time><div><h3>{item.link ? <a href={item.link} target="_blank" rel="noopener">{item.title}</a> : item.title}</h3><div class="markdown-copy" set:html={rendered.experience[index]}></div></div></article>
             ))}
             <blockquote class="section-quote" lang="ja"><p>{experience.quote.text}</p><cite>{experience.quote.source}</cite></blockquote>
           </div>
@@ -206,6 +207,8 @@ const rendered = {
   .indexed-list h3 a { display: inline-flex; align-items: center; gap: .6rem; }
   .indexed-list h3 a:hover { color: var(--accent); }
   .indexed-list h3 b { color: var(--accent); }
+  .experience-list h3 a { color: inherit; text-decoration: none; }
+  .experience-list h3 a:hover { color: var(--accent); }
   .indexed-list article .markdown-copy, .experience-list article .markdown-copy { max-width: 66ch; margin-top: .35rem; color: var(--text-muted); font-size: .8rem; line-height: 1.7; }
 
   .connect-list { border-top: 1px solid var(--border); }
