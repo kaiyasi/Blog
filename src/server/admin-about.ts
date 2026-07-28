@@ -19,7 +19,7 @@ export type AboutContent = typeof import('../content/about.json').default;
 export function sortExperienceItems(items: AboutContent['experience']['items']) {
   return items
     .map((item, index) => ({ item, index }))
-    .sort((left, right) => right.item.time.localeCompare(left.item.time) || left.index - right.index)
+    .sort((left, right) => left.item.time.localeCompare(right.item.time) || left.index - right.index)
     .map(({ item }) => item);
 }
 
