@@ -33,6 +33,8 @@ async function exists(path) {
 function promptFor(kind, locale, source) {
   const format = kind === 'messages'
     ? 'Return a JSON object with exactly the same keys. Translate values only.'
+    : kind === 'about'
+      ? 'Return the complete valid JSON object with exactly the same structure. Translate human-readable prose, labels, roles, captions, and quotes only. Preserve names, URLs, email addresses, dates, handles, technology names, and object keys.'
     : 'Return the complete Markdown file. Preserve YAML keys, dates, tags, URLs, code fences, inline code, HTML, and file paths. Translate title, description, headings, and prose only.';
   return `Translate this Traditional Chinese ${kind} source into ${targetNames[locale]}.\n${format}\nKeep the author voice concise and natural. Do not add commentary.\n\n${source}`;
 }
@@ -67,7 +69,7 @@ async function translate(provider, kind, locale, source) {
     response = await request(undefined);
   }
   const text = response.text.trim().replace(/^```(?:json|markdown)?\s*/i, '').replace(/\s*```$/, '');
-  if (kind === 'messages') JSON.parse(text);
+  if (kind === 'messages' || kind === 'about') JSON.parse(text);
   if (!text) throw new Error('Translation returned an empty response.');
   return `${text}\n`;
 }
@@ -77,6 +79,7 @@ async function main() {
   const bootstrapCache = Object.keys(manifest).length === 0;
   const sources = [
     { kind: 'messages', path: join(root, 'src/i18n/zh-TW.json'), base: join(root, 'src/i18n') },
+    { kind: 'about', path: join(root, 'src/content/about.json'), base: join(root, 'src/content') },
     ...(await walk(join(root, 'src/content/posts')))
       .filter(path => ['.md', '.mdx'].includes(extname(path)) && !relative(join(root, 'src/content/posts'), path).startsWith(`admin-preview${process.platform === 'win32' ? '\\' : '/'}`))
       .map(path => ({ kind: 'posts', path, base: join(root, 'src/content/posts') })),
@@ -105,6 +108,8 @@ async function main() {
     for (const locale of targets) {
       const output = item.kind === 'messages'
         ? join(root, `src/generated/i18n/messages/${locale}.json`)
+        : item.kind === 'about'
+          ? join(root, `src/generated/i18n/about/${locale}.json`)
         : join(root, `src/generated/i18n/${item.kind}/${locale}/${relativePath}`);
       const key = `${item.kind}:${relativePath}:${locale}`;
       if (manifest[key] === sourceHash && await exists(output)) continue;
@@ -121,6 +126,12 @@ async function main() {
             continue;
           }
           console.warn(`[i18n] ${key} changed; using cached translation because the AI provider is unavailable.`);
+          continue;
+        }
+        if (item.kind === 'about') {
+          await mkdir(dirname(output), { recursive: true });
+          await writeFile(output, `${source.trim()}\n`);
+          console.warn(`[i18n] ${key} is using the source-language fallback because the AI provider is unavailable.`);
           continue;
         }
         throw new Error(`[i18n] Missing translation ${key} and the AI provider is unavailable.`);

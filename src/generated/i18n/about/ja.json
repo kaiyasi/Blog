@@ -1,0 +1,260 @@
+{
+  "identity": {
+    "name": "Kaiyasi",
+    "alias": "Serelix UI",
+    "avatar": "/images/identity/kaiyasi-shiba-avatar-v3.webp",
+    "avatarAlt": "Kaiyasiの柴犬デフォルメアバター",
+    "portraitCaption": "KAIYASI / SHIBA SESSION",
+    "subtitle": {
+      "zh-TW": "技術ノートと学びの記録",
+      "en": "開発ノートと学びの記録",
+      "ja": "開発ノートと学びの記録",
+      "ko": "開発ノートと学びの記録"
+    },
+    "intro": {
+      "zh-TW": "開発ノート、学び、活動への参加経験を記録しています。",
+      "en": "開発や学び、その過程で得た経験を記録しています。",
+      "ja": "開発、学び、参加した活動の記録を残しています。",
+      "ko": "開発、学び、参加経験を記録しています。"
+    },
+    "quote": {
+      "text": "戦えない人間なんかいない。戦うか、戦わないか、その選択があるだけだ！",
+      "source": "Kirito"
+    },
+    "socialLinks": [
+      {
+        "label": "GitHub",
+        "url": "https://github.com/kaiyasi"
+      },
+      {
+        "label": "Instagram",
+        "url": "https://www.instagram.com/kaiyasi.0315/"
+      },
+      {
+        "label": "Discord",
+        "url": "https://discord.com/users/759651999036997672"
+      }
+    ],
+    "metadata": [
+      {
+        "label": "開始",
+        "value": "2026.02.12"
+      },
+      {
+        "label": "タイムゾーン",
+        "value": "ASIA / TAIPEI"
+      },
+      {
+        "label": "言語",
+        "value": "ZH-TW"
+      }
+    ]
+  },
+  "about": {
+    "opening": "2026年度卒業予定（特殊選抜）・フルスタック開発者・CTF初心者",
+    "statement": "「プログラミングは単なるロジックの積み重ねではない。定義されるのを待つ秩序だ。」",
+    "items": [
+      "内湖高級中学（第36期情報クラス）を経て、NCHU応用数学科への進学を控え、数学とコードが交わる領域を探求しています。",
+      "SCAICTの情報技術責任者として、一人でコードを書くことにとどまらず、チームを率いて「世代をつなぐ」プロジェクトを構築することに情熱を注いでいます。",
+      "学生の学習プロセスを効率化するプロジェクトの開発に取り組み、コードを通じて教育環境に意義ある変化をもたらしています。",
+      "フルスタック開発者兼CTF初心者として、システム構築と脆弱性探索の面白さを通じて、常に自分の限界に挑戦しています。"
+    ],
+    "quote": {
+      "text": "世界は、自分の思っているより、ずっとずっとカラフルなんだ。",
+      "source": "《ホリミヤ》"
+    }
+  },
+  "skillGroups": [
+    {
+      "title": "フロントエンド",
+      "items": [
+        "HTML",
+        "CSS",
+        "React",
+        "Vue.js",
+        "JavaScript",
+        "TypeScript",
+        "Tailwind CSS"
+      ]
+    },
+    {
+      "title": "ツール / SSG",
+      "items": [
+        "Astro",
+        "Hexo",
+        "Hugo"
+      ]
+    },
+    {
+      "title": "バックエンド",
+      "items": [
+        "FastAPI",
+        "Node.js",
+        "Python 3.12+",
+        "RESTful API",
+        "Socket Programming"
+      ]
+    },
+    {
+      "title": "データベース",
+      "items": [
+        "PostgreSQL",
+        "Redis",
+        "SQLite"
+      ]
+    },
+    {
+      "title": "DevOps / デプロイ",
+      "items": [
+        "Docker / Docker Compose",
+        "Nginx Reverse Proxy",
+        "Cloudflare Tunnel",
+        "Debian"
+      ]
+    },
+    {
+      "title": "セキュリティ / CTF",
+      "items": [
+        "Pwn（学習中）",
+        "Web",
+        "Misc",
+        "Crypto",
+        "Reverse"
+      ]
+    }
+  ],
+  "roadmap": {
+    "items": [
+      {
+        "title": "Moment",
+        "body": "大学生活向けに設計された高機能な時間割ツール。スケジュール管理を最適化し、学科間の情報格差を埋めます。"
+      },
+      {
+        "title": "Serelix Studio Prep",
+        "body": "個人テックスタジオのブランドを立ち上げ、影響力のあるデジタル製品とオープンソースプロジェクトの開発に取り組みます。"
+      },
+      {
+        "title": "SCAICT公式サイト",
+        "body": "台湾中南部学生情報連盟のデジタル拠点として、学生技術コミュニティをつなぎ、リソースを統合します。"
+      },
+      {
+        "title": "116年度特殊選抜ポータル",
+        "body": "116年度特殊選抜の受験生向け情報ポータル。分かりやすい入試ガイドと合格者の体験談を提供します。"
+      },
+      {
+        "title": "NCHU応用数学科試験問題バンク",
+        "body": "国立中興大学応用数学科の授業向けに設計された自動試験問題バンク。体系的なリソース分類によって学習効率を高めます。"
+      }
+    ],
+    "quote": {
+      "text": "先のことなんてわかんねーけど、今はただ、弾くしかねーんだ。",
+      "source": "《GIVEN》"
+    }
+  },
+  "projects": {
+    "items": [
+      {
+        "title": "ForumKit",
+        "url": "https://github.com/kaiyasi/FourmKit",
+        "body": "高い拡張性を備えたモジュール式のフォーラムスターターキット。現代的なコミュニティプラットフォームの開発を効率化します。"
+      },
+      {
+        "title": "SCIST WinterCamp 2026公式サイト",
+        "url": "https://github.com/scist-tw/WinterCamp2026",
+        "body": "2026 SCIST x SCAICT合同ウィンターキャンプの公式デジタルポータル。イベント資料、参加者向けガイド、地域技術コミュニティのリソースを統合しています。"
+      },
+      {
+        "title": "Kairo",
+        "url": "https://github.com/kaiyasi/Kairo",
+        "body": "高校の技術コミュニティ向けに設計された多機能な出席・管理ボット。自動チェックイン、ステータス追跡、効率的なイベント運営を提供します。"
+      },
+      {
+        "title": "CipherKit",
+        "url": "https://github.com/kaiyasi/CipherKit",
+        "body": "実用的な暗号化ユーティリティ、エンコード・デコードツール、プログラミング支援機能を提供する総合Webツールキット。学生とCTF愛好者向けに開発されています。"
+      },
+      {
+        "title": "Cardium",
+        "url": "https://github.com/kaiyasi/Cardium",
+        "body": "個人や組織のプロフィールを統一して視覚的に表現する、現代的なデジタルアイデンティティ生成ツール。洗練されたUIデザインと構造化されたメタデータ表示を重視しています。"
+      }
+    ],
+    "quote": {
+      "text": "未来はそこにある。見たことのない景色、一緒に見に行こう。",
+      "source": "《Free! -Eternal Summer-》"
+    }
+  },
+  "experience": {
+    "items": [
+      {
+        "title": "台北市立東湖小学校",
+        "role": "第72期卒業"
+      },
+      {
+        "title": "台北市立東湖中学校",
+        "role": "第31期卒業"
+      },
+      {
+        "title": "内湖高級中学・第13期コンピュータサイエンスクラス",
+        "role": "第36期卒業（NHCS第13期）"
+      },
+      {
+        "title": "115年度特殊選抜受験生",
+        "role": "115年度特殊選抜入試において、専門的才能を持つ人材として認定されました。"
+      },
+      {
+        "title": "SCIST × SCAICT WinterCamp 2026",
+        "role": "情報技術チームメンバー・公式イベント基盤の開発と保守を担当。"
+      },
+      {
+        "title": "SCAICT",
+        "role": "第5期情報技術責任者・IT運用とコミュニティプラットフォーム開発を統括。"
+      },
+      {
+        "title": "Serelix Studio",
+        "role": "共同創業者兼最高技術責任者（CTO）・技術戦略を主導し、デジタル製品開発とオープンソース活動を統括。"
+      },
+      {
+        "title": "SITCON Camp 2026",
+        "role": "開発チームメンバー・Webおよび屋外ゲーム開発"
+      }
+    ],
+    "quote": {
+      "text": "目的地が同じなら、いつかまた会える。……道中、ご無事で。",
+      "source": "《86 －エイティシックス－》"
+    }
+  },
+  "connect": {
+    "items": [
+      {
+        "label": "GITHUB",
+        "value": "kaiyasi",
+        "url": "https://github.com/kaiyasi"
+      },
+      {
+        "label": "仕事用メール",
+        "value": "zengcode0315@gmail.com",
+        "url": "mailto:zengcode0315@gmail.com"
+      },
+      {
+        "label": "個人用メール",
+        "value": "zengeric0315@gmail.com",
+        "url": "mailto:zengeric0315@gmail.com"
+      },
+      {
+        "label": "DISCORD",
+        "value": "kaiyasi",
+        "url": "https://discord.com/users/759651999036997672"
+      },
+      {
+        "label": "INSTAGRAM",
+        "value": "kaiyasi.0315",
+        "url": "https://www.instagram.com/kaiyasi.0315/"
+      }
+    ],
+    "quote": {
+      "text": "口で言うより、行動で示せ。それが俺のやり方だ。",
+      "source": "《青の祓魔師》"
+    }
+  }
+}

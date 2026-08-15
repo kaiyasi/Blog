@@ -2,6 +2,7 @@
   "nav.posts": "記事",
   "nav.projects": "プロジェクト",
   "nav.about": "プロフィール",
+  "nav.tools": "ツール",
   "actions.search": "検索",
   "actions.theme": "ライト／ダークテーマを切り替え",
   "actions.language": "言語を切り替え",
@@ -37,5 +38,15 @@
   "meta.projects.title": "プロジェクト",
   "meta.projects.description": "Kaiyasiの作品と実験。",
   "meta.about.title": "プロフィール",
-  "meta.about.description": "Kaiyasiについて。"
+  "meta.about.description": "Kaiyasiについて。",
+  "tools.title": "ツール",
+  "tools.subtitle": "使っている独立したツールサイトを、ここからすぐ開けるようにまとめています。",
+  "tools.status": "リンク一覧",
+  "tools.privacy": "外部サイト",
+  "tools.available": "ツール索引",
+  "tools.emptyTitle": "ツールリンクはまだありません",
+  "tools.emptyDescription": "ここでは外部サイトだけを整理します。各ツールはそれぞれのサイトで動作します。",
+  "tools.emptyLabel": "READY FOR THE FIRST LINK",
+  "meta.tools.title": "ツール",
+  "meta.tools.description": "Kaiyasiが集めた独立したツールサイトのリンク集。"
 }

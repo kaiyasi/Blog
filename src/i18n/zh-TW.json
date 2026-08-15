@@ -2,6 +2,7 @@
   "nav.posts": "文章",
   "nav.projects": "專案",
   "nav.about": "關於",
+  "nav.tools": "工具",
   "actions.search": "搜尋",
   "actions.theme": "切換明暗主題",
   "actions.language": "切換語言",
@@ -37,5 +38,15 @@
   "meta.projects.title": "專案",
   "meta.projects.description": "Kaiyasi 的作品與實驗。",
   "meta.about.title": "關於",
-  "meta.about.description": "關於 Kaiyasi。"
+  "meta.about.description": "關於 Kaiyasi。",
+  "tools.title": "工具",
+  "tools.subtitle": "整理我會用到的獨立工具網站，從這裡快速進入。",
+  "tools.status": "連結索引",
+  "tools.privacy": "外部網站",
+  "tools.available": "工具索引",
+  "tools.emptyTitle": "還沒有工具連結",
+  "tools.emptyDescription": "這裡只整理外部網站，每個工具會在自己的網站上運作。",
+  "tools.emptyLabel": "READY FOR THE FIRST LINK",
+  "meta.tools.title": "工具",
+  "meta.tools.description": "Kaiyasi 收集的獨立工具網站連結。"
 }

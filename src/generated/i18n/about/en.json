@@ -1,0 +1,260 @@
+{
+  "identity": {
+    "name": "Kaiyasi",
+    "alias": "Serelix UI",
+    "avatar": "/images/identity/kaiyasi-shiba-avatar-v3.webp",
+    "avatarAlt": "Kaiyasi's chibi Shiba Inu avatar",
+    "portraitCaption": "KAIYASI / SHIBA SESSION",
+    "subtitle": {
+      "zh-TW": "Development notes and learning reflections",
+      "en": "Development notes and learning reflections",
+      "ja": "Development notes and learning reflections",
+      "ko": "Development notes and learning reflections"
+    },
+    "intro": {
+      "zh-TW": "Notes on development, learning, and participation experiences.",
+      "en": "Notes on development, learning, and the experiences along the way.",
+      "ja": "Notes on development, learning, and participation experiences.",
+      "ko": "Notes on development, learning, and participation experiences."
+    },
+    "quote": {
+      "text": "There is no one who cannot fight. You only have to choose whether to fight or not!",
+      "source": "Kirito"
+    },
+    "socialLinks": [
+      {
+        "label": "GitHub",
+        "url": "https://github.com/kaiyasi"
+      },
+      {
+        "label": "Instagram",
+        "url": "https://www.instagram.com/kaiyasi.0315/"
+      },
+      {
+        "label": "Discord",
+        "url": "https://discord.com/users/759651999036997672"
+      }
+    ],
+    "metadata": [
+      {
+        "label": "SINCE",
+        "value": "2026.02.12"
+      },
+      {
+        "label": "TIMEZONE",
+        "value": "ASIA / TAIPEI"
+      },
+      {
+        "label": "LANGUAGE",
+        "value": "ZH-TW"
+      }
+    ]
+  },
+  "about": {
+    "opening": "Class of 2026 (Special Selection) · Full-stack Developer · CTF Novice",
+    "statement": "“Programming isn’t just a stack of logic; it’s an order waiting to be defined.”",
+    "items": [
+      "From Neihu High School (36th IT Class) to an incoming NCHU Applied Mathematics student, I am navigating the intersection where mathematics meets code.",
+      "As the IT Head of SCAICT, I thrive on leading teams to build “generational” projects rather than just coding in isolation.",
+      "Dedicated to developing projects that streamline the student academic journey, using code to bring meaningful change to the educational environment.",
+      "A Full-Stack developer and CTF novice, constantly pushing my limits through the thrill of building systems and hunting for vulnerabilities."
+    ],
+    "quote": {
+      "text": "The world is far, far more colorful than you think.",
+      "source": "《Horimiya》"
+    }
+  },
+  "skillGroups": [
+    {
+      "title": "Frontend",
+      "items": [
+        "HTML",
+        "CSS",
+        "React",
+        "Vue.js",
+        "JavaScript",
+        "TypeScript",
+        "Tailwind CSS"
+      ]
+    },
+    {
+      "title": "Tooling / SSG",
+      "items": [
+        "Astro",
+        "Hexo",
+        "Hugo"
+      ]
+    },
+    {
+      "title": "Backend",
+      "items": [
+        "FastAPI",
+        "Node.js",
+        "Python 3.12+",
+        "RESTful API",
+        "Socket Programming"
+      ]
+    },
+    {
+      "title": "Database",
+      "items": [
+        "PostgreSQL",
+        "Redis",
+        "SQLite"
+      ]
+    },
+    {
+      "title": "DevOps / Deployment",
+      "items": [
+        "Docker / Docker Compose",
+        "Nginx Reverse Proxy",
+        "Cloudflare Tunnel",
+        "Debian"
+      ]
+    },
+    {
+      "title": "Security / CTF",
+      "items": [
+        "Pwn (Learning)",
+        "Web",
+        "Misc",
+        "Crypto",
+        "Reverse"
+      ]
+    }
+  ],
+  "roadmap": {
+    "items": [
+      {
+        "title": "Moment",
+        "body": "A sophisticated timetable tool designed for university life, optimizing schedule management and bridging the information gap between departments."
+      },
+      {
+        "title": "Serelix Studio Prep",
+        "body": "Establishing a personal tech studio brand, dedicated to developing impactful digital products and open-source projects."
+      },
+      {
+        "title": "SCAICT Official Website",
+        "body": "The digital hub for the Southern & Central Academic Information Confederation of Taiwan, connecting student tech communities and resource integration."
+      },
+      {
+        "title": "116th Special Enrollment Portal",
+        "body": "A dedicated information portal for the 116th Special Enrollment candidates, featuring intuitive admission guides and alumni experience sharing."
+      },
+      {
+        "title": "Department of Applied Mathematics, NCHU Exam Bank",
+        "body": "An automated exam bank system tailored for Department of Applied Mathematics, National Chung Hsing University courses, enhancing study efficiency through systematic resource categorization."
+      }
+    ],
+    "quote": {
+      "text": "I don't know what lies ahead, but right now, all I can do is play.",
+      "source": "《GIVEN》"
+    }
+  },
+  "projects": {
+    "items": [
+      {
+        "title": "ForumKit",
+        "url": "https://github.com/kaiyasi/FourmKit",
+        "body": "A modular and extensible forum starter kit built with high scalability, designed to streamline the development of modern community platforms."
+      },
+      {
+        "title": "SCIST WinterCamp 2026 Website",
+        "url": "https://github.com/scist-tw/WinterCamp2026",
+        "body": "The official digital portal for the 2026 SCIST x SCAICT Joint Winter Camp, integrating event documentation, participant guides, and regional tech community resources."
+      },
+      {
+        "title": "Kairo",
+        "url": "https://github.com/kaiyasi/Kairo",
+        "body": "A multifunctional attendance and management bot designed for high school tech communities, providing automated check-in systems, status tracking, and streamlined event coordination."
+      },
+      {
+        "title": "CipherKit",
+        "url": "https://github.com/kaiyasi/CipherKit",
+        "body": "A comprehensive web-based toolkit offering practical cryptographic utilities, encoding/decoding tools, and programming helpers, built for students and CTF enthusiasts."
+      },
+      {
+        "title": "Cardium",
+        "url": "https://github.com/kaiyasi/Cardium",
+        "body": "A modern digital identity generator designed to unify and visually present personal or organizational profiles, focusing on clean UI design and structured metadata presentation."
+      }
+    ],
+    "quote": {
+      "text": "The future is right there. Let's go see a view we've never seen before—together.",
+      "source": "《Free! -Eternal Summer-》"
+    }
+  },
+  "experience": {
+    "items": [
+      {
+        "title": "Taipei Municipal Dong-Hu Elementary School",
+        "role": "72nd graduated"
+      },
+      {
+        "title": "Taipei Municipal Dong-Hu Junior High School",
+        "role": "31st graduated"
+      },
+      {
+        "title": "Neihu Senior High School · 13th Computer Science Class",
+        "role": "36th graduated (NHCS 13th)"
+      },
+      {
+        "title": "115th Special Enrollment Candidate",
+        "role": "Recognized specialized talent in the 115th Special Enrollment admissions program."
+      },
+      {
+        "title": "SCIST × SCAICT WinterCamp 2026",
+        "role": "IT Team Member · Contributed to the development and maintenance of the official event infrastructure."
+      },
+      {
+        "title": "SCAICT",
+        "role": "Head of Information Technology (5th) · Directing IT operations and community platform development."
+      },
+      {
+        "title": "Serelix Studio",
+        "role": "Co-Founder & Chief Technology Officer (CTO) · Leading technical strategy and overseeing digital product development and open-source initiatives."
+      },
+      {
+        "title": "SITCON Camp 2026",
+        "role": "Development Team Member · Web & Outdoor Game Development"
+      }
+    ],
+    "quote": {
+      "text": "If our destination is the same, we'll meet again someday. Until then, safe travels.",
+      "source": "《86 -Eighty-Six-》"
+    }
+  },
+  "connect": {
+    "items": [
+      {
+        "label": "GITHUB",
+        "value": "kaiyasi",
+        "url": "https://github.com/kaiyasi"
+      },
+      {
+        "label": "PROFESSIONAL EMAIL",
+        "value": "zengcode0315@gmail.com",
+        "url": "mailto:zengcode0315@gmail.com"
+      },
+      {
+        "label": "PERSONAL EMAIL",
+        "value": "zengeric0315@gmail.com",
+        "url": "mailto:zengeric0315@gmail.com"
+      },
+      {
+        "label": "DISCORD",
+        "value": "kaiyasi",
+        "url": "https://discord.com/users/759651999036997672"
+      },
+      {
+        "label": "INSTAGRAM",
+        "value": "kaiyasi.0315",
+        "url": "https://www.instagram.com/kaiyasi.0315/"
+      }
+    ],
+    "quote": {
+      "text": "Show it through actions, not words. That's how I do things.",
+      "source": "《Blue Exorcist》"
+    }
+  }
+}

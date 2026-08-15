@@ -1,10 +1,13 @@
 ---
-title: 'このブログ'
-description: 'Astroでゼロから作った、Givenに着想を得たビジュアルの個人ブログ。'
-date: 2026-07-07
-tags: ['Astro', 'CSS', 'TypeScript']
-github: 'https://github.com/kaiyasi/blog'
-featured: true
+title: "This Blog"
+description: "Astro でゼロから構築した個人 Blog。Given テーマのスタイルを採用。"
+date: "2026-07-07"
+tags:
+  - "Astro"
+  - "CSS"
+  - "TypeScript"
+github: "https://github.com/kaiyasi/blog"
+featured: false
 ---
 
-このブログ自体が、ひとつのポートフォリオ作品です。
+この Blog 自体が一つのポートフォリオ作品です。

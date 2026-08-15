@@ -2,6 +2,7 @@
   "nav.posts": "Posts",
   "nav.projects": "Projects",
   "nav.about": "About",
+  "nav.tools": "Tools",
   "actions.search": "Search",
   "actions.theme": "Toggle theme",
   "actions.language": "Switch language",
@@ -37,5 +38,15 @@
   "meta.projects.title": "Projects",
   "meta.projects.description": "Kaiyasi's work and experiments.",
   "meta.about.title": "About",
-  "meta.about.description": "About Kaiyasi."
+  "meta.about.description": "About Kaiyasi.",
+  "tools.title": "Tools",
+  "tools.subtitle": "A directory of independent tool websites I use, collected in one place.",
+  "tools.status": "LINK DIRECTORY",
+  "tools.privacy": "EXTERNAL SITES",
+  "tools.available": "Tool index",
+  "tools.emptyTitle": "No tool links yet",
+  "tools.emptyDescription": "This page only organizes external sites. Each tool runs on its own website.",
+  "tools.emptyLabel": "READY FOR THE FIRST LINK",
+  "meta.tools.title": "Tools",
+  "meta.tools.description": "A directory of independent tool websites collected by Kaiyasi."
 }

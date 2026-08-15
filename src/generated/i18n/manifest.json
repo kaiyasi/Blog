@@ -1,10 +1,10 @@
 {
-  "messages:messages.json:en": "c48da885ce5360c636f5611bb1494e034f6faf50ef92ca9864a9e57efb2cce87",
-  "messages:messages.json:ja": "c48da885ce5360c636f5611bb1494e034f6faf50ef92ca9864a9e57efb2cce87",
-  "messages:messages.json:ko": "c48da885ce5360c636f5611bb1494e034f6faf50ef92ca9864a9e57efb2cce87",
-  "projects:blog.md:en": "539ab93a8946be901bf701136b72825848b9a1d5149dbe75e182d2ac537135d1",
-  "projects:blog.md:ja": "539ab93a8946be901bf701136b72825848b9a1d5149dbe75e182d2ac537135d1",
-  "projects:blog.md:ko": "539ab93a8946be901bf701136b72825848b9a1d5149dbe75e182d2ac537135d1",
+  "messages:messages.json:en": "15cf1b3b258e7fc010f50999e92361733c3f724d20ebb5431d98fbf82959ba54",
+  "messages:messages.json:ja": "15cf1b3b258e7fc010f50999e92361733c3f724d20ebb5431d98fbf82959ba54",
+  "messages:messages.json:ko": "15cf1b3b258e7fc010f50999e92361733c3f724d20ebb5431d98fbf82959ba54",
+  "projects:blog.md:en": "7a49e9d5dd94c3790ac59f6bcbe04521543f3459b8145d83e7b1c945f83db69a",
+  "projects:blog.md:ja": "7a49e9d5dd94c3790ac59f6bcbe04521543f3459b8145d83e7b1c945f83db69a",
+  "projects:blog.md:ko": "7a49e9d5dd94c3790ac59f6bcbe04521543f3459b8145d83e7b1c945f83db69a",
   "posts:fhctf-writeup.md:en": "048ebb111a1e83145650338e9f2036d40df0670baf94059a431a24a43b775340",
   "posts:fhctf-writeup.md:ja": "048ebb111a1e83145650338e9f2036d40df0670baf94059a431a24a43b775340",
   "posts:fhctf-writeup.md:ko": "048ebb111a1e83145650338e9f2036d40df0670baf94059a431a24a43b775340",
@@ -20,7 +20,10 @@
   "posts:the-new-road-with-ai.md:en": "7e540114c824fd954d5dfed4ab62564faa3953d8bf99772c120f0c7c3b95e885",
   "posts:the-new-road-with-ai.md:ja": "7e540114c824fd954d5dfed4ab62564faa3953d8bf99772c120f0c7c3b95e885",
   "posts:the-new-road-with-ai.md:ko": "7e540114c824fd954d5dfed4ab62564faa3953d8bf99772c120f0c7c3b95e885",
-  "projects:ari-ime.md:en": "993e72488c6c0bbbb73c72684f5eaf1cba49f6a6f89a9af1c4f1f3ccc1fa3d17",
-  "projects:ari-ime.md:ja": "993e72488c6c0bbbb73c72684f5eaf1cba49f6a6f89a9af1c4f1f3ccc1fa3d17",
-  "projects:ari-ime.md:ko": "993e72488c6c0bbbb73c72684f5eaf1cba49f6a6f89a9af1c4f1f3ccc1fa3d17"
+  "projects:ari-ime.md:en": "d05de8a86ac56d41eb29904af08ab3e01497956b04bddf749f0ffebb7a5ee87f",
+  "projects:ari-ime.md:ja": "d05de8a86ac56d41eb29904af08ab3e01497956b04bddf749f0ffebb7a5ee87f",
+  "projects:ari-ime.md:ko": "d05de8a86ac56d41eb29904af08ab3e01497956b04bddf749f0ffebb7a5ee87f",
+  "about:about.json:en": "204588ecf83f97768aa13fb6ba6249421088197c215fc45b5cab7bdd99c9058f",
+  "about:about.json:ja": "204588ecf83f97768aa13fb6ba6249421088197c215fc45b5cab7bdd99c9058f",
+  "about:about.json:ko": "204588ecf83f97768aa13fb6ba6249421088197c215fc45b5cab7bdd99c9058f"
 }

@@ -2,6 +2,7 @@
   "nav.posts": "글",
   "nav.projects": "프로젝트",
   "nav.about": "소개",
+  "nav.tools": "도구",
   "actions.search": "검색",
   "actions.theme": "밝고 어두운 테마 전환",
   "actions.language": "언어 전환",
@@ -37,5 +38,15 @@
   "meta.projects.title": "프로젝트",
   "meta.projects.description": "Kaiyasi의 작품과 실험입니다.",
   "meta.about.title": "소개",
-  "meta.about.description": "Kaiyasi 소개."
+  "meta.about.description": "Kaiyasi 소개.",
+  "tools.title": "도구",
+  "tools.subtitle": "사용하는 독립 도구 웹사이트를 한곳에 모아 빠르게 열 수 있게 정리합니다.",
+  "tools.status": "링크 디렉터리",
+  "tools.privacy": "외부 사이트",
+  "tools.available": "도구 색인",
+  "tools.emptyTitle": "아직 도구 링크가 없습니다",
+  "tools.emptyDescription": "이 페이지는 외부 사이트만 정리합니다. 각 도구는 자체 웹사이트에서 실행됩니다.",
+  "tools.emptyLabel": "READY FOR THE FIRST LINK",
+  "meta.tools.title": "도구",
+  "meta.tools.description": "Kaiyasi가 모은 독립 도구 웹사이트 링크 모음입니다."
 }

@@ -9,7 +9,7 @@ import { remarkEmbeds } from './src/markdown/remark-embeds.mjs';
 import { remarkCallouts } from './src/markdown/remark-callouts.mjs';
 
 export default defineConfig({
-  site: 'https://kaiyasi.dev',
+  site: 'https://blog.gonets.top',
   output: 'server',
   adapter: node({
     mode: 'standalone',

@@ -21,7 +21,7 @@ const homeText = {
   exploreTitle: { 'zh-TW': '繼續探索', en: 'Keep exploring', ja: 'さらに見る', ko: '더 둘러보기' },
   profileTitle: { 'zh-TW': '關於這裡', en: 'About this place', ja: 'この場所について', ko: '이곳에 대하여' },
   profileIntro: {
-    'zh-TW': '我是 Kaiyasi。這裡收錄開發過程、學習筆記，也留下音樂與日常途中值得多看一眼的片刻。',
+    'zh-TW': '我是 Kaiyasi。這裡收錄開發過程、學習筆記，也留下日常途中值得多看一眼的片刻。',
     en: 'I am Kaiyasi. This is where I keep development logs, study notes, music, and moments worth a second look.',
     ja: 'Kaiyasiです。開発記録や学習ノート、音楽、日常でふと目を留めた瞬間を残しています。',
     ko: 'Kaiyasi입니다. 개발 기록과 학습 노트, 음악, 그리고 일상에서 다시 바라본 순간을 남깁니다.',
@@ -134,7 +134,7 @@ const homeText = {
         </div>
         <div class="profile-copy">
           <span>LINER NOTES / KAIYASI</span>
-          <p data-i18n-values={JSON.stringify(homeText.profileIntro)}>我是 Kaiyasi。這裡收錄開發過程、學習筆記，也留下音樂與日常途中值得多看一眼的片刻。</p>
+          <p data-i18n-values={JSON.stringify(homeText.profileIntro)}>我是 Kaiyasi。這裡收錄開發過程、學習筆記，也留下日常途中值得多看一眼的片刻。</p>
           <a href="/about"><span data-i18n-values={JSON.stringify(homeText.fullProfile)}>完整介紹</span><span>→</span></a>
         </div>
         <aside class="contribution-panel" data-contribution-calendar data-github-user={githubUser} aria-labelledby="contribution-title">
@@ -163,7 +163,8 @@ const homeText = {
         <a href="/posts"><small>ADMIT / 01</small><strong data-i18n="nav.posts">文章</strong><span>→</span></a>
         <a href="/projects"><small>ADMIT / 02</small><strong data-i18n="nav.projects">專案</strong><span>→</span></a>
         <a href="/about"><small>ADMIT / 03</small><strong data-i18n="nav.about">關於</strong><span>→</span></a>
-        <a href="/rss.xml"><small>ADMIT / 04</small><strong>RSS</strong><span>↗</span></a>
+        <a href="/tools"><small>ADMIT / 04</small><strong data-i18n="nav.tools">工具</strong><span>→</span></a>
+        <a href="/rss.xml"><small>ADMIT / 05</small><strong>RSS</strong><span>↗</span></a>
       </nav>
     </div>
   </section>
@@ -385,7 +386,7 @@ const homeText = {
   .profile-copy > a:hover, .profile-copy > a:focus-visible { color: var(--text); border-bottom-color: var(--text); }
 
   .explore-section { padding: 5.5rem 0 7rem; }
-  .explore-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 1.5rem; border: 1px solid var(--text); background: color-mix(in srgb, var(--bg-surface) 88%, transparent); box-shadow: 8px 8px 0 color-mix(in srgb, var(--accent) 15%, transparent); backdrop-filter: blur(5px); }
+  .explore-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); margin-top: 1.5rem; border: 1px solid var(--text); background: color-mix(in srgb, var(--bg-surface) 88%, transparent); box-shadow: 8px 8px 0 color-mix(in srgb, var(--accent) 15%, transparent); backdrop-filter: blur(5px); }
   .explore-grid a { position: relative; min-height: 148px; display: grid; grid-template-columns: 1fr auto; grid-template-rows: auto 1fr; gap: .5rem; padding: 1.3rem 1.45rem; border-right: 1px dashed var(--accent); }
   .explore-grid a:last-child { border-right: 0; }
   .explore-grid small { color: var(--text-faint); font: 500 .5rem var(--font-mono); }
@@ -402,6 +403,7 @@ const homeText = {
     .section-heading.compact-heading { grid-template-columns: minmax(0, 1fr) auto; }
     .profile-card { grid-template-columns: minmax(220px, .7fr) minmax(0, 1.3fr); }
     .profile-copy { padding-right: 1.75rem; padding-left: 1.75rem; }
+    .explore-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   }
   @media (max-width: 700px) {
     :global(.main-content.home-page-surface)::before { top: 96px; background-position: 58% center; }

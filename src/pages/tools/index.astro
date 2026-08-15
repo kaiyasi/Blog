@@ -1,0 +1,232 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+type ToolLink = {
+  number: string;
+  category: string;
+  name: string;
+  description: string;
+  url: string;
+  mock?: boolean;
+  art: 'clipboard' | 'url' | 'font';
+  owner: 'own' | 'third-party';
+};
+
+// Each entry is an independent website represented by one album cover.
+const toolLinks: ToolLink[] = [
+  { number: '01', category: 'SYNC / CLIPBOARD', name: '跨平台剪貼簿', description: '在不同裝置之間快速分享與取用剪貼內容。', url: 'https://note.gonets.top', art: 'clipboard', owner: 'own' },
+  { number: '02', category: 'LINK / SHORTENER', name: '縮網址工具', description: '把冗長網址整理成更容易分享的短連結。', url: 'https://url.gonets.top', art: 'url', owner: 'own' },
+  { number: '03', category: 'TYPE / FONT', name: 'EMTECH FONT', description: '第三方字體工具網站，提供字體相關的線上資源。', url: 'https://font.emtech.cc/', art: 'font', owner: 'third-party' },
+];
+type CoverImage = {
+  src: string;
+  srcset: string;
+};
+const coverImages: Record<ToolLink['art'], CoverImage> = {
+  clipboard: {
+    src: '/images/tools/clipboard-cover-v2.webp',
+    srcset: '/images/tools/clipboard-cover-v2-480.webp 480w, /images/tools/clipboard-cover-v2-768.webp 768w, /images/tools/clipboard-cover-v2.webp 1254w',
+  },
+  url: {
+    src: '/images/tools/url-cover-v2.webp',
+    srcset: '/images/tools/url-cover-v2-480.webp 480w, /images/tools/url-cover-v2-768.webp 768w, /images/tools/url-cover-v2.webp 1254w',
+  },
+  font: {
+    src: '/images/tools/font-cover-v2.webp',
+    srcset: '/images/tools/font-cover-v2-480.webp 480w, /images/tools/font-cover-v2-768.webp 768w, /images/tools/font-cover-v2.webp 1254w',
+  },
+};
+---
+
+<BaseLayout title="工具" titleKey="meta.tools.title" descriptionKey="meta.tools.description" bodyClass="inner-page tools-body">
+  <div class="tools-page">
+    <section class="tools-hero" aria-labelledby="tools-title">
+      <div class="tools-shell tools-hero-inner">
+        <div class="tools-hero-copy">
+          <p class="eyebrow">04 / LINK DIRECTORY</p>
+          <h1 id="tools-title" data-i18n="tools.title">工具</h1>
+          <p class="tools-subtitle" data-i18n="tools.subtitle">整理我會用到的獨立工具網站，從這裡快速進入。</p>
+        </div>
+        <div class="tools-status" aria-label="Tool directory status">
+          <span><i aria-hidden="true"></i><b data-i18n="tools.status">連結索引</b></span>
+          <span><i aria-hidden="true"></i><b data-i18n="tools.privacy">外部網站</b></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="tools-workspace" aria-labelledby="available-tools-title">
+      <div class="tools-shell">
+        <header class="workspace-heading">
+          <div><p>DIRECTORY / 01</p><h2 id="available-tools-title" data-i18n="tools.available">工具索引</h2></div>
+          <span>OUTBOUND LINKS</span>
+        </header>
+
+        {toolLinks.length > 0 ? (
+          <div class="tool-links">
+            {toolLinks.map((tool, index) => (
+              <a class:list={['tool-album', `tool-album--${tool.art}`, { 'is-mock': tool.mock }]} href={tool.mock ? undefined : tool.url} target={tool.mock ? undefined : '_blank'} rel={tool.mock ? undefined : 'noopener noreferrer'}>
+                <span class:list={['album-cover', `album-cover--${tool.art}`, 'is-loading']}>
+                  <img class="album-art" src={coverImages[tool.art].src} srcset={coverImages[tool.art].srcset} sizes="(max-width: 520px) calc(100vw - 2rem), (max-width: 800px) calc(50vw - 1.5rem), 350px" alt="" width="1254" height="1254" loading={index === 0 ? 'eager' : 'lazy'} fetchpriority={index === 0 ? 'high' : 'auto'} decoding="async" />
+                  <span class="album-loader" aria-hidden="true"><span class="album-loader-art"></span><i></i></span>
+                  <span class="album-disc" aria-hidden="true"><i></i></span>
+                </span>
+                <span class="album-meta"><span class="album-meta-top"><small>{tool.category} / {tool.number}</small><b class:list={['album-owner', { 'is-third-party': tool.owner === 'third-party' }]}>{tool.owner === 'own' ? 'OWN' : '3RD PARTY'}</b></span><strong>{tool.name}</strong><p>{tool.description}</p><span class="album-link-label">{tool.mock ? 'MOCK LINK' : 'OPEN SITE'} <b aria-hidden="true">{tool.mock ? '·' : '↗'}</b></span></span>
+              </a>
+            ))}
+          </div>
+        ) : (
+          <div class="empty-directory">
+            <span class="empty-cd" aria-hidden="true">
+              <span class="cd-grooves"></span>
+              <span class="cd-sheen"></span>
+              <span class="empty-cd-label"><small>LINKS / 00</small><strong>NO RELEASES</strong></span>
+              <i class="cd-hole"></i>
+            </span>
+            <div class="empty-copy">
+              <h3 data-i18n="tools.emptyTitle">還沒有工具連結</h3>
+              <p data-i18n="tools.emptyDescription">這裡只整理外部網站，每個工具會在自己的網站上運作。</p>
+            </div>
+            <span class="empty-label" data-i18n="tools.emptyLabel">READY FOR THE FIRST LINK</span>
+          </div>
+        )}
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<script>
+  const setupCoverLoading = (image) => {
+    const cover = image.closest('.album-cover');
+    if (!cover) return;
+
+    const markLoaded = () => {
+      cover.classList.remove('is-loading');
+      cover.classList.add('is-loaded');
+    };
+    const markError = () => {
+      cover.classList.remove('is-loading');
+      cover.classList.add('has-error');
+    };
+
+    if (image.complete) {
+      image.naturalWidth > 0 ? markLoaded() : markError();
+      return;
+    }
+
+    image.addEventListener('load', markLoaded, { once: true });
+    image.addEventListener('error', markError, { once: true });
+  };
+
+  document.querySelectorAll('.album-art').forEach(setupCoverLoading);
+</script>
+
+<style>
+  :global(.main-content:has(.tools-page)) {
+    --inner-page-image: url('/images/pages/tools-workbench-v1.webp');
+    --inner-page-image-position: center;
+    --inner-page-image-opacity: .31;
+    --inner-page-image-filter: saturate(.72) contrast(.98);
+  }
+  :global([data-theme='dark'] .main-content:has(.tools-page)) {
+    --inner-page-image-opacity: .25;
+    --inner-page-image-filter: saturate(.62) brightness(.66) contrast(1.06);
+  }
+
+  .tools-page { overflow: hidden; }
+  .tools-shell { width: min(1100px, 100%); margin-inline: auto; padding-inline: 1.5rem; }
+  .tools-hero { border-bottom: 1px solid var(--border); background: color-mix(in srgb, var(--bg) 73%, transparent); }
+  .tools-hero-inner { min-height: 350px; display: flex; align-items: end; justify-content: space-between; gap: 3rem; padding-block: 4.5rem 3.8rem; }
+  .tools-hero-copy { max-width: 680px; }
+  .eyebrow, .workspace-heading > div > p, .tool-album small { color: var(--accent); font: 500 .62rem var(--font-mono); letter-spacing: .04em; }
+  .tools-hero h1 { margin-top: .55rem; font-size: 5.5rem; font-weight: 300; line-height: .88; }
+  .tools-subtitle { max-width: 38rem; margin-top: 1.1rem; color: var(--text-muted); font-size: .95rem; }
+  .tools-status { display: grid; gap: .55rem; min-width: 190px; padding: .9rem 0 .1rem 1rem; border-left: 1px solid var(--border); }
+  .tools-status span { display: flex; align-items: center; gap: .55rem; color: var(--text-faint); font: 500 .57rem var(--font-mono); }
+  .tools-status i { width: 7px; height: 7px; border-radius: 50%; background: var(--accent-secondary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-secondary) 15%, transparent); }
+  .tools-status span:first-child i { background: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+
+  .tools-workspace { padding: 4rem 0 7rem; background: color-mix(in srgb, var(--bg) 84%, transparent); }
+  .workspace-heading { display: flex; align-items: end; justify-content: space-between; gap: 2rem; margin-bottom: 1.25rem; }
+  .workspace-heading h2 { margin-top: .45rem; font-size: 2.3rem; font-weight: 300; }
+  .workspace-heading > span { padding-bottom: .25rem; color: var(--text-faint); font: 500 .55rem var(--font-mono); }
+  .tool-links { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1px; border: 1px solid var(--border); background: var(--border); }
+  .tool-album { --album-primary: var(--accent); --album-secondary: var(--accent-secondary); min-width: 0; display: grid; grid-template-rows: auto 1fr; gap: .9rem; padding: .65rem; background: color-mix(in srgb, var(--bg-surface) 89%, transparent); backdrop-filter: blur(11px); transition: color var(--transition), background var(--transition), transform var(--transition); }
+  .tool-album:nth-child(4n + 2) { --album-primary: var(--accent-secondary); --album-secondary: var(--accent-warm); }
+  .tool-album:nth-child(4n + 3) { --album-primary: var(--accent-warm); --album-secondary: var(--accent); }
+  .tool-album:nth-child(4n) { --album-primary: #6a7081; --album-secondary: var(--accent-secondary); }
+  .tool-album--clipboard { --album-primary: #236b83; --album-secondary: #8bd1d8; }
+  .tool-album--url { --album-primary: #c9473d; --album-secondary: #e1ae39; }
+  .tool-album--font { --album-primary: #69747c; --album-secondary: #d2a33b; }
+  .tool-album--font .album-cover { border-style: dashed; filter: saturate(.78); }
+  .tool-album--font .album-disc { opacity: .78; }
+  .tool-album:hover { z-index: 1; color: var(--text); background: color-mix(in srgb, var(--album-primary) 8%, var(--bg-surface)); transform: translateY(-4px); }
+  .album-cover { position: relative; aspect-ratio: 1 / 1.08; display: block; overflow: hidden; isolation: isolate; border: 1px solid color-mix(in srgb, var(--album-primary) 58%, var(--border)); background: var(--album-primary); box-shadow: 6px 7px 0 color-mix(in srgb, var(--album-secondary) 20%, transparent); }
+  .album-art { position: absolute; z-index: 0; inset: 0; width: 100%; height: 100%; display: block; object-fit: cover; opacity: 0; transition: opacity .42s ease, transform var(--transition-slow), filter var(--transition-slow); }
+  .album-cover.is-loaded .album-art { opacity: 1; }
+  .album-loader { position: absolute; z-index: 1; inset: 0; display: grid; place-items: center; overflow: hidden; background: color-mix(in srgb, var(--bg-surface) 72%, var(--album-secondary)); opacity: 1; transition: opacity .42s ease; }
+  .album-loader::before { content: ''; position: absolute; z-index: 1; inset: 0; background: linear-gradient(105deg, transparent 22%, color-mix(in srgb, #fff 32%, transparent) 42%, transparent 58%); transform: translateX(-100%); animation: tools-loader-scan 1.8s ease-in-out infinite; }
+  .album-loader-art { position: absolute; inset: -5%; background: url('/images/tools/tools-loading-v1.webp') center / cover no-repeat; filter: saturate(.68) contrast(.92); animation: tools-loader-drift 2.8s ease-in-out infinite; }
+  .album-loader i { position: relative; z-index: 2; width: 3.5rem; aspect-ratio: 1; border: 1px solid color-mix(in srgb, var(--album-primary) 72%, #fff); border-top-color: var(--album-primary); border-radius: 50%; box-shadow: 0 0 0 .45rem color-mix(in srgb, var(--album-secondary) 13%, transparent); animation: tools-loader-spin 1.2s linear infinite; }
+  .album-loader i::after { content: ''; position: absolute; inset: 38%; border-radius: 50%; background: var(--album-primary); }
+  .album-cover.is-loaded .album-loader { opacity: 0; pointer-events: none; }
+  .album-cover.has-error .album-loader { opacity: .92; }
+  .album-cover::after { content: ''; position: absolute; z-index: 2; inset: 0; pointer-events: none; }
+  .album-cover--clipboard::after { background: linear-gradient(145deg, color-mix(in srgb, #2d829e 20%, transparent), transparent 42% 70%, color-mix(in srgb, #db493d 15%, transparent)); mix-blend-mode: multiply; }
+  .album-cover--url::after { inset: .7rem; border: 1px solid color-mix(in srgb, #fff 48%, transparent); mix-blend-mode: screen; }
+  .album-cover--font::after { inset: .8rem; border: 1px dashed color-mix(in srgb, #1a1b1c 42%, transparent); }
+  .tool-album:hover .album-art { transform: scale(1.045); }
+  .album-disc { position: absolute; z-index: 2; right: -28%; bottom: -20%; width: 67%; aspect-ratio: 1; border: 1px solid color-mix(in srgb, #fff 62%, var(--album-secondary)); border-radius: 50%; background: repeating-radial-gradient(circle at center, transparent 0 8px, color-mix(in srgb, var(--album-primary) 18%, transparent) 8px 9px), conic-gradient(from 22deg, #f4f3ef, color-mix(in srgb, var(--album-secondary) 55%, #f4f3ef), #b8c3c4, #f4f3ef); box-shadow: -7px -6px 0 color-mix(in srgb, #000 12%, transparent), 0 9px 17px color-mix(in srgb, #000 22%, transparent); transform: rotate(-18deg); transition: transform var(--transition-slow); }
+  .album-disc::before { content: ''; position: absolute; inset: 14%; border: 1px solid color-mix(in srgb, var(--album-secondary) 42%, transparent); border-radius: 50%; }
+  .album-disc::after { content: ''; position: absolute; inset: 0; border-radius: 50%; background: linear-gradient(135deg, transparent 28%, color-mix(in srgb, #fff 72%, transparent) 40%, transparent 47% 64%, color-mix(in srgb, #fff 34%, transparent) 72%, transparent 78%); }
+  .album-disc i { position: absolute; z-index: 1; top: calc(50% - 5px); left: calc(50% - 5px); width: 10px; aspect-ratio: 1; border: 2px solid var(--album-secondary); border-radius: 50%; background: var(--album-primary); }
+  .album-meta { min-width: 0; display: grid; align-content: start; gap: .35rem; padding: .05rem .35rem .4rem; }
+  .album-meta-top { display: flex; justify-content: space-between; gap: .75rem; }
+  .album-meta-top small { color: var(--album-primary); font-size: .48rem; }
+  .album-meta-top b { color: var(--text-faint); font: 500 .48rem var(--font-mono); }
+  .album-owner { padding: .18rem .32rem; border: 1px solid color-mix(in srgb, var(--album-primary) 48%, var(--border)); color: var(--album-primary) !important; }
+  .album-owner.is-third-party { border-style: dashed; color: var(--text-faint) !important; }
+  .album-meta > strong { overflow-wrap: anywhere; font: 500 1rem/1.2 var(--font-ui); }
+  .album-meta p { min-height: 3.2em; color: var(--text-muted); font-size: .72rem; line-height: 1.55; }
+  .album-link-label { display: inline-flex; align-items: center; gap: .35rem; margin-top: .35rem; color: var(--album-primary); font: 500 .55rem var(--font-mono); }
+  .album-link-label b { font-size: .75rem; }
+  .tool-album.is-mock { cursor: default; }
+  .empty-directory { min-height: 360px; display: grid; grid-template-columns: 270px minmax(0, 1fr) auto; align-items: center; gap: 2.5rem; padding: 2rem 2.5rem; border: 1px solid var(--border); background: color-mix(in srgb, var(--bg-surface) 88%, transparent); backdrop-filter: blur(11px); }
+  .empty-cd { --cd-primary: var(--accent); --cd-secondary: var(--accent-secondary); width: min(100%, 220px); justify-self: center; opacity: .78; }
+  .empty-cd-label { position: absolute; z-index: 1; inset: 27%; display: grid; place-content: center; justify-items: center; gap: .45rem; border: 1px solid color-mix(in srgb, var(--cd-primary) 58%, var(--border)); border-radius: 50%; color: var(--text); background: color-mix(in srgb, var(--bg-surface) 84%, var(--cd-primary)); text-align: center; }
+  .empty-cd-label small { color: var(--cd-primary); font: 500 .48rem var(--font-mono); }
+  .empty-cd-label strong { color: var(--text-muted); font: 500 .68rem var(--font-ui); }
+  .empty-directory h3 { font: 500 1.45rem/1.25 var(--font-ui); }
+  .empty-directory p { max-width: 42ch; margin-top: .6rem; color: var(--text-muted); font-size: .82rem; line-height: 1.7; }
+  .empty-label { align-self: end; padding-top: .65rem; border-top: 1px dashed var(--border); color: var(--accent-secondary); font: 500 .58rem var(--font-mono); }
+
+  @keyframes tools-loader-spin { to { transform: rotate(360deg); } }
+  @keyframes tools-loader-drift { 0%, 100% { transform: scale(1.04) rotate(-1deg); } 50% { transform: scale(1.1) rotate(1deg); } }
+  @keyframes tools-loader-scan { 0% { transform: translateX(-100%); } 55%, 100% { transform: translateX(100%); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .album-loader::before, .album-loader-art, .album-loader i { animation: none; }
+    .album-loader::before { opacity: 0; }
+  }
+
+  @media (max-width: 800px) {
+    .tools-shell { padding-inline: 1rem; }
+    .tools-hero-inner { min-height: 0; display: block; padding-block: 4rem 3rem; }
+    .tools-hero h1 { font-size: 3.8rem; }
+    .tools-status { margin-top: 2.2rem; padding-left: .8rem; }
+    .tools-workspace { padding-top: 3.3rem; }
+    .tool-links { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .empty-directory { grid-template-columns: 220px minmax(0, 1fr); gap: 1.5rem; padding-inline: 1.25rem; }
+    .empty-cd { grid-row: span 2; }
+    .empty-label { grid-column: 2; }
+  }
+
+  @media (max-width: 520px) {
+    .workspace-heading > span { display: none; }
+    .tool-links { grid-template-columns: 1fr; }
+    .empty-directory { grid-template-columns: 1fr; gap: 1.2rem; padding: 1.25rem; }
+    .empty-cd { grid-row: auto; }
+    .empty-copy { text-align: center; }
+    .empty-directory p { margin-inline: auto; }
+    .empty-label { grid-column: auto; justify-self: start; }
+  }
+</style>
