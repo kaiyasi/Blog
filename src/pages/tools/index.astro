@@ -39,17 +39,17 @@ const coverImages: Record<ToolLink['art'], CoverImage> = {
 ---
 
 <BaseLayout title="工具" titleKey="meta.tools.title" descriptionKey="meta.tools.description" bodyClass="inner-page tools-body">
-  <div class="tools-page">
-    <div class="tools-entry-loader" data-tools-entry-loader role="status" aria-live="polite">
-      <span class="tools-entry-loader-art" aria-hidden="true"></span>
-      <span class="tools-entry-loader-sheen" aria-hidden="true"></span>
-      <span class="tools-entry-loader-core">
-        <span class="tools-entry-loader-ring" aria-hidden="true"></span>
-        <strong>LOADING / TOOL INDEX</strong>
-        <small>PREPARING ASSETS</small>
-      </span>
-    </div>
+  <div class="tools-entry-loader" data-tools-entry-loader role="status" aria-live="polite">
+    <span class="tools-entry-loader-art" aria-hidden="true"></span>
+    <span class="tools-entry-loader-sheen" aria-hidden="true"></span>
+    <span class="tools-entry-loader-core">
+      <span class="tools-entry-loader-ring" aria-hidden="true"></span>
+      <strong>LOADING / TOOL INDEX</strong>
+      <small>PREPARING ASSETS</small>
+    </span>
+  </div>
 
+  <div class="tools-page is-entry-loading" data-tools-page>
     <section class="tools-hero" aria-labelledby="tools-title">
       <div class="tools-shell tools-hero-inner">
         <div class="tools-hero-copy">
@@ -105,6 +105,11 @@ const coverImages: Record<ToolLink['art'], CoverImage> = {
 </BaseLayout>
 
 <script>
+  const decodeImage = (image) => {
+    if (typeof image.decode !== 'function') return Promise.resolve();
+    return image.decode().catch(() => undefined);
+  };
+
   const setupCoverLoading = (image) => {
     const cover = image.closest('.album-cover');
     return new Promise((resolve) => {
@@ -113,14 +118,17 @@ const coverImages: Record<ToolLink['art'], CoverImage> = {
         return;
       }
 
+      let settled = false;
       const finish = (state) => {
+        if (settled) return;
+        settled = true;
         cover.classList.remove('is-loading');
         cover.classList.toggle('is-loaded', state === 'loaded');
         cover.classList.toggle('has-error', state === 'error');
         resolve(state === 'loaded');
       };
 
-      const markLoaded = () => finish('loaded');
+      const markLoaded = () => decodeImage(image).then(() => finish('loaded'));
       const markError = () => finish('error');
 
       if (image.complete) {
@@ -133,40 +141,46 @@ const coverImages: Record<ToolLink['art'], CoverImage> = {
     });
   };
 
-  const wasCached = (src) => {
-    const resourceURL = new URL(src, document.baseURI).href;
-    const entries = performance.getEntriesByName(resourceURL);
-    const entry = entries[entries.length - 1];
-    return Boolean(entry && entry.transferSize === 0);
-  };
-
   const createResource = (src) => {
-    const cached = wasCached(src);
     const resource = new Image();
+    resource.decoding = 'async';
     resource.src = src;
     const ready = resource.complete && resource.naturalWidth > 0;
-    const promise = ready
-      ? Promise.resolve(true)
-      : new Promise((resolve) => {
-          resource.addEventListener('load', () => resolve(true), { once: true });
-          resource.addEventListener('error', () => resolve(false), { once: true });
-        });
-    return { cached, ready, promise };
+    const promise = new Promise((resolve) => {
+      let settled = false;
+      const finish = (loaded) => {
+        if (settled) return;
+        settled = true;
+        resolve(loaded);
+      };
+      const markLoaded = () => decodeImage(resource).then(() => finish(true));
+      const markError = () => finish(false);
+
+      if (resource.complete) {
+        resource.naturalWidth > 0 ? markLoaded() : markError();
+        return;
+      }
+
+      resource.addEventListener('load', markLoaded, { once: true });
+      resource.addEventListener('error', markError, { once: true });
+    });
+    return { ready, promise };
   };
 
   const entryLoader = document.querySelector('[data-tools-entry-loader]');
+  const toolsPage = document.querySelector('[data-tools-page]');
   const coverImages = [...document.querySelectorAll('.album-art')];
   const backgroundResource = createResource('/images/pages/tools-workbench-v1.webp');
   const needsImageLoading = coverImages.some((image) => {
-    const src = image.currentSrc || image.src;
-    return !image.complete || image.naturalWidth === 0 || !wasCached(src);
-  }) || !backgroundResource.cached;
+    return !image.complete || image.naturalWidth === 0;
+  }) || !backgroundResource.ready;
 
   const revealEntryLoader = () => {
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         entryLoader?.classList.add('is-ready');
         entryLoader?.setAttribute('aria-hidden', 'true');
+        toolsPage?.classList.remove('is-entry-loading');
       });
     });
   };
@@ -174,6 +188,7 @@ const coverImages: Record<ToolLink['art'], CoverImage> = {
   if (!needsImageLoading) {
     entryLoader?.classList.add('is-ready');
     entryLoader?.setAttribute('aria-hidden', 'true');
+    toolsPage?.classList.remove('is-entry-loading');
   } else {
     const coverReady = coverImages.map(setupCoverLoading);
     const loadingResource = createResource('/images/tools/tools-loading-v1.webp');
@@ -200,7 +215,9 @@ const coverImages: Record<ToolLink['art'], CoverImage> = {
   }
 
   :global(body:has(.tools-entry-loader:not(.is-ready))) { overflow: hidden; }
+  :global(.main-content:has(.tools-entry-loader:not(.is-ready))) { z-index: 301; }
   .tools-page { overflow: hidden; }
+  .tools-page.is-entry-loading { visibility: hidden; opacity: 0; }
   .tools-entry-loader { position: fixed; z-index: 220; inset: 0; display: grid; place-items: center; overflow: hidden; background: var(--bg); transition: opacity .46s ease, visibility 0s linear .46s; }
   .tools-entry-loader.is-ready { opacity: 0; visibility: hidden; pointer-events: none; }
   .tools-entry-loader::before { content: ''; position: absolute; z-index: 1; inset: 0; background: linear-gradient(105deg, transparent 22%, color-mix(in srgb, #fff 25%, transparent) 42%, transparent 58%); transform: translateX(-100%); animation: tools-loader-scan 1.8s ease-in-out infinite; }
