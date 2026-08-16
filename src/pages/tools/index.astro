@@ -155,8 +155,10 @@ const coverImages: Record<ToolLink['art'], CoverImage> = {
     ...coverReady,
   ]).then(() => {
     requestAnimationFrame(() => {
-      entryLoader?.classList.add('is-ready');
-      entryLoader?.setAttribute('aria-hidden', 'true');
+      requestAnimationFrame(() => {
+        entryLoader?.classList.add('is-ready');
+        entryLoader?.setAttribute('aria-hidden', 'true');
+      });
     });
   });
 </script>
