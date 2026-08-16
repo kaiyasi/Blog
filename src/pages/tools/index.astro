@@ -40,6 +40,16 @@ const coverImages: Record<ToolLink['art'], CoverImage> = {
 
 <BaseLayout title="工具" titleKey="meta.tools.title" descriptionKey="meta.tools.description" bodyClass="inner-page tools-body">
   <div class="tools-page">
+    <div class="tools-entry-loader" data-tools-entry-loader role="status" aria-live="polite">
+      <span class="tools-entry-loader-art" aria-hidden="true"></span>
+      <span class="tools-entry-loader-sheen" aria-hidden="true"></span>
+      <span class="tools-entry-loader-core">
+        <span class="tools-entry-loader-ring" aria-hidden="true"></span>
+        <strong>LOADING / TOOL INDEX</strong>
+        <small>PREPARING ASSETS</small>
+      </span>
+    </div>
+
     <section class="tools-hero" aria-labelledby="tools-title">
       <div class="tools-shell tools-hero-inner">
         <div class="tools-hero-copy">
@@ -66,7 +76,7 @@ const coverImages: Record<ToolLink['art'], CoverImage> = {
             {toolLinks.map((tool, index) => (
               <a class:list={['tool-album', `tool-album--${tool.art}`, { 'is-mock': tool.mock }]} href={tool.mock ? undefined : tool.url} target={tool.mock ? undefined : '_blank'} rel={tool.mock ? undefined : 'noopener noreferrer'}>
                 <span class:list={['album-cover', `album-cover--${tool.art}`, 'is-loading']}>
-                  <img class="album-art" src={coverImages[tool.art].src} srcset={coverImages[tool.art].srcset} sizes="(max-width: 520px) calc(100vw - 2rem), (max-width: 800px) calc(50vw - 1.5rem), 350px" alt="" width="1254" height="1254" loading={index === 0 ? 'eager' : 'lazy'} fetchpriority={index === 0 ? 'high' : 'auto'} decoding="async" />
+                  <img class="album-art" src={coverImages[tool.art].src} srcset={coverImages[tool.art].srcset} sizes="(max-width: 520px) calc(100vw - 2rem), (max-width: 800px) calc(50vw - 1.5rem), 350px" alt="" width="1254" height="1254" loading="eager" fetchpriority={index === 0 ? 'high' : 'auto'} decoding="async" />
                   <span class="album-loader" aria-hidden="true"><span class="album-loader-art"></span><i></i></span>
                   <span class="album-disc" aria-hidden="true"><i></i></span>
                 </span>
@@ -95,41 +105,60 @@ const coverImages: Record<ToolLink['art'], CoverImage> = {
 </BaseLayout>
 
 <script>
-  const COVER_LOADER_MIN_MS = 680;
-
   const setupCoverLoading = (image) => {
     const cover = image.closest('.album-cover');
-    if (!cover) return;
+    return new Promise((resolve) => {
+      if (!cover) {
+        resolve(false);
+        return;
+      }
 
-    const startedAt = performance.now();
-    let settled = false;
-
-    const finish = (state) => {
-      if (settled) return;
-      settled = true;
-
-      const reveal = () => {
+      const finish = (state) => {
         cover.classList.remove('is-loading');
         cover.classList.toggle('is-loaded', state === 'loaded');
         cover.classList.toggle('has-error', state === 'error');
+        resolve(state === 'loaded');
       };
-      const remaining = Math.max(0, COVER_LOADER_MIN_MS - (performance.now() - startedAt));
-      window.setTimeout(reveal, remaining);
-    };
 
-    const markLoaded = () => finish('loaded');
-    const markError = () => finish('error');
+      const markLoaded = () => finish('loaded');
+      const markError = () => finish('error');
 
-    if (image.complete) {
-      image.naturalWidth > 0 ? markLoaded() : markError();
-      return;
-    }
+      if (image.complete) {
+        image.naturalWidth > 0 ? markLoaded() : markError();
+        return;
+      }
 
-    image.addEventListener('load', markLoaded, { once: true });
-    image.addEventListener('error', markError, { once: true });
+      image.addEventListener('load', markLoaded, { once: true });
+      image.addEventListener('error', markError, { once: true });
+    });
   };
 
-  document.querySelectorAll('.album-art').forEach(setupCoverLoading);
+  const waitForResource = (src) => new Promise((resolve) => {
+    const resource = new Image();
+    resource.addEventListener('load', () => resolve(true), { once: true });
+    resource.addEventListener('error', () => resolve(false), { once: true });
+    resource.src = src;
+  });
+
+  const entryLoader = document.querySelector('[data-tools-entry-loader]');
+  const coverReady = [...document.querySelectorAll('.album-art')].map(setupCoverLoading);
+  const windowReady = document.readyState === 'complete'
+    ? Promise.resolve()
+    : new Promise((resolve) => window.addEventListener('load', resolve, { once: true }));
+  const fontsReady = document.fonts ? document.fonts.ready : Promise.resolve();
+
+  Promise.allSettled([
+    windowReady,
+    fontsReady,
+    waitForResource('/images/pages/tools-workbench-v1.webp'),
+    waitForResource('/images/tools/tools-loading-v1.webp'),
+    ...coverReady,
+  ]).then(() => {
+    requestAnimationFrame(() => {
+      entryLoader?.classList.add('is-ready');
+      entryLoader?.setAttribute('aria-hidden', 'true');
+    });
+  });
 </script>
 
 <style>
@@ -145,7 +174,18 @@ const coverImages: Record<ToolLink['art'], CoverImage> = {
     --inner-page-image-filter: saturate(.62) brightness(.66) contrast(1.06);
   }
 
+  :global(body:has(.tools-entry-loader:not(.is-ready))) { overflow: hidden; }
   .tools-page { overflow: hidden; }
+  .tools-entry-loader { position: fixed; z-index: 220; inset: 0; display: grid; place-items: center; overflow: hidden; background: var(--bg); transition: opacity .46s ease, visibility 0s linear .46s; }
+  .tools-entry-loader.is-ready { opacity: 0; visibility: hidden; pointer-events: none; }
+  .tools-entry-loader::before { content: ''; position: absolute; z-index: 1; inset: 0; background: linear-gradient(105deg, transparent 22%, color-mix(in srgb, #fff 25%, transparent) 42%, transparent 58%); transform: translateX(-100%); animation: tools-loader-scan 1.8s ease-in-out infinite; }
+  .tools-entry-loader-art { position: absolute; inset: -5%; background: url('/images/tools/tools-loading-v1.webp') center / cover no-repeat; opacity: .2; filter: saturate(.68) contrast(.92); animation: tools-loader-drift 2.8s ease-in-out infinite; }
+  .tools-entry-loader-sheen { position: absolute; inset: 0; background: radial-gradient(circle at center, color-mix(in srgb, var(--accent-secondary) 11%, transparent), transparent 42%); }
+  .tools-entry-loader-core { position: relative; z-index: 2; display: grid; justify-items: center; gap: .6rem; padding: 1.6rem 2rem; border: 1px solid color-mix(in srgb, var(--accent) 48%, var(--border)); background: color-mix(in srgb, var(--bg-surface) 86%, transparent); box-shadow: 8px 8px 0 color-mix(in srgb, var(--accent-secondary) 18%, transparent); backdrop-filter: blur(12px); }
+  .tools-entry-loader-ring { width: 3.3rem; aspect-ratio: 1; border: 1px solid color-mix(in srgb, var(--accent) 72%, #fff); border-top-color: var(--accent); border-radius: 50%; box-shadow: 0 0 0 .45rem color-mix(in srgb, var(--accent-secondary) 13%, transparent); animation: tools-loader-spin 1.2s linear infinite; }
+  .tools-entry-loader-ring::after { content: ''; display: block; width: 24%; aspect-ratio: 1; margin: 38%; border-radius: 50%; background: var(--accent); }
+  .tools-entry-loader-core strong { color: var(--text); font: 500 .68rem var(--font-mono); letter-spacing: .08em; }
+  .tools-entry-loader-core small { color: var(--text-faint); font: 500 .52rem var(--font-mono); letter-spacing: .08em; }
   .tools-shell { width: min(1100px, 100%); margin-inline: auto; padding-inline: 1.5rem; }
   .tools-hero { border-bottom: 1px solid var(--border); background: color-mix(in srgb, var(--bg) 73%, transparent); }
   .tools-hero-inner { min-height: 350px; display: flex; align-items: end; justify-content: space-between; gap: 3rem; padding-block: 4.5rem 3.8rem; }
@@ -217,8 +257,8 @@ const coverImages: Record<ToolLink['art'], CoverImage> = {
   @keyframes tools-loader-scan { 0% { transform: translateX(-100%); } 55%, 100% { transform: translateX(100%); } }
 
   @media (prefers-reduced-motion: reduce) {
-    .album-loader::before, .album-loader-art, .album-loader i { animation: none; }
-    .album-loader::before { opacity: 0; }
+    .album-loader::before, .album-loader-art, .album-loader i, .tools-entry-loader::before, .tools-entry-loader-art, .tools-entry-loader-ring { animation: none; }
+    .album-loader::before, .tools-entry-loader::before { opacity: 0; }
   }
 
   @media (max-width: 800px) {
