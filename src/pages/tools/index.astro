@@ -133,7 +133,15 @@ const coverImages: Record<ToolLink['art'], CoverImage> = {
     });
   };
 
+  const wasCached = (src) => {
+    const resourceURL = new URL(src, document.baseURI).href;
+    const entries = performance.getEntriesByName(resourceURL);
+    const entry = entries[entries.length - 1];
+    return Boolean(entry && entry.transferSize === 0);
+  };
+
   const createResource = (src) => {
+    const cached = wasCached(src);
     const resource = new Image();
     resource.src = src;
     const ready = resource.complete && resource.naturalWidth > 0;
@@ -143,13 +151,16 @@ const coverImages: Record<ToolLink['art'], CoverImage> = {
           resource.addEventListener('load', () => resolve(true), { once: true });
           resource.addEventListener('error', () => resolve(false), { once: true });
         });
-    return { ready, promise };
+    return { cached, ready, promise };
   };
 
   const entryLoader = document.querySelector('[data-tools-entry-loader]');
   const coverImages = [...document.querySelectorAll('.album-art')];
   const backgroundResource = createResource('/images/pages/tools-workbench-v1.webp');
-  const needsImageLoading = coverImages.some((image) => !image.complete || image.naturalWidth === 0) || !backgroundResource.ready;
+  const needsImageLoading = coverImages.some((image) => {
+    const src = image.currentSrc || image.src;
+    return !image.complete || image.naturalWidth === 0 || !wasCached(src);
+  }) || !backgroundResource.cached;
 
   const revealEntryLoader = () => {
     requestAnimationFrame(() => {
