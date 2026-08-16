@@ -95,18 +95,30 @@ const coverImages: Record<ToolLink['art'], CoverImage> = {
 </BaseLayout>
 
 <script>
+  const COVER_LOADER_MIN_MS = 680;
+
   const setupCoverLoading = (image) => {
     const cover = image.closest('.album-cover');
     if (!cover) return;
 
-    const markLoaded = () => {
-      cover.classList.remove('is-loading');
-      cover.classList.add('is-loaded');
+    const startedAt = performance.now();
+    let settled = false;
+
+    const finish = (state) => {
+      if (settled) return;
+      settled = true;
+
+      const reveal = () => {
+        cover.classList.remove('is-loading');
+        cover.classList.toggle('is-loaded', state === 'loaded');
+        cover.classList.toggle('has-error', state === 'error');
+      };
+      const remaining = Math.max(0, COVER_LOADER_MIN_MS - (performance.now() - startedAt));
+      window.setTimeout(reveal, remaining);
     };
-    const markError = () => {
-      cover.classList.remove('is-loading');
-      cover.classList.add('has-error');
-    };
+
+    const markLoaded = () => finish('loaded');
+    const markError = () => finish('error');
 
     if (image.complete) {
       image.naturalWidth > 0 ? markLoaded() : markError();
@@ -123,6 +135,7 @@ const coverImages: Record<ToolLink['art'], CoverImage> = {
 <style>
   :global(.main-content:has(.tools-page)) {
     --inner-page-image: url('/images/pages/tools-workbench-v1.webp');
+    --inner-page-image-fallback: url('/images/tools/tools-loading-v1.webp');
     --inner-page-image-position: center;
     --inner-page-image-opacity: .31;
     --inner-page-image-filter: saturate(.72) contrast(.98);
