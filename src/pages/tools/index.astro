@@ -133,34 +133,46 @@ const coverImages: Record<ToolLink['art'], CoverImage> = {
     });
   };
 
-  const waitForResource = (src) => new Promise((resolve) => {
+  const createResource = (src) => {
     const resource = new Image();
-    resource.addEventListener('load', () => resolve(true), { once: true });
-    resource.addEventListener('error', () => resolve(false), { once: true });
     resource.src = src;
-  });
+    const ready = resource.complete && resource.naturalWidth > 0;
+    const promise = ready
+      ? Promise.resolve(true)
+      : new Promise((resolve) => {
+          resource.addEventListener('load', () => resolve(true), { once: true });
+          resource.addEventListener('error', () => resolve(false), { once: true });
+        });
+    return { ready, promise };
+  };
 
   const entryLoader = document.querySelector('[data-tools-entry-loader]');
-  const coverReady = [...document.querySelectorAll('.album-art')].map(setupCoverLoading);
-  const windowReady = document.readyState === 'complete'
-    ? Promise.resolve()
-    : new Promise((resolve) => window.addEventListener('load', resolve, { once: true }));
-  const fontsReady = document.fonts ? document.fonts.ready : Promise.resolve();
+  const coverImages = [...document.querySelectorAll('.album-art')];
+  const backgroundResource = createResource('/images/pages/tools-workbench-v1.webp');
+  const needsImageLoading = coverImages.some((image) => !image.complete || image.naturalWidth === 0) || !backgroundResource.ready;
 
-  Promise.allSettled([
-    windowReady,
-    fontsReady,
-    waitForResource('/images/pages/tools-workbench-v1.webp'),
-    waitForResource('/images/tools/tools-loading-v1.webp'),
-    ...coverReady,
-  ]).then(() => {
+  const revealEntryLoader = () => {
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         entryLoader?.classList.add('is-ready');
         entryLoader?.setAttribute('aria-hidden', 'true');
       });
     });
-  });
+  };
+
+  if (!needsImageLoading) {
+    entryLoader?.classList.add('is-ready');
+    entryLoader?.setAttribute('aria-hidden', 'true');
+  } else {
+    const coverReady = coverImages.map(setupCoverLoading);
+    const loadingResource = createResource('/images/tools/tools-loading-v1.webp');
+
+    Promise.allSettled([
+      backgroundResource.promise,
+      loadingResource.promise,
+      ...coverReady,
+    ]).then(revealEntryLoader);
+  }
 </script>
 
 <style>
