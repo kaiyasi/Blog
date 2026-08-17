@@ -170,19 +170,24 @@ const coverImages: Record<ToolLink['art'], CoverImage> = {
   const entryLoader = document.querySelector('[data-tools-entry-loader]');
   const toolsPage = document.querySelector('[data-tools-page]');
   const coverImages = [...document.querySelectorAll('.album-art')];
+  const minimumEntryLoaderDuration = 3000;
+  const entryLoaderStartedAt = performance.now();
   const backgroundResource = createResource('/images/pages/tools-workbench-v1.webp');
   const needsImageLoading = coverImages.some((image) => {
     return !image.complete || image.naturalWidth === 0;
   }) || !backgroundResource.ready;
 
   const revealEntryLoader = () => {
-    requestAnimationFrame(() => {
+    const remaining = Math.max(0, minimumEntryLoaderDuration - (performance.now() - entryLoaderStartedAt));
+    window.setTimeout(() => {
       requestAnimationFrame(() => {
-        entryLoader?.classList.add('is-ready');
-        entryLoader?.setAttribute('aria-hidden', 'true');
-        toolsPage?.classList.remove('is-entry-loading');
+        requestAnimationFrame(() => {
+          entryLoader?.classList.add('is-ready');
+          entryLoader?.setAttribute('aria-hidden', 'true');
+          toolsPage?.classList.remove('is-entry-loading');
+        });
       });
-    });
+    }, remaining);
   };
 
   if (!needsImageLoading) {

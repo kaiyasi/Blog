@@ -130,19 +130,25 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
         if (!loader || !body || body.dataset.entryLoaderBound === 'true') return;
         body.dataset.entryLoaderBound = 'true';
 
+        const minimumLoaderDuration = 3000;
+        const loaderStartedAt = performance.now();
         const theme = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
         const resources = [
           preloadEntryImage(`/images/themes/${theme === 'dark' ? 'ritsuka' : 'mafuyu'}-hero-v2.webp`),
           preloadEntryImage('/images/guitars/guitar-pair.png'),
+          preloadEntryImage('/images/tools/tools-loading-v1.webp'),
         ];
         const reveal = () => {
-          requestAnimationFrame(() => {
+          const remaining = Math.max(0, minimumLoaderDuration - (performance.now() - loaderStartedAt));
+          window.setTimeout(() => {
             requestAnimationFrame(() => {
-              loader.classList.add('is-ready');
-              loader.setAttribute('aria-hidden', 'true');
-              body.removeAttribute('data-entry-loading');
+              requestAnimationFrame(() => {
+                loader.classList.add('is-ready');
+                loader.setAttribute('aria-hidden', 'true');
+                body.removeAttribute('data-entry-loading');
+              });
             });
-          });
+          }, remaining);
         };
 
         if (resources.every(resource => resource.ready)) {
