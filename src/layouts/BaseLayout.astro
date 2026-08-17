@@ -73,18 +73,16 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       })();
     </script>
   </head>
-  <body class={bodyClass} data-entry-loading={bodyClasses.includes('home-page') ? 'true' : undefined}>
-    {bodyClasses.includes('home-page') && (
-      <div class="site-entry-loader" data-site-entry-loader role="status" aria-live="polite">
-        <span class="site-entry-loader-art" aria-hidden="true"></span>
-        <span class="site-entry-loader-sheen" aria-hidden="true"></span>
-        <span class="site-entry-loader-core">
-          <span class="site-entry-loader-ring" aria-hidden="true"></span>
-          <strong>LOADING / KAIYASI</strong>
-          <small>PREPARING SCENE</small>
-        </span>
-      </div>
-    )}
+  <body class={bodyClass} data-entry-loading="true">
+    <div class="site-entry-loader" data-site-entry-loader role="status" aria-live="polite">
+      <span class="site-entry-loader-art" aria-hidden="true"></span>
+      <span class="site-entry-loader-sheen" aria-hidden="true"></span>
+      <span class="site-entry-loader-core">
+        <span class="site-entry-loader-ring" aria-hidden="true"></span>
+        <strong>LOADING / KAIYASI</strong>
+        <small>PREPARING SCENE</small>
+      </span>
+    </div>
     <GlobalScene />
     <Header />
     <SearchModal />
@@ -133,11 +131,22 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
         const minimumLoaderDuration = 3000;
         const loaderStartedAt = performance.now();
         const theme = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
-        const resources = [
-          preloadEntryImage(`/images/themes/${theme === 'dark' ? 'ritsuka' : 'mafuyu'}-hero-v2.webp`),
-          preloadEntryImage('/images/guitars/guitar-pair.png'),
-          preloadEntryImage('/images/tools/tools-loading-v1.webp'),
-        ];
+        const background = body.classList.contains('home-page')
+          ? `/images/themes/${theme === 'dark' ? 'ritsuka' : 'mafuyu'}-hero-v2.webp`
+          : body.classList.contains('tools-body')
+            ? '/images/pages/tools-workbench-v1.webp'
+            : body.classList.contains('inner-page')
+              ? `/images/pages/${theme === 'dark' ? 'ritsuka' : 'mafuyu'}-room-v1.webp`
+              : null;
+        const pageImages = [...document.querySelectorAll('main img:not([loading="lazy"])')]
+          .map(image => image.currentSrc || image.src)
+          .filter(Boolean);
+        const sources = [...new Set([
+          background,
+          '/images/tools/tools-loading-v1.webp',
+          ...pageImages,
+        ].filter(Boolean))];
+        const resources = sources.map(preloadEntryImage);
         const reveal = () => {
           const remaining = Math.max(0, minimumLoaderDuration - (performance.now() - loaderStartedAt));
           window.setTimeout(() => {
