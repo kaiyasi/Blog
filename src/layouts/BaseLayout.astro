@@ -73,7 +73,18 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       })();
     </script>
   </head>
-  <body class={bodyClass}>
+  <body class={bodyClass} data-entry-loading={bodyClasses.includes('home-page') ? 'true' : undefined}>
+    {bodyClasses.includes('home-page') && (
+      <div class="site-entry-loader" data-site-entry-loader role="status" aria-live="polite">
+        <span class="site-entry-loader-art" aria-hidden="true"></span>
+        <span class="site-entry-loader-sheen" aria-hidden="true"></span>
+        <span class="site-entry-loader-core">
+          <span class="site-entry-loader-ring" aria-hidden="true"></span>
+          <strong>LOADING / KAIYASI</strong>
+          <small>PREPARING SCENE</small>
+        </span>
+      </div>
+    )}
     <GlobalScene />
     <Header />
     <SearchModal />
@@ -81,6 +92,72 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <Footer />
     <MascotDock />
     <script src="../scripts/locale.ts"></script>
+    <script>
+      const decodeEntryImage = (image) => {
+        if (typeof image.decode !== 'function') return Promise.resolve();
+        return image.decode().catch(() => undefined);
+      };
+
+      const preloadEntryImage = (src) => {
+        const image = new Image();
+        image.decoding = 'async';
+        image.src = src;
+        const ready = image.complete && image.naturalWidth > 0;
+        const promise = new Promise((resolve) => {
+          let settled = false;
+          const finish = (loaded) => {
+            if (settled) return;
+            settled = true;
+            resolve(loaded);
+          };
+          const markLoaded = () => decodeEntryImage(image).then(() => finish(true));
+          const markError = () => finish(false);
+
+          if (image.complete) {
+            image.naturalWidth > 0 ? markLoaded() : markError();
+            return;
+          }
+
+          image.addEventListener('load', markLoaded, { once: true });
+          image.addEventListener('error', markError, { once: true });
+        });
+        return { ready, promise };
+      };
+
+      const initSiteEntryLoader = () => {
+        const loader = document.querySelector('[data-site-entry-loader]');
+        const body = document.body;
+        if (!loader || !body || body.dataset.entryLoaderBound === 'true') return;
+        body.dataset.entryLoaderBound = 'true';
+
+        const theme = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+        const resources = [
+          preloadEntryImage(`/images/themes/${theme === 'dark' ? 'ritsuka' : 'mafuyu'}-hero-v2.webp`),
+          preloadEntryImage('/images/guitars/guitar-pair.png'),
+        ];
+        const reveal = () => {
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              loader.classList.add('is-ready');
+              loader.setAttribute('aria-hidden', 'true');
+              body.removeAttribute('data-entry-loading');
+            });
+          });
+        };
+
+        if (resources.every(resource => resource.ready)) {
+          loader.classList.add('is-ready');
+          loader.setAttribute('aria-hidden', 'true');
+          body.removeAttribute('data-entry-loading');
+          return;
+        }
+
+        Promise.allSettled(resources.map(resource => resource.promise)).then(reveal);
+      };
+
+      initSiteEntryLoader();
+      document.addEventListener('astro:page-load', initSiteEntryLoader);
+    </script>
   </body>
 </html>
 <style is:global>
@@ -91,6 +168,21 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 .inner-page-surface::before { content: ''; position: fixed; z-index: -1; inset: 68px 0 0; background-color: var(--bg); background-image: var(--inner-page-image), var(--inner-page-image-fallback, none); background-position: var(--inner-page-image-position), center; background-size: cover, cover; background-repeat: no-repeat; opacity: var(--inner-page-image-opacity); filter: var(--inner-page-image-filter); pointer-events: none; }
 body:has(.inner-page-surface) .global-canvas { opacity: .38; }
 .main-content { position: relative; z-index: 1; min-height: 100vh; padding-top: 68px; display: flex; flex-direction: column; }
+body[data-entry-loading] { overflow: hidden; }
+body[data-entry-loading] > .main-content { visibility: hidden; opacity: 0; }
+.site-entry-loader { position: fixed; z-index: 1000; inset: 0; display: grid; place-items: center; overflow: hidden; background: var(--bg); transition: opacity .46s ease, visibility 0s linear .46s; }
+.site-entry-loader.is-ready { opacity: 0; visibility: hidden; pointer-events: none; }
+.site-entry-loader::before { content: ''; position: absolute; z-index: 1; inset: 0; background: linear-gradient(105deg, transparent 22%, color-mix(in srgb, #fff 25%, transparent) 42%, transparent 58%); transform: translateX(-100%); animation: site-loader-scan 1.8s ease-in-out infinite; }
+.site-entry-loader-art { position: absolute; inset: -5%; background: url('/images/tools/tools-loading-v1.webp') center / cover no-repeat; opacity: .2; filter: saturate(.68) contrast(.92); animation: site-loader-drift 2.8s ease-in-out infinite; }
+.site-entry-loader-sheen { position: absolute; inset: 0; background: radial-gradient(circle at center, color-mix(in srgb, var(--accent-secondary) 11%, transparent), transparent 42%); }
+.site-entry-loader-core { position: relative; z-index: 2; display: grid; justify-items: center; gap: .6rem; padding: 1.6rem 2rem; border: 1px solid color-mix(in srgb, var(--accent) 48%, var(--border)); background: color-mix(in srgb, var(--bg-surface) 86%, transparent); box-shadow: 8px 8px 0 color-mix(in srgb, var(--accent-secondary) 18%, transparent); backdrop-filter: blur(12px); }
+.site-entry-loader-ring { width: 3.3rem; aspect-ratio: 1; border: 1px solid color-mix(in srgb, var(--accent) 72%, #fff); border-top-color: var(--accent); border-radius: 50%; box-shadow: 0 0 0 .45rem color-mix(in srgb, var(--accent-secondary) 13%, transparent); animation: site-loader-spin 1.2s linear infinite; }
+.site-entry-loader-ring::after { content: ''; display: block; width: 24%; aspect-ratio: 1; margin: 38%; border-radius: 50%; background: var(--accent); }
+.site-entry-loader-core strong { color: var(--text); font: 500 .68rem var(--font-mono); letter-spacing: .08em; }
+.site-entry-loader-core small { color: var(--text-faint); font: 500 .52rem var(--font-mono); letter-spacing: .08em; }
+@keyframes site-loader-scan { 0%, 12% { transform: translateX(-100%); } 56%, 100% { transform: translateX(100%); } }
+@keyframes site-loader-drift { 0%, 100% { transform: scale(1.02) translate3d(-1%, -1%, 0); } 50% { transform: scale(1.08) translate3d(1%, 1%, 0); } }
+@keyframes site-loader-spin { to { transform: rotate(360deg); } }
 @media (max-width: 650px) {
   .inner-page-surface { --inner-page-image-position: 18% center; --inner-page-image-opacity: .21; }
   [data-theme='dark'] .inner-page-surface { --inner-page-image-position: 82% center; --inner-page-image-opacity: .24; }
@@ -98,6 +190,10 @@ body:has(.inner-page-surface) .global-canvas { opacity: .38; }
   [data-theme='dark'] .inner-page-surface.post-detail-surface { --inner-page-image-opacity: .15; }
   .inner-page-surface::before { top: 96px; }
   .main-content { padding-top: 96px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-entry-loader::before, .site-entry-loader-art, .site-entry-loader-ring { animation: none; }
+  .site-entry-loader::before { opacity: 0; }
 }
 .page-container { max-width: 980px; margin: 0 auto; padding: 0 1.5rem; width: 100%; }
 </style>
