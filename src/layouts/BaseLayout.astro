@@ -172,6 +172,20 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
       initSiteEntryLoader();
       document.addEventListener('astro:page-load', initSiteEntryLoader);
+      document.addEventListener('click', (event) => {
+        const target = event.target;
+        if (!(target instanceof Element) || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        const link = target.closest('a[href]');
+        if (!link || link.hasAttribute('download') || (link.target && link.target !== '_self')) return;
+        const destination = new URL(link.href, location.href);
+        if (destination.origin !== location.origin || (destination.pathname === location.pathname && destination.search === location.search)) return;
+
+        const loader = document.querySelector('[data-site-entry-loader]');
+        const body = document.body;
+        loader?.classList.remove('is-ready');
+        loader?.removeAttribute('aria-hidden');
+        body?.setAttribute('data-entry-loading', 'true');
+      });
     </script>
   </body>
 </html>
