@@ -7,7 +7,7 @@ tags:
   - "Fcitx5"
   - "Linux"
   - "libchewing"
-url: "https://aur.archlinux.org/packages/fcitx5-ari-ime"
+url: "https://ari.gonets.top/"
 github: "https://github.com/kaiyasi/Ari-IME"
 featured: true
 ---
