@@ -8,7 +8,7 @@ type ToolLink = {
   description: string;
   url: string;
   mock?: boolean;
-  art: 'clipboard' | 'url' | 'font';
+  art: 'clipboard' | 'url' | 'font' | 'media';
   owner: 'own' | 'third-party';
 };
 
@@ -17,6 +17,7 @@ const toolLinks: ToolLink[] = [
   { number: '01', category: 'SYNC / CLIPBOARD', name: '跨平台剪貼簿', description: '在不同裝置之間快速分享與取用剪貼內容。', url: 'https://note.gonets.top', art: 'clipboard', owner: 'own' },
   { number: '02', category: 'LINK / SHORTENER', name: '縮網址工具', description: '把冗長網址整理成更容易分享的短連結。', url: 'https://url.gonets.top', art: 'url', owner: 'own' },
   { number: '03', category: 'TYPE / FONT', name: 'EMTECH FONT', description: '由毛哥EM 開發的免費中文 Webfont 服務，提供多款開源中文字體。', url: 'https://font.emtech.cc/', art: 'font', owner: 'third-party' },
+  { number: '04', category: 'MEDIA / DOWNLOADER', name: 'YT 影音下載', description: '下載 YouTube 影片或音訊，依需求選擇輸出格式。', url: 'https://yt.gonets.top', art: 'media', owner: 'own' },
 ];
 type CoverImage = {
   src: string;
@@ -34,6 +35,10 @@ const coverImages: Record<ToolLink['art'], CoverImage> = {
   font: {
     src: '/images/tools/font-cover-v2.webp',
     srcset: '/images/tools/font-cover-v2-480.webp 480w, /images/tools/font-cover-v2-768.webp 768w, /images/tools/font-cover-v2.webp 1254w',
+  },
+  media: {
+    src: '/images/tools/yt-cover-v1.webp',
+    srcset: '/images/tools/yt-cover-v1-480.webp 480w, /images/tools/yt-cover-v1-768.webp 768w, /images/tools/yt-cover-v1.webp 1254w',
   },
 };
 ---
@@ -173,6 +178,7 @@ const coverImages: Record<ToolLink['art'], CoverImage> = {
   .tool-album--clipboard { --album-primary: #236b83; --album-secondary: #8bd1d8; }
   .tool-album--url { --album-primary: #c9473d; --album-secondary: #e1ae39; }
   .tool-album--font { --album-primary: #69747c; --album-secondary: #d2a33b; }
+  .tool-album.tool-album--media { --album-primary: #d45b45; --album-secondary: #3c9eaa; }
   .tool-album--font .album-cover { border-style: dashed; filter: saturate(.78); }
   .tool-album--font .album-disc { opacity: .78; }
   .tool-album:hover { z-index: 1; color: var(--text); background: color-mix(in srgb, var(--album-primary) 8%, var(--bg-surface)); transform: translateY(-4px); }
@@ -190,6 +196,7 @@ const coverImages: Record<ToolLink['art'], CoverImage> = {
   .album-cover--clipboard::after { background: linear-gradient(145deg, color-mix(in srgb, #2d829e 20%, transparent), transparent 42% 70%, color-mix(in srgb, #db493d 15%, transparent)); mix-blend-mode: multiply; }
   .album-cover--url::after { inset: .7rem; border: 1px solid color-mix(in srgb, #fff 48%, transparent); mix-blend-mode: screen; }
   .album-cover--font::after { inset: .8rem; border: 1px dashed color-mix(in srgb, #1a1b1c 42%, transparent); }
+  .album-cover--media::after { background: linear-gradient(145deg, color-mix(in srgb, #f4b84e 18%, transparent), transparent 45% 68%, color-mix(in srgb, #3c9eaa 22%, transparent)); mix-blend-mode: screen; }
   .tool-album:hover .album-art { transform: scale(1.045); }
   .album-disc { position: absolute; z-index: 2; right: -28%; bottom: -20%; width: 67%; aspect-ratio: 1; border: 1px solid color-mix(in srgb, #fff 62%, var(--album-secondary)); border-radius: 50%; background: repeating-radial-gradient(circle at center, transparent 0 8px, color-mix(in srgb, var(--album-primary) 18%, transparent) 8px 9px), conic-gradient(from 22deg, #f4f3ef, color-mix(in srgb, var(--album-secondary) 55%, #f4f3ef), #b8c3c4, #f4f3ef); box-shadow: -7px -6px 0 color-mix(in srgb, #000 12%, transparent), 0 9px 17px color-mix(in srgb, #000 22%, transparent); transform: rotate(-18deg); transition: transform var(--transition-slow); }
   .album-disc::before { content: ''; position: absolute; inset: 14%; border: 1px solid color-mix(in srgb, var(--album-secondary) 42%, transparent); border-radius: 50%; }
