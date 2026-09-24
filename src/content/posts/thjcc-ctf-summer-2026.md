@@ -134,15 +134,11 @@ Discord 大概十秒後就會開始：
 > 我這邊也 502  
 > admin???
 
-想到就頭痛。
-
 另外一個問題是隔離。
 
 CTF 靶機本來就是故意放漏洞給選手打的，有些題目的目標甚至直接就是 RCE。就算 Docker 有做隔離，也沒必要把充滿漏洞的 Challenge Environment 跟 CTFd、Database 放在同一個 Host 上增加風險。
 
-所以平台和題目環境分開，本質上就是在縮小爆炸半徑。
-
-某題真的炸了，至少不要整場跟著一起炸。
+所以平台和題目環境分開，本質上就是在縮小影響範圍。
 
 ![THJCC CTF 雙主機架構與網路隔離示意圖](../../assets/posts/thjcc-ctf-summer-2026/ctf-network-architecture.svg)
 
