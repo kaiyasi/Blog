@@ -386,4 +386,4 @@ Ticket
 
 總之，2026 THJCC CTF Summer Edition，網管存活。
 
-下次看到 `Load Average 166` 的時候，希望不是我。
+下次看到 `Load Average 166` 的時候，希望不是在 THJCC 上。
