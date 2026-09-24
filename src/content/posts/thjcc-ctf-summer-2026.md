@@ -197,8 +197,6 @@ CTFd 本身在多人同時操作的情況下會有不少 Session、快取與背�
 
 如果題目是「一人一台 Instance」或動態建立 Container，那 Auto Cleanup 一定要測。
 
-真的。
-
 不然測試環境大家開一開，幾天後上去 `docker ps -a`，會發現裡面住著一整個墳場。
 
 正式比賽前 RAM 跟 Disk 被測試 Container 吃光就好笑了。
@@ -230,8 +228,6 @@ Load Average：
 ```txt
 166
 ```
-
-嗯。
 
 看起來非常健康。
 
