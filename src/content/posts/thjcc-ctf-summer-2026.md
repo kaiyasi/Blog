@@ -201,7 +201,7 @@ CTFd 本身在多人同時操作的情況下會有不少 Session、快取與背�
 
 不然測試環境大家開一開，幾天後上去 `docker ps -a`，會發現裡面住著一整個墳場。
 
-正式比賽前 RAM 跟 Disk 被測試 Container 吃光就很好笑了。
+正式比賽前 RAM 跟 Disk 被測試 Container 吃光就好笑了。
 
 ---
 
@@ -215,7 +215,7 @@ CTFd 本身在多人同時操作的情況下會有不少 Session、快取與背�
 
 #### 1. `btop`：網管的血壓監測器
 
-這次比賽期間，我的 Terminal 裡幾乎一直開著 `btop`。
+比賽期間， Terminal 裡幾乎一直開著 `btop`。
 
 CPU、Memory、Load Average、Process 狀況都可以直接看，出了什麼問題通常也會先從這邊發現。
 
@@ -237,7 +237,7 @@ Load Average：
 
 Process List 裡面基本上被某些 Crypto 題目的 Python / Gunicorn Process 塞滿。
 
-看到這個數字時大概就知道今天事情不會太少了。
+看到這個數字時大概就知道今天事情不會少了。
 
 #### 2. 題目 Process 沒有正常回收
 
@@ -263,7 +263,7 @@ Process List 裡面基本上被某些 Crypto 題目的 Python / Gunicorn Process
 
 #### 3. Port Mapping 靈異事件
 
-另外一類問題就比較單純，也比較欠揍：
+另外一類問題就比較單純：
 
 **Container 跑了，但玩家連不到。**
 
@@ -292,8 +292,6 @@ ss -tulpn
 然後回 Ticket：
 
 > 已修復～
-
-表面上非常冷靜。
 
 #### 4. 題目被打掛
 
